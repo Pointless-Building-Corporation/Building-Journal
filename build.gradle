@@ -212,3 +212,9 @@ idea {
         downloadJavadoc = true
     }
 }
+
+tasks.register('deployToInstance', Copy){
+    from layout.buildDirectory.file("libs/${mod_id}-${mod_version}.jar")
+    into "C:/Users/subie/AppData/Roaming/PrismLauncher/instances/Pointless Building Modpack v2.0 test/.minecraft/mods"
+    dependsOn build
+}
