@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "buildingjournal:block/anchor_block"
+    }
+  }
+}

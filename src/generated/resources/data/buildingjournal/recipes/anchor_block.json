@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "p": {
+      "item": "minecraft:paper"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    },
+    "w": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "pattern": [
+    " s ",
+    "wpw",
+    "w w"
+  ],
+  "result": {
+    "item": "buildingjournal:anchor_block"
+  },
+  "show_notification": true
+}
