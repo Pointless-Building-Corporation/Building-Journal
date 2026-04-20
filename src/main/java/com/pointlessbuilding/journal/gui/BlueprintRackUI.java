@@ -1,4 +1,4 @@
-package com.pointlessbuilding.journal.client;
+package com.pointlessbuilding.journal.gui;
 
 import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.blocks.BlueprintRackContainer;
@@ -22,6 +22,7 @@ public class BlueprintRackUI extends AbstractContainerScreen<BlueprintRackContai
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+        renderBackground(guiGraphics);
         int relX = (this.width - this.imageWidth) / 2;
         int relY = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(GUI, relX, relY, 0, 0, this.imageWidth, this.imageHeight);

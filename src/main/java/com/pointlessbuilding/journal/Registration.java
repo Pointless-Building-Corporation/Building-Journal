@@ -6,6 +6,7 @@ import com.pointlessbuilding.journal.blocks.BlueprintRackContainer;
 import com.pointlessbuilding.journal.blocks.BlueprintRackEntity;
 import com.pointlessbuilding.journal.blocks.ComplexAnchorBlock;
 import com.pointlessbuilding.journal.blocks.ComplexAnchorBlockEntity;
+import com.pointlessbuilding.journal.menu.JournalContainer;
 
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
@@ -43,6 +44,10 @@ public class Registration {
     );
     public static final RegistryObject<MenuType<BlueprintRackContainer>> BLUEPRINT_RACK_CONTAINER = MENU_TYPES.register("blueprint_rack",
         () -> IForgeMenuType.create((windowId, inv, data) -> new BlueprintRackContainer(windowId, inv.player, data.readBlockPos()))
+    );
+
+    public static final RegistryObject<MenuType<JournalContainer>> JOURNAL_CONTAINER = MENU_TYPES.register("journal_menu",
+        () -> IForgeMenuType.create((windowId, inv, data) -> new JournalContainer(windowId, inv.player))
     );
 
     public static void init(IEventBus modEventBus) {

@@ -30,7 +30,7 @@ import net.minecraftforge.network.NetworkHooks;
 
 public class BlueprintRack extends Block implements EntityBlock{
 
-    public static final String BLUEPRINT_RACK_UI_TITLE = "buildingjournal.screen.blueprint_rack";
+    public static final String BLUEPRINT_RACK_UI_TITLE = "screen.buildingjournal.blueprint_rack";
     public static final BooleanProperty FILLED = BooleanProperty.create("filled");
 
     public BlueprintRack() {
