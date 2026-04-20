@@ -17,6 +17,8 @@ public class JournalItemModels extends ItemModelProvider{
     protected void registerModels() {
         withExistingParent(Registration.ANCHOR_BLOCK.getId().getPath(), modLoc("block/anchor_block"));
         withExistingParent(Registration.COMPLEX_ANCHOR_BLOCK.getId().getPath(), modLoc("block/complex_anchor_block"));
+        withExistingParent(Registration.BLUEPRINT_RACK.getId().getPath(), modLoc("block/blueprint_rack"));
+        // withExistingParent(Registration.BLUEPRINT_RACK.getId().getPath(), modLoc("block/blueprint_rack_filled"));
     }
     
 }

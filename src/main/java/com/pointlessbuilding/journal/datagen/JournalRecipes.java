@@ -21,7 +21,7 @@ public class JournalRecipes extends RecipeProvider{
 
     @Override
     protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
-        // The anchor block needs 4 planks, paper and a stick.
+        // The anchor block needs 4 planks, paper and a stick. (Future recipe for drafting table)
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, Registration.ANCHOR_BLOCK.get())
             .pattern(" s ")
             .pattern("wpw")
@@ -33,8 +33,19 @@ public class JournalRecipes extends RecipeProvider{
                 ItemPredicate.Builder.item().of(Items.PAPER).build()))
             .save(consumer);
 
-        // The complex anchor block needs 4 sticks and a chest.
+        // The complex anchor block needs 2 sticks and an iron ingot. (Future recipe for compass)
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, Registration.COMPLEX_ANCHOR_BLOCK.get())
+            .pattern("   ")
+            .pattern("  s")
+            .pattern(" si")
+            .define('s', Items.STICK)
+            .define('i', Items.IRON_INGOT)
+            .unlockedBy("has_iron", InventoryChangeTrigger.TriggerInstance.hasItems(
+                ItemPredicate.Builder.item().of(Items.IRON_INGOT).build()))
+            .save(consumer);
+
+        // The blueprint rack needs 4 sticks and a chest.
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, Registration.BLUEPRINT_RACK.get())
             .pattern("   ")
             .pattern("s s")
             .pattern("scs")

@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_iron": {
+    "has_crafting_table": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:iron_ingot"
+              "minecraft:crafting_table"
             ]
           }
         ]
@@ -15,20 +15,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "buildingjournal:complex_anchor_block"
+        "recipe": "buildingjournal:blueprint_rack"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_iron",
+      "has_crafting_table",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "buildingjournal:complex_anchor_block"
+      "buildingjournal:blueprint_rack"
     ]
   },
   "sends_telemetry_event": false
