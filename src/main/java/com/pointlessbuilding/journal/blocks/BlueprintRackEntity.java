@@ -56,7 +56,15 @@ public class BlueprintRackEntity extends BlockEntity{
             @Override
             protected void onContentsChanged(int slot) {
                 setChanged();
-                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
+                boolean filled = false;
+                for (int i = 0; i < getSlots(); i++) {
+                    if(!getStackInSlot(i).isEmpty()) {
+                        filled = true;
+                        break;
+                    }
+                }
+                BlockState newState = getBlockState().setValue(BlueprintRack.FILLED, filled);
+                level.setBlock(worldPosition, newState, Block.UPDATE_ALL);
             }
         };
     }

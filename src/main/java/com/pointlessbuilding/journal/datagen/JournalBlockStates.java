@@ -18,13 +18,11 @@ public class JournalBlockStates extends BlockStateProvider {
     protected void registerStatesAndModels() {
         simpleBlock(Registration.ANCHOR_BLOCK.get());
         simpleBlock(Registration.COMPLEX_ANCHOR_BLOCK.get());
-        horizontalBlock(Registration.BLUEPRINT_RACK.get(), models().getExistingFile(modLoc("block/blueprint_rack")));
-        // Later we switch this to check for filled condition
-        // getVariantBuilder(Registration.BLUEPRINT_RACK.get())
-        //     .partialState().with(BlueprintRack.FILLED, false)
-        //         .modelForState().modelFile(models().getExistingFile(modLoc("block/blueprint_rack"))).addModel()
-        //     .partialState().with(BlueprintRack.FILLED, true)
-        //         .modelForState().modelFile(models().getExistingFile(modLoc("block/blueprint_rack_filled"))).addModel();
+        getVariantBuilder(Registration.BLUEPRINT_RACK.get())
+            .partialState().with(BlueprintRack.FILLED, false)
+                .modelForState().modelFile(models().getExistingFile(modLoc("block/blueprint_rack"))).addModel()
+            .partialState().with(BlueprintRack.FILLED, true)
+                .modelForState().modelFile(models().getExistingFile(modLoc("block/blueprint_rack_filled"))).addModel();
     }
 
 }
