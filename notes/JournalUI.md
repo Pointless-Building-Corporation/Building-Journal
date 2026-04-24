@@ -2,6 +2,7 @@
 
 ### `List<ResourceLocation> JOURNAL_PAGES`
 Locations for Journal GUI backgrounds.
+TODO: This definiton breaks down a bit when multiple languages need to be supported.
 
 ### `ui_width and ui_height`
 Size of the texture in the window.

@@ -23,7 +23,6 @@ public class BuildingJournal
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
-        modEventBus.addListener(Registration::addCreative);
         modEventBus.addListener(DataGeneration::generate);
     }
 

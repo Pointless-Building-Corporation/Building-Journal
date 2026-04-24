@@ -8,14 +8,17 @@ import com.pointlessbuilding.journal.blocks.ComplexAnchorBlock;
 import com.pointlessbuilding.journal.blocks.ComplexAnchorBlockEntity;
 import com.pointlessbuilding.journal.menu.JournalContainer;
 
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.common.extensions.IForgeMenuType;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -27,6 +30,7 @@ public class Registration {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, BuildingJournal.MODID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, BuildingJournal.MODID);
     public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, BuildingJournal.MODID);
+    public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, BuildingJournal.MODID);
 
     public static final RegistryObject<AnchorBlock> ANCHOR_BLOCK = BLOCKS.register("anchor_block", AnchorBlock::new);
     public static final RegistryObject<Item> ANCHOR_BLOCK_ITEM = ITEMS.register("anchor_block", () -> new BlockItem(ANCHOR_BLOCK.get(), new Item.Properties()));
@@ -50,21 +54,24 @@ public class Registration {
         () -> IForgeMenuType.create((windowId, inv, data) -> new JournalContainer(windowId, inv.player))
     );
 
+    public static RegistryObject<CreativeModeTab> TAB = TABS.register("building_journal", () -> CreativeModeTab.builder()
+        .title(Component.translatable("tab.buildingjournal"))
+        .icon(() -> new ItemStack(COMPLEX_ANCHOR_BLOCK.get()))
+        .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
+        .displayItems((featureFlags, output) -> {
+            output.accept(ANCHOR_BLOCK.get());
+            output.accept(COMPLEX_ANCHOR_BLOCK.get());
+            output.accept(BLUEPRINT_RACK.get());
+        })
+        .build());
+
     public static void init(IEventBus modEventBus) {
         // Register deffered register suppliers for blocks, block items, block entities
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
         BLOCK_ENTITIES.register(modEventBus);
         MENU_TYPES.register(modEventBus);
-    }
-
-    static void addCreative(BuildCreativeModeTabContentsEvent event) {
-        // For now, adding items to the building blocks tab
-        if(event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
-            event.accept(ANCHOR_BLOCK_ITEM);
-            event.accept(COMPLEX_ANCHOR_BLOCK_ITEM);
-            event.accept(BLUEPRINT_RACK_ITEM);
-        }
+        TABS.register(modEventBus);
     }
 
 }

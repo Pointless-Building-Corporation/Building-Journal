@@ -21,6 +21,7 @@ public class JournalLanguageProvider extends LanguageProvider{
         add(Registration.BLUEPRINT_RACK.get(), "Blueprint Rack");
         add(BlueprintRack.BLUEPRINT_RACK_UI_TITLE, "Blueprint Rack");
         add(ClientSetup.JOURNAL_KEYMAP_STRING, "Open Journal");
+        add("tab.buildingjournal", "Building Journal");
     }
     
 }

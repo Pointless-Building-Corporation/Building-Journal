@@ -3,5 +3,6 @@
   "block.buildingjournal.blueprint_rack": "Blueprint Rack",
   "block.buildingjournal.complex_anchor_block": "Complex Anchor Block",
   "key.buildingjournal.journal": "Open Journal",
-  "screen.buildingjournal.blueprint_rack": "Blueprint Rack"
+  "screen.buildingjournal.blueprint_rack": "Blueprint Rack",
+  "tab.buildingjournal": "Building Journal"
 }
