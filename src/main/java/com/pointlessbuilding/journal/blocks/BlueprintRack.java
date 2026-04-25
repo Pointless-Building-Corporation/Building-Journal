@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -25,6 +26,9 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.network.NetworkHooks;
 
@@ -33,12 +37,49 @@ public class BlueprintRack extends Block implements EntityBlock{
     public static final String BLUEPRINT_RACK_UI_TITLE = "screen.buildingjournal.blueprint_rack";
     public static final BooleanProperty FILLED = BooleanProperty.create("filled");
 
+    // Back side of the rack
+    public static final VoxelShape SHAPE_BACK_N = Block.box(0.0D, 0.0D, 14.0D, 16.0D, 16.0D, 16.0D);
+    public static final VoxelShape SHAPE_BACK_S = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 2.0D);
+    public static final VoxelShape SHAPE_BACK_W = Block.box(14.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+    public static final VoxelShape SHAPE_BACK_E = Block.box(0.0D, 0.0D, 0.0D, 2.0D, 16.0D, 16.0D);
+
+    // Sides of the rack
+    public static final VoxelShape SHAPE_SIDE_NS = Shapes.or(Block.box(0.0D, 0.0D, 0.0D, 2.0D, 11.0D, 16.0D), Block.box(14.0D, 0.0D, 0.0D, 16.0D, 11.0D, 16.0D));
+    public static final VoxelShape SHAPE_SIDE_EW = Shapes.or(Block.box(0.0D, 0.0D, 14.0D, 16.0D, 11.0D, 16.0D), Block.box(0.0D, 0.0D, 0.0D, 16.0D, 11.0D, 2.0D));
+
+    public static final VoxelShape SHAPE_BASE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 2.0D, 16.0D);
+
     public BlueprintRack() {
         super(BlockBehaviour.Properties.of()
             .strength(3.5f) // Average block strength
             .noOcclusion()  // This ensures the block won't occlude other blocks
             .sound(SoundType.WOOD)
         );
+    }
+
+    @Override
+    public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
+        return returnGeneralShape(state);
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return returnGeneralShape(state);
+    }
+
+    protected VoxelShape returnGeneralShape(BlockState state) {
+        switch ((Direction)state.getValue(BlockStateProperties.HORIZONTAL_FACING)) {
+            case NORTH:
+                return Shapes.or(SHAPE_BACK_N, SHAPE_SIDE_NS, SHAPE_BASE);
+            case SOUTH:
+                return Shapes.or(SHAPE_BACK_S, SHAPE_SIDE_NS, SHAPE_BASE);
+            case EAST:
+                return Shapes.or(SHAPE_BACK_E, SHAPE_SIDE_EW, SHAPE_BASE);
+            case WEST:
+                return Shapes.or(SHAPE_BACK_W, SHAPE_SIDE_EW, SHAPE_BASE);
+            default:
+                return Shapes.or(SHAPE_BACK_N, SHAPE_SIDE_NS, SHAPE_BASE);
+        }
     }
 
     @Override

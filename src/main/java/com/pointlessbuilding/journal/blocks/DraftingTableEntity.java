@@ -11,7 +11,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -101,15 +100,6 @@ public class DraftingTableEntity extends BlockEntity {
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
             }
         };
-    }
-
-    public void tickServer() {
-        if(level.getGameTime()%20 == 0) {
-            ItemStack stack = items.getStackInSlot(SLOT);
-            if(!stack.isEmpty()) {
-                LOGGER.info("Item inside block at "+getBlockPos()+": "+stack.toString());
-            }
-        }
     }
 
     // This is the Capability for this block.
