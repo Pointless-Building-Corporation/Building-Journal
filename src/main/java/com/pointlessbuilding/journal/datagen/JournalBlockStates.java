@@ -17,7 +17,7 @@ public class JournalBlockStates extends BlockStateProvider {
     @Override
     protected void registerStatesAndModels() {
         simpleBlock(Registration.ANCHOR_BLOCK.get());
-        simpleBlock(Registration.COMPLEX_ANCHOR_BLOCK.get());
+        simpleBlock(Registration.DRAFTING_TABLE.get());
         getVariantBuilder(Registration.BLUEPRINT_RACK.get())
             .partialState().with(BlueprintRack.FILLED, false)
                 .modelForState().modelFile(models().getExistingFile(modLoc("block/blueprint_rack"))).addModel()

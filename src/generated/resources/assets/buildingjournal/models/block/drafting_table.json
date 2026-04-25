@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "buildingjournal:block/complex_anchor_block"
+    "all": "buildingjournal:block/drafting_table"
   }
 }

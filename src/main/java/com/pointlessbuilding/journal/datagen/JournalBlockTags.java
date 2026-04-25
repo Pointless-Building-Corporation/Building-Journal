@@ -22,9 +22,9 @@ public class JournalBlockTags extends BlockTagsProvider{
     @Override
     protected void addTags(Provider arg0) {
         // Blocks are mineable via pickaxe
-        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(Registration.COMPLEX_ANCHOR_BLOCK.get(), Registration.ANCHOR_BLOCK.get());
+        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(Registration.DRAFTING_TABLE.get(), Registration.ANCHOR_BLOCK.get());
         // Needs minimum of iron to drop
-        tag(BlockTags.NEEDS_IRON_TOOL).add(Registration.COMPLEX_ANCHOR_BLOCK.get(), Registration.ANCHOR_BLOCK.get());
+        tag(BlockTags.NEEDS_IRON_TOOL).add(Registration.DRAFTING_TABLE.get(), Registration.ANCHOR_BLOCK.get());
     }
 
 }

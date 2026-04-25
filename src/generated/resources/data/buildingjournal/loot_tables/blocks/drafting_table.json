@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "buildingjournal:complex_anchor_block"
+          "name": "buildingjournal:drafting_table"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "buildingjournal:blocks/complex_anchor_block"
+  "random_sequence": "buildingjournal:blocks/drafting_table"
 }

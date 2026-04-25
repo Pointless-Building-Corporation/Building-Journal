@@ -13,9 +13,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class ComplexAnchorBlock extends Block implements EntityBlock {
+public class DraftingTable extends Block implements EntityBlock {
     
-    public ComplexAnchorBlock() {
+    public DraftingTable() {
         super(BlockBehaviour.Properties.of()
             .strength(0.0f, 9f)
             .requiresCorrectToolForDrops()
@@ -26,7 +26,7 @@ public class ComplexAnchorBlock extends Block implements EntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new ComplexAnchorBlockEntity(pos, state);
+        return new DraftingTableEntity(pos, state);
     }
 
     // An Entity block can have this function to check events per tick. Functions run on the Entity class side.
@@ -36,7 +36,7 @@ public class ComplexAnchorBlock extends Block implements EntityBlock {
         if(level.isClientSide) return null;
         else {
             return (lvl, pos, st, blockEntity) -> {
-                if(blockEntity instanceof ComplexAnchorBlockEntity be) {
+                if(blockEntity instanceof DraftingTableEntity be) {
                     be.tickServer();
                 }
             };

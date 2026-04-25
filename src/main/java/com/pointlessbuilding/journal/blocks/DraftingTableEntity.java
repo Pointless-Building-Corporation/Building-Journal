@@ -21,7 +21,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
-public class ComplexAnchorBlockEntity extends BlockEntity {
+public class DraftingTableEntity extends BlockEntity {
 
     public static final String ITEMS_TAG = "Inventory";
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -32,8 +32,8 @@ public class ComplexAnchorBlockEntity extends BlockEntity {
     private final ItemStackHandler items = createItemHandler();
     private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> items);
 
-    public ComplexAnchorBlockEntity(BlockPos pos, BlockState state) { 
-        super(Registration.COMPLEX_ANCHOR_BLOCK_ENTITY.get(), pos, state);
+    public DraftingTableEntity(BlockPos pos, BlockState state) { 
+        super(Registration.DRAFTING_TABLE_ENTITY.get(), pos, state);
     }
 
     @Override

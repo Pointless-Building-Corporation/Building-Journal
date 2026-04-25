@@ -4,8 +4,9 @@ import com.pointlessbuilding.journal.blocks.AnchorBlock;
 import com.pointlessbuilding.journal.blocks.BlueprintRack;
 import com.pointlessbuilding.journal.blocks.BlueprintRackContainer;
 import com.pointlessbuilding.journal.blocks.BlueprintRackEntity;
-import com.pointlessbuilding.journal.blocks.ComplexAnchorBlock;
-import com.pointlessbuilding.journal.blocks.ComplexAnchorBlockEntity;
+import com.pointlessbuilding.journal.blocks.DraftingTable;
+import com.pointlessbuilding.journal.blocks.DraftingTableEntity;
+import com.pointlessbuilding.journal.items.BuildersCompass;
 import com.pointlessbuilding.journal.menu.JournalContainer;
 
 import net.minecraft.core.registries.Registries;
@@ -35,11 +36,13 @@ public class Registration {
     public static final RegistryObject<AnchorBlock> ANCHOR_BLOCK = BLOCKS.register("anchor_block", AnchorBlock::new);
     public static final RegistryObject<Item> ANCHOR_BLOCK_ITEM = ITEMS.register("anchor_block", () -> new BlockItem(ANCHOR_BLOCK.get(), new Item.Properties()));
 
-    public static final RegistryObject<ComplexAnchorBlock> COMPLEX_ANCHOR_BLOCK = BLOCKS.register("complex_anchor_block", ComplexAnchorBlock::new);
-    public static final RegistryObject<Item> COMPLEX_ANCHOR_BLOCK_ITEM = ITEMS.register("complex_anchor_block", () -> new BlockItem(COMPLEX_ANCHOR_BLOCK.get(), new Item.Properties()));
-    public static final RegistryObject<BlockEntityType<ComplexAnchorBlockEntity>> COMPLEX_ANCHOR_BLOCK_ENTITY = BLOCK_ENTITIES.register("complex_anchor_block",
-        () -> BlockEntityType.Builder.of(ComplexAnchorBlockEntity::new, COMPLEX_ANCHOR_BLOCK.get()).build(null)
+    public static final RegistryObject<DraftingTable> DRAFTING_TABLE = BLOCKS.register("drafting_table", DraftingTable::new);
+    public static final RegistryObject<Item> DRAFTING_TABLE_ITEM = ITEMS.register("drafting_table", () -> new BlockItem(DRAFTING_TABLE.get(), new Item.Properties()));
+    public static final RegistryObject<BlockEntityType<DraftingTableEntity>> DRAFTING_TABLE_ENTITY = BLOCK_ENTITIES.register("drafting_table",
+        () -> BlockEntityType.Builder.of(DraftingTableEntity::new, DRAFTING_TABLE.get()).build(null)
     );
+
+    public static final RegistryObject<Item> BUILDERS_COMPASS = ITEMS.register("builders_compass", () -> new BuildersCompass(new Item.Properties()));
 
     public static final RegistryObject<BlueprintRack> BLUEPRINT_RACK = BLOCKS.register("blueprint_rack", BlueprintRack::new);
     public static final RegistryObject<Item> BLUEPRINT_RACK_ITEM = ITEMS.register("blueprint_rack", () -> new BlockItem(BLUEPRINT_RACK.get(), new Item.Properties()));
@@ -56,12 +59,13 @@ public class Registration {
 
     public static RegistryObject<CreativeModeTab> TAB = TABS.register("building_journal", () -> CreativeModeTab.builder()
         .title(Component.translatable("tab.buildingjournal"))
-        .icon(() -> new ItemStack(COMPLEX_ANCHOR_BLOCK.get()))
+        .icon(() -> new ItemStack(DRAFTING_TABLE.get()))
         .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
         .displayItems((featureFlags, output) -> {
             output.accept(ANCHOR_BLOCK.get());
-            output.accept(COMPLEX_ANCHOR_BLOCK.get());
+            output.accept(DRAFTING_TABLE.get());
             output.accept(BLUEPRINT_RACK.get());
+            output.accept(BUILDERS_COMPASS.get());
         })
         .build());
 

@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_iron": {
+    "has_paper": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:iron_ingot"
+              "minecraft:paper"
             ]
           }
         ]
@@ -15,20 +15,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "buildingjournal:complex_anchor_block"
+        "recipe": "buildingjournal:drafting_table"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_iron",
+      "has_paper",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "buildingjournal:complex_anchor_block"
+      "buildingjournal:drafting_table"
     ]
   },
   "sends_telemetry_event": false

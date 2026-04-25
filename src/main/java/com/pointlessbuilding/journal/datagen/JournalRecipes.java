@@ -21,8 +21,8 @@ public class JournalRecipes extends RecipeProvider{
 
     @Override
     protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
-        // The anchor block needs 4 planks, paper and a stick. (Future recipe for drafting table)
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, Registration.ANCHOR_BLOCK.get())
+        // The drafting table needs 4 planks, paper and a stick.
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, Registration.DRAFTING_TABLE.get())
             .pattern(" s ")
             .pattern("wpw")
             .pattern("w w")
@@ -33,8 +33,8 @@ public class JournalRecipes extends RecipeProvider{
                 ItemPredicate.Builder.item().of(Items.PAPER).build()))
             .save(consumer);
 
-        // The complex anchor block needs 2 sticks and an iron ingot. (Future recipe for compass)
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, Registration.COMPLEX_ANCHOR_BLOCK.get())
+        // The builder's compass needs 2 sticks and an iron ingot.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Registration.BUILDERS_COMPASS.get())
             .pattern("   ")
             .pattern("  s")
             .pattern(" si")

@@ -16,9 +16,9 @@ public class JournalItemModels extends ItemModelProvider{
     @Override
     protected void registerModels() {
         withExistingParent(Registration.ANCHOR_BLOCK.getId().getPath(), modLoc("block/anchor_block"));
-        withExistingParent(Registration.COMPLEX_ANCHOR_BLOCK.getId().getPath(), modLoc("block/complex_anchor_block"));
+        withExistingParent(Registration.DRAFTING_TABLE.getId().getPath(), modLoc("block/drafting_table"));
         withExistingParent(Registration.BLUEPRINT_RACK.getId().getPath(), modLoc("block/blueprint_rack"));
-        // withExistingParent(Registration.BLUEPRINT_RACK.getId().getPath(), modLoc("block/blueprint_rack_filled"));
+        basicItem(Registration.BUILDERS_COMPASS.get());
     }
     
 }

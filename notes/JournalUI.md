@@ -17,4 +17,13 @@ Has to be overridden. This renders all the necessary elements of the screen.
 Should adjust ui height and width to match current screen height and width, based on if the minecraft window is resized or not. It's called both initially and in repositionElements.
 
 ### `protected void renderMenuButtons()`
-Renders the menu buttons in the first Journal screen. Currently uses PageButtons.
+Renders the menu buttons in the first Journal screen.
+
+### `toMenu(), toGuide(), toCityCommissions(), toCustomCommissions()`
+Handles what changes between pages.
+
+### `updateButtonVisibility()`
+Sets button values on page change.
+
+### `renderScreenElements()`
+Sets rendered widgets based on current page.
