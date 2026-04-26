@@ -42,7 +42,7 @@ public class Registration {
         () -> BlockEntityType.Builder.of(DraftingTableEntity::new, DRAFTING_TABLE.get()).build(null)
     );
 
-    public static final RegistryObject<Item> BUILDERS_COMPASS = ITEMS.register("builders_compass", () -> new BuildersCompass(new Item.Properties()));
+    public static final RegistryObject<Item> BUILDERS_COMPASS = ITEMS.register("builders_compass", () -> new BuildersCompass(new Item.Properties().stacksTo(1).setNoRepair()));
 
     public static final RegistryObject<BlueprintRack> BLUEPRINT_RACK = BLOCKS.register("blueprint_rack", BlueprintRack::new);
     public static final RegistryObject<Item> BLUEPRINT_RACK_ITEM = ITEMS.register("blueprint_rack", () -> new BlockItem(BLUEPRINT_RACK.get(), new Item.Properties()));
