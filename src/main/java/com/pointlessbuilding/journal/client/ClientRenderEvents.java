@@ -12,6 +12,7 @@ import com.pointlessbuilding.journal.utility.BoundaryRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
@@ -24,6 +25,8 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = BuildingJournal.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientRenderEvents {
     
+    private static ResourceLocation dummyLocation = new ResourceLocation(BuildingJournal.MODID,"textures/misc/dummy.png");
+
     @SubscribeEvent
     public static void onRenderLevel(RenderLevelStageEvent event) {
         if(event.getStage() == RenderLevelStageEvent.Stage.AFTER_TRIPWIRE_BLOCKS)
@@ -43,7 +46,7 @@ public class ClientRenderEvents {
 
         PoseStack ms = event.getPoseStack();
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.lines());
+        VertexConsumer lineConsumer = bufferSource.getBuffer(RenderType.lines());
         Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
 
         // Start of draw logic
@@ -58,10 +61,13 @@ public class ClientRenderEvents {
         }
 
         //render red cuboid
-        BoundaryRenderer.renderCuboid(ms, consumer, camera, firstPos, secondPos, new Vector4d(17,131,165,255));
-
+        BoundaryRenderer.renderCuboid(ms, lineConsumer, camera, firstPos, secondPos, new Vector4d(17,131,165,255));
         bufferSource.endBatch(RenderType.lines());
 
+        VertexConsumer faceConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(dummyLocation));
+        //render translucent faces
+        BoundaryRenderer.renderCuboidFaces(ms, faceConsumer, camera, firstPos, secondPos, new Vector4d(93,215,251,128));
+        bufferSource.endBatch(RenderType.entityTranslucent(dummyLocation));
     }
 
 }

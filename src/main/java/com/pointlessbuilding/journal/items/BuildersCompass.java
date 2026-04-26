@@ -26,8 +26,7 @@ public class BuildersCompass extends Item{
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack item = player.getItemInHand(usedHand);
         BlockHitResult hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
-        BlockPos pos = hit.getBlockPos().relative(hit.getDirection());  // Adjacent block to hit block
-
+        BlockPos pos = hit.getBlockPos();
 
         if(!item.hasTag() || !item.getTag().contains("FirstPos")) {
             item.getOrCreateTag().putIntArray("FirstPos", new int[]{pos.getX(), pos.getY(), pos.getZ()});

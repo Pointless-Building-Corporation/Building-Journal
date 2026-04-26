@@ -7,6 +7,8 @@ import org.joml.Vector4d;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 
@@ -135,6 +137,30 @@ public class BoundaryRenderer {
 
     }
 
+    public static void renderFace(PoseStack.Pose pose, VertexConsumer consumer, Vector3d v0, Vector3d v1, Vector3d v2, Vector3d v3, Vector3f normal, Vector4d color) {
+        
+        float r = (float)color.x()/255f; float g = (float)color.y()/255f; float b = (float)color.z()/255f; float a = (float)color.w()/255f;
+        int no_overlay = OverlayTexture.NO_OVERLAY;
+        int lightmap = LightTexture.FULL_BRIGHT;
+
+        Vector4d vt0 = new Vector4d(v0,1);
+        vt0.mul(pose.pose());
+        Vector4d vt1 = new Vector4d(v1,1);
+        vt1.mul(pose.pose());
+        Vector4d vt2 = new Vector4d(v2,1);
+        vt2.mul(pose.pose());
+        Vector4d vt3 = new Vector4d(v3,1);
+        vt3.mul(pose.pose());
+
+        normal.mul(pose.normal());
+
+        consumer.vertex(vt0.x(), vt0.y(), vt0.z()).color(r,g,b,a).uv(0,0).overlayCoords(no_overlay).uv2(lightmap).normal(normal.x(), normal.y(), normal.z()).endVertex();
+        consumer.vertex(vt1.x(), vt1.y(), vt1.z()).color(r,g,b,a).uv(1,0).overlayCoords(no_overlay).uv2(lightmap).normal(normal.x(), normal.y(), normal.z()).endVertex();
+        consumer.vertex(vt2.x(), vt2.y(), vt2.z()).color(r,g,b,a).uv(1,1).overlayCoords(no_overlay).uv2(lightmap).normal(normal.x(), normal.y(), normal.z()).endVertex();
+        consumer.vertex(vt3.x(), vt3.y(), vt3.z()).color(r,g,b,a).uv(0,1).overlayCoords(no_overlay).uv2(lightmap).normal(normal.x(), normal.y(), normal.z()).endVertex();
+
+    }
+
     public static void renderCuboid(PoseStack poseStack, VertexConsumer consumer, Vec3 camera, Vector3d origin, Vector3d destination, Vector4d color) {
         
         float width = 0.02f;
@@ -172,6 +198,31 @@ public class BoundaryRenderer {
         renderThickLine(poseStack.last(), consumer, v1, v5, width, color);
         renderThickLine(poseStack.last(), consumer, v2, v6, width, color);
         renderThickLine(poseStack.last(), consumer, v3, v7, width, color);
+
+        poseStack.popPose();
+
+    }
+
+    public static void renderCuboidFaces(PoseStack poseStack, VertexConsumer consumer, Vec3 camera, Vector3d origin, Vector3d destination, Vector4d color) {
+
+        Vector3d v0 = origin;
+        Vector3d v1 = new Vector3d(destination.x(), origin.y(), origin.z());
+        Vector3d v2 = new Vector3d(destination.x(), origin.y(), destination.z());
+        Vector3d v3 = new Vector3d(origin.x(), origin.y(), destination.z());
+        Vector3d v4 = new Vector3d(origin.x(), destination.y(), origin.z());
+        Vector3d v5 = new Vector3d(destination.x(), destination.y(), origin.z());
+        Vector3d v6 = destination;
+        Vector3d v7 = new Vector3d(origin.x(), destination.y(), destination.z());
+
+        poseStack.pushPose();
+        poseStack.translate(-camera.x, -camera.y, -camera.z);
+
+        renderFace(poseStack.last(), consumer, v0, v1, v2, v3, new Vector3f(0,-1,0), color);
+        renderFace(poseStack.last(), consumer, v4, v5, v6, v7, new Vector3f(0,1,0), color);
+        renderFace(poseStack.last(), consumer, v4, v5, v1, v0, new Vector3f(0,0,-1), color);
+        renderFace(poseStack.last(), consumer, v7, v6, v2, v3, new Vector3f(0,0,1), color);
+        renderFace(poseStack.last(), consumer, v4, v7, v3, v0, new Vector3f(-1,0,0), color);
+        renderFace(poseStack.last(), consumer, v5, v6, v2, v1, new Vector3f(1,0,0), color);
 
         poseStack.popPose();
 
