@@ -41,4 +41,10 @@ public class BuildersCompass extends Item{
         }
     }
 
+    public static boolean currentHoldingActiveCompass(Player player) {
+        ItemStack held = player.getMainHandItem();
+        if (held.getItem() instanceof BuildersCompass && held.hasTag() && held.getTag().contains("FirstPos")) return true;
+        else return false; 
+    }
+
 }

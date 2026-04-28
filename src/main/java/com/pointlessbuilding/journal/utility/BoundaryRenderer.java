@@ -161,9 +161,31 @@ public class BoundaryRenderer {
 
     }
 
-    public static void renderCuboid(PoseStack poseStack, VertexConsumer consumer, Vec3 camera, Vector3d origin, Vector3d destination, Vector4d color) {
+    public static void renderFace(PoseStack.Pose pose, VertexConsumer consumer, Vector3d v0, Vector3d v1, Vector3d v2, Vector3d v3, Vector4d color) {
+        
+        float r = (float)color.x()/255f; float g = (float)color.y()/255f; float b = (float)color.z()/255f; float a = (float)color.w()/255f;
+
+        Vector4d vt0 = new Vector4d(v0,1);
+        vt0.mul(pose.pose());
+        Vector4d vt1 = new Vector4d(v1,1);
+        vt1.mul(pose.pose());
+        Vector4d vt2 = new Vector4d(v2,1);
+        vt2.mul(pose.pose());
+        Vector4d vt3 = new Vector4d(v3,1);
+        vt3.mul(pose.pose());
+
+        consumer.vertex(vt0.x(), vt0.y(), vt0.z()).color(r,g,b,a).endVertex();
+        consumer.vertex(vt1.x(), vt1.y(), vt1.z()).color(r,g,b,a).endVertex();
+        consumer.vertex(vt2.x(), vt2.y(), vt2.z()).color(r,g,b,a).endVertex();
+        consumer.vertex(vt3.x(), vt3.y(), vt3.z()).color(r,g,b,a).endVertex();
+
+    }
+
+    public static void renderCuboid(PoseStack poseStack, VertexConsumer consumer, Vec3 camera, Vector3d originIn, Vector3d destinationIn, Vector4d color) {
         
         float width = 0.02f;
+        Vector3d origin = new Vector3d(originIn);
+        Vector3d destination = new Vector3d(destinationIn);
 
         if(destination.x >= origin.x) destination.add(1,0,0);
         else origin.add(1,0,0);
@@ -203,7 +225,17 @@ public class BoundaryRenderer {
 
     }
 
-    public static void renderCuboidFaces(PoseStack poseStack, VertexConsumer consumer, Vec3 camera, Vector3d origin, Vector3d destination, Vector4d color) {
+    public static void renderCuboidFaces(PoseStack poseStack, VertexConsumer consumer, Vec3 camera, Vector3d originIn, Vector3d destinationIn, Vector4d color, boolean is_translucent) {
+
+        Vector3d origin = new Vector3d(originIn);
+        Vector3d destination = new Vector3d(destinationIn);
+
+        if(destination.x >= origin.x) destination.add(1,0,0);
+        else origin.add(1,0,0);
+        if(destination.y >= origin.y) destination.add(0,1,0);
+        else origin.add(0,1,0);
+        if(destination.z >= origin.z) destination.add(0,0,1);
+        else origin.add(0,0,1);
 
         Vector3d v0 = origin;
         Vector3d v1 = new Vector3d(destination.x(), origin.y(), origin.z());
@@ -217,12 +249,22 @@ public class BoundaryRenderer {
         poseStack.pushPose();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
 
-        renderFace(poseStack.last(), consumer, v0, v1, v2, v3, new Vector3f(0,-1,0), color);
-        renderFace(poseStack.last(), consumer, v4, v5, v6, v7, new Vector3f(0,1,0), color);
-        renderFace(poseStack.last(), consumer, v4, v5, v1, v0, new Vector3f(0,0,-1), color);
-        renderFace(poseStack.last(), consumer, v7, v6, v2, v3, new Vector3f(0,0,1), color);
-        renderFace(poseStack.last(), consumer, v4, v7, v3, v0, new Vector3f(-1,0,0), color);
-        renderFace(poseStack.last(), consumer, v5, v6, v2, v1, new Vector3f(1,0,0), color);
+        if(is_translucent) {
+            renderFace(poseStack.last(), consumer, v0, v1, v2, v3, new Vector3f(0,-1,0), color);
+            renderFace(poseStack.last(), consumer, v4, v5, v6, v7, new Vector3f(0,1,0), color);
+            renderFace(poseStack.last(), consumer, v4, v5, v1, v0, new Vector3f(0,0,-1), color);
+            renderFace(poseStack.last(), consumer, v7, v6, v2, v3, new Vector3f(0,0,1), color);
+            renderFace(poseStack.last(), consumer, v4, v7, v3, v0, new Vector3f(-1,0,0), color);
+            renderFace(poseStack.last(), consumer, v5, v6, v2, v1, new Vector3f(1,0,0), color);
+        }
+        else {
+            renderFace(poseStack.last(), consumer, v0, v1, v2, v3, color);
+            renderFace(poseStack.last(), consumer, v4, v5, v6, v7, color);
+            renderFace(poseStack.last(), consumer, v4, v5, v1, v0, color);
+            renderFace(poseStack.last(), consumer, v7, v6, v2, v3, color);
+            renderFace(poseStack.last(), consumer, v4, v7, v3, v0, color);
+            renderFace(poseStack.last(), consumer, v5, v6, v2, v1, color);
+        }
 
         poseStack.popPose();
 
