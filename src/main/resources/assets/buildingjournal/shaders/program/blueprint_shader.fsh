@@ -30,7 +30,7 @@ void main(){
 
     float sobelX = -tl - 2.0*l - bl + tr + 2.0*r + br;
     float sobelY = -tl - 2.0*t - tr + bl + 2.0*b + br;
-    float edge = clamp(sqrt(sobelX*sobelX + sobelY*sobelY) * 3.0, 0.0, 1.0);
+    float edge = clamp(sqrt(sobelX*sobelX + sobelY*sobelY) * 2.0, 0.0, 1.0);
 
     // Blueprint blue
     vec3 blueprintBlue = vec3(0.05, 0.15, 0.5);

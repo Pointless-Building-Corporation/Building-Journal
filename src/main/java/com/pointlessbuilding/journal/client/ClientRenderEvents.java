@@ -93,7 +93,7 @@ public class ClientRenderEvents {
 
         VertexConsumer faceConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(dummyLocation));
         //render translucent faces
-        BoundaryRenderer.renderCuboidFaces(ms, faceConsumer, camera, firstPos, secondPos, new Vector4d(93,215,251,128), true);
+        //BoundaryRenderer.renderCuboidFaces(ms, faceConsumer, camera, firstPos, secondPos, new Vector4d(93,215,251,128), true);
         bufferSource.endBatch(RenderType.entityTranslucent(dummyLocation));
     }
 
@@ -127,8 +127,6 @@ public class ClientRenderEvents {
         maskTarget.bindWrite(false);
         maskTarget.clear(Minecraft.ON_OSX);
         maskTarget.bindWrite(false);
-        // RenderSystem.clearColor(0,0,0,0);
-        // RenderSystem.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT, false);
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -160,6 +158,7 @@ public class ClientRenderEvents {
         RenderSystem.enableCull();
 
         RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(true);
         maskTarget.unbindWrite();
         mc.getMainRenderTarget().bindWrite(false);
         multiPostChain.process();
