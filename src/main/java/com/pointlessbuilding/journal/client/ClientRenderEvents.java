@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.joml.Vector3d;
 import org.joml.Vector4d;
-import org.lwjgl.opengl.GL11;
 import org.slf4j.Logger;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -26,6 +25,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -71,7 +71,7 @@ public class ClientRenderEvents {
 
         ItemStack held = player.getMainHandItem();
         
-        if(!BuildersCompass.currentHoldingActiveCompass(player)) return;
+        if(!BuildersCompass.currentHoldingCompass(player)) return;
 
         PoseStack ms = event.getPoseStack();
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
@@ -79,10 +79,23 @@ public class ClientRenderEvents {
         Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
 
         // Start of draw logic
-        int[] first = held.getTag().getIntArray("FirstPos");
+        int[] first;
+        if(held.hasTag() && held.getTag().getBoolean("Active")){
+            first = held.getTag().getIntArray("FirstPos");
+        }
+        else {
+            if(Minecraft.getInstance().hitResult instanceof BlockHitResult result) {
+                BlockPos p = result.getBlockPos();
+                first = new int[]{p.getX(), p.getY(), p.getZ()};
+            }
+            else {
+                return;
+            }
+        }
         Vector3d firstPos = new Vector3d(first[0], first[1], first[2]);
+        
         Vector3d secondPos;
-        if(Minecraft.getInstance().hitResult instanceof BlockHitResult blockHit) {
+        if(Minecraft.getInstance().hitResult instanceof BlockHitResult blockHit && held.hasTag() && held.getTag().getBoolean("Active")) {
             secondPos = new Vector3d(blockHit.getBlockPos().getX(), blockHit.getBlockPos().getY(), blockHit.getBlockPos().getZ());
         }
         else {
@@ -103,7 +116,7 @@ public class ClientRenderEvents {
         Minecraft mc = Minecraft.getInstance();
         if(mc.player == null) return;
 
-        boolean applyShaderEffects = BuildersCompass.currentHoldingActiveCompass(mc.player);
+        boolean applyShaderEffects = BuildersCompass.currentHoldingCompass(mc.player);
 
         if(applyShaderEffects && multiPostChain == null) {
             try {
@@ -140,10 +153,24 @@ public class ClientRenderEvents {
         Vec3 camera = mc.gameRenderer.getMainCamera().getPosition();
 
         // Start of draw logic
-        int[] first = mc.player.getMainHandItem().getTag().getIntArray("FirstPos");
+        ItemStack held = mc.player.getMainHandItem(); 
+        int[] first;
+        if(held.hasTag() && held.getTag().getBoolean("Active")){
+            first = held.getTag().getIntArray("FirstPos");
+        }
+        else {
+            if(Minecraft.getInstance().hitResult instanceof BlockHitResult result) {
+                BlockPos p = result.getBlockPos();
+                first = new int[]{p.getX(), p.getY(), p.getZ()};
+            }
+            else {
+                return;
+            }
+        }
         Vector3d firstPos = new Vector3d(first[0], first[1], first[2]);
+        
         Vector3d secondPos;
-        if(mc.hitResult instanceof BlockHitResult blockHit) {
+        if(Minecraft.getInstance().hitResult instanceof BlockHitResult blockHit && held.hasTag() && held.getTag().getBoolean("Active")) {
             secondPos = new Vector3d(blockHit.getBlockPos().getX(), blockHit.getBlockPos().getY(), blockHit.getBlockPos().getZ());
         }
         else {
