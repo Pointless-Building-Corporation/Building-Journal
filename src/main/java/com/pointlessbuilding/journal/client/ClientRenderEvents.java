@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.joml.Vector3d;
 import org.joml.Vector4d;
+import org.lwjgl.opengl.GL11;
 import org.slf4j.Logger;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -31,6 +32,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -50,7 +52,7 @@ public class ClientRenderEvents {
         if(event.getStage() == RenderLevelStageEvent.Stage.AFTER_TRIPWIRE_BLOCKS)
             renderCompassBoundaries(event);
         else if(event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER)
-            renderPostShaderEffects(event);
+            renderPostShaderEffects();
         else
             return;
     }
@@ -97,7 +99,7 @@ public class ClientRenderEvents {
         bufferSource.endBatch(RenderType.entityTranslucent(dummyLocation));
     }
 
-    protected static void renderPostShaderEffects(RenderLevelStageEvent event) {
+    protected static void renderPostShaderEffects() {
         Minecraft mc = Minecraft.getInstance();
         if(mc.player == null) return;
 
@@ -135,13 +137,13 @@ public class ClientRenderEvents {
 
         //Render loop
         PoseStack ms = new PoseStack();
-        Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        Vec3 camera = mc.gameRenderer.getMainCamera().getPosition();
 
         // Start of draw logic
         int[] first = mc.player.getMainHandItem().getTag().getIntArray("FirstPos");
         Vector3d firstPos = new Vector3d(first[0], first[1], first[2]);
         Vector3d secondPos;
-        if(Minecraft.getInstance().hitResult instanceof BlockHitResult blockHit) {
+        if(mc.hitResult instanceof BlockHitResult blockHit) {
             secondPos = new Vector3d(blockHit.getBlockPos().getX(), blockHit.getBlockPos().getY(), blockHit.getBlockPos().getZ());
         }
         else {

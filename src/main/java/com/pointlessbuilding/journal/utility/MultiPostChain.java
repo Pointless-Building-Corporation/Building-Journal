@@ -144,7 +144,7 @@ public class MultiPostChain implements AutoCloseable{
         BufferUploader.draw(bufferbuilder.end());
         RenderSystem.depthFunc(515);
         this.blitEffect.clear();
-        this.screenTarget.unbindWrite();
+        //this.screenTarget.unbindWrite();
         maskTarget.unbindRead();
     }
 
