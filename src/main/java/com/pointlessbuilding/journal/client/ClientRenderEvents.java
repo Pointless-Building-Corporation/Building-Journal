@@ -26,13 +26,16 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderHandEvent;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -57,6 +60,14 @@ public class ClientRenderEvents {
             return;
     }
 
+    @SubscribeEvent
+    public static void onPlayerLogout(ClientPlayerNetworkEvent.LoggingOut event) {
+        if(multiPostChain != null) {
+            multiPostChain.close();
+            multiPostChain = null;
+        }
+    }
+
     protected static void checkResizeEvent() {
         if(multiPostChain == null) return;
         if(multiPostChain.screenWidth != Minecraft.getInstance().getWindow().getWidth() || 
@@ -79,7 +90,7 @@ public class ClientRenderEvents {
         Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
 
         // Start of draw logic
-        int[] first;
+        int[] first, second;
         if(held.hasTag() && held.getTag().getBoolean("Active")){
             first = held.getTag().getIntArray("FirstPos");
         }
@@ -102,8 +113,20 @@ public class ClientRenderEvents {
             secondPos = firstPos;
         }
 
-        //render red cuboid
+        //render blue cuboid
         BoundaryRenderer.renderCuboid(ms, lineConsumer, camera, firstPos, secondPos, new Vector4d(17,131,165,255));
+
+        ListTag boxes = held.getTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
+        for(int i = 0; i < boxes.size(); i++) {
+            CompoundTag box = boxes.getCompound(i);
+            if(!box.getString("Dimension").equals(Minecraft.getInstance().level.dimension().location().toString())) continue;
+            first = box.getIntArray("FirstPos");
+            second = box.getIntArray("SecondPos");
+            firstPos = new Vector3d(first[0], first[1], first[2]);
+            secondPos = new Vector3d(second[0], second[1], second[2]);
+            BoundaryRenderer.renderCuboid(ms, lineConsumer, camera, firstPos, secondPos, new Vector4d(17,131,165,255));
+        }
+
         bufferSource.endBatch(RenderType.lines());
 
         VertexConsumer faceConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(dummyLocation));
@@ -154,7 +177,7 @@ public class ClientRenderEvents {
 
         // Start of draw logic
         ItemStack held = mc.player.getMainHandItem(); 
-        int[] first;
+        int[] first, second;
         if(held.hasTag() && held.getTag().getBoolean("Active")){
             first = held.getTag().getIntArray("FirstPos");
         }
@@ -181,6 +204,18 @@ public class ClientRenderEvents {
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         BoundaryRenderer.renderCuboidFaces(ms, builder, camera, firstPos, secondPos, new Vector4d(255,255,255,255), false);
+
+        //Render existing boundaries
+        ListTag boxes = held.getTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
+        for(int i = 0; i < boxes.size(); i++) {
+            CompoundTag box = boxes.getCompound(i);
+            if(!box.getString("Dimension").equals(mc.level.dimension().location().toString())) continue;
+            first = box.getIntArray("FirstPos");
+            second = box.getIntArray("SecondPos");
+            firstPos = new Vector3d(first[0], first[1], first[2]);
+            secondPos = new Vector3d(second[0], second[1], second[2]);
+            BoundaryRenderer.renderCuboidFaces(ms, builder, camera, firstPos, secondPos, new Vector4d(255,255,255,255), false);
+        }
 
         RenderSystem.disableCull();
         BufferUploader.drawWithShader(builder.end());
