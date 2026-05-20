@@ -116,15 +116,17 @@ public class ClientRenderEvents {
         //render blue cuboid
         BoundaryRenderer.renderCuboid(ms, lineConsumer, camera, firstPos, secondPos, new Vector4d(17,131,165,255));
 
-        ListTag boxes = held.getTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
-        for(int i = 0; i < boxes.size(); i++) {
-            CompoundTag box = boxes.getCompound(i);
-            if(!box.getString("Dimension").equals(Minecraft.getInstance().level.dimension().location().toString())) continue;
-            first = box.getIntArray("FirstPos");
-            second = box.getIntArray("SecondPos");
-            firstPos = new Vector3d(first[0], first[1], first[2]);
-            secondPos = new Vector3d(second[0], second[1], second[2]);
-            BoundaryRenderer.renderCuboid(ms, lineConsumer, camera, firstPos, secondPos, new Vector4d(17,131,165,255));
+        if(held.hasTag()) {
+            ListTag boxes = held.getTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
+            for(int i = 0; i < boxes.size(); i++) {
+                CompoundTag box = boxes.getCompound(i);
+                if(!box.getString("Dimension").equals(Minecraft.getInstance().level.dimension().location().toString())) continue;
+                first = box.getIntArray("FirstPos");
+                second = box.getIntArray("SecondPos");
+                firstPos = new Vector3d(first[0], first[1], first[2]);
+                secondPos = new Vector3d(second[0], second[1], second[2]);
+                BoundaryRenderer.renderCuboid(ms, lineConsumer, camera, firstPos, secondPos, new Vector4d(17,131,165,255));
+            }
         }
 
         bufferSource.endBatch(RenderType.lines());
@@ -206,15 +208,17 @@ public class ClientRenderEvents {
         BoundaryRenderer.renderCuboidFaces(ms, builder, camera, firstPos, secondPos, new Vector4d(255,255,255,255), false);
 
         //Render existing boundaries
-        ListTag boxes = held.getTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
-        for(int i = 0; i < boxes.size(); i++) {
-            CompoundTag box = boxes.getCompound(i);
-            if(!box.getString("Dimension").equals(mc.level.dimension().location().toString())) continue;
-            first = box.getIntArray("FirstPos");
-            second = box.getIntArray("SecondPos");
-            firstPos = new Vector3d(first[0], first[1], first[2]);
-            secondPos = new Vector3d(second[0], second[1], second[2]);
-            BoundaryRenderer.renderCuboidFaces(ms, builder, camera, firstPos, secondPos, new Vector4d(255,255,255,255), false);
+        if(held.hasTag()) {
+            ListTag boxes = held.getTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
+            for(int i = 0; i < boxes.size(); i++) {
+                CompoundTag box = boxes.getCompound(i);
+                if(!box.getString("Dimension").equals(mc.level.dimension().location().toString())) continue;
+                first = box.getIntArray("FirstPos");
+                second = box.getIntArray("SecondPos");
+                firstPos = new Vector3d(first[0], first[1], first[2]);
+                secondPos = new Vector3d(second[0], second[1], second[2]);
+                BoundaryRenderer.renderCuboidFaces(ms, builder, camera, firstPos, secondPos, new Vector4d(255,255,255,255), false);
+            }
         }
 
         RenderSystem.disableCull();
