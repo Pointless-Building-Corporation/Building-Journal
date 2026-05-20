@@ -126,8 +126,11 @@ public class BuildersCompass extends Item{
 
     public static boolean currentHoldingCompass(Player player) {
         ItemStack held = player.getMainHandItem();
-        if (held.getItem() instanceof BuildersCompass) return true;
-        else return false; 
+        if (!(held.getItem() instanceof BuildersCompass)) {
+            held = player.getOffhandItem();
+            if (!(held.getItem() instanceof BuildersCompass)) return false;
+        }
+        return true;
     }
 
 }

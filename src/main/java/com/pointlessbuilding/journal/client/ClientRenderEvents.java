@@ -81,6 +81,7 @@ public class ClientRenderEvents {
         if(player == null) return;
 
         ItemStack held = player.getMainHandItem();
+        if(!(held.getItem() instanceof BuildersCompass)) held = player.getOffhandItem();
         
         if(!BuildersCompass.currentHoldingCompass(player)) return;
 
@@ -90,22 +91,19 @@ public class ClientRenderEvents {
         Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
 
         // Start of draw logic
+        Vector3d firstPos = null;
+        Vector3d secondPos = null;
         int[] first, second;
         if(held.hasTag() && held.getTag().getBoolean("Active")){
             first = held.getTag().getIntArray("FirstPos");
+            firstPos = new Vector3d(first[0], first[1], first[2]);
         }
-        else {
-            if(Minecraft.getInstance().hitResult instanceof BlockHitResult result) {
-                BlockPos p = result.getBlockPos();
-                first = new int[]{p.getX(), p.getY(), p.getZ()};
-            }
-            else {
-                return;
-            }
+        else if(Minecraft.getInstance().hitResult instanceof BlockHitResult result) {
+            BlockPos p = result.getBlockPos();
+            first = new int[]{p.getX(), p.getY(), p.getZ()};
+            firstPos = new Vector3d(first[0], first[1], first[2]);
         }
-        Vector3d firstPos = new Vector3d(first[0], first[1], first[2]);
         
-        Vector3d secondPos;
         if(Minecraft.getInstance().hitResult instanceof BlockHitResult blockHit && held.hasTag() && held.getTag().getBoolean("Active")) {
             secondPos = new Vector3d(blockHit.getBlockPos().getX(), blockHit.getBlockPos().getY(), blockHit.getBlockPos().getZ());
         }
@@ -114,7 +112,9 @@ public class ClientRenderEvents {
         }
 
         //render blue cuboid
-        BoundaryRenderer.renderCuboid(ms, lineConsumer, camera, firstPos, secondPos, new Vector4d(17,131,165,255));
+        if(firstPos != null) {
+            BoundaryRenderer.renderCuboid(ms, lineConsumer, camera, firstPos, secondPos, new Vector4d(17,131,165,255));
+        }
 
         if(held.hasTag()) {
             ListTag boxes = held.getTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
@@ -176,25 +176,24 @@ public class ClientRenderEvents {
         //Render loop
         PoseStack ms = new PoseStack();
         Vec3 camera = mc.gameRenderer.getMainCamera().getPosition();
+        
+        ItemStack held = mc.player.getMainHandItem();
+        if(!(held.getItem() instanceof BuildersCompass)) held = mc.player.getOffhandItem();
 
         // Start of draw logic
-        ItemStack held = mc.player.getMainHandItem(); 
+        Vector3d firstPos = null;
+        Vector3d secondPos = null;
         int[] first, second;
         if(held.hasTag() && held.getTag().getBoolean("Active")){
             first = held.getTag().getIntArray("FirstPos");
+            firstPos = new Vector3d(first[0], first[1], first[2]);
         }
-        else {
-            if(Minecraft.getInstance().hitResult instanceof BlockHitResult result) {
-                BlockPos p = result.getBlockPos();
-                first = new int[]{p.getX(), p.getY(), p.getZ()};
-            }
-            else {
-                return;
-            }
+        else if(Minecraft.getInstance().hitResult instanceof BlockHitResult result) {
+            BlockPos p = result.getBlockPos();
+            first = new int[]{p.getX(), p.getY(), p.getZ()};
+            firstPos = new Vector3d(first[0], first[1], first[2]);
         }
-        Vector3d firstPos = new Vector3d(first[0], first[1], first[2]);
         
-        Vector3d secondPos;
         if(Minecraft.getInstance().hitResult instanceof BlockHitResult blockHit && held.hasTag() && held.getTag().getBoolean("Active")) {
             secondPos = new Vector3d(blockHit.getBlockPos().getX(), blockHit.getBlockPos().getY(), blockHit.getBlockPos().getZ());
         }
@@ -205,7 +204,9 @@ public class ClientRenderEvents {
         BufferBuilder builder = Tesselator.getInstance().getBuilder();
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
-        BoundaryRenderer.renderCuboidFaces(ms, builder, camera, firstPos, secondPos, new Vector4d(255,255,255,255), false);
+        if(firstPos != null) {
+            BoundaryRenderer.renderCuboidFaces(ms, builder, camera, firstPos, secondPos, new Vector4d(255,255,255,255), false);
+        }
 
         //Render existing boundaries
         if(held.hasTag()) {
