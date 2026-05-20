@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -55,13 +56,13 @@ public class BuildersCompass extends Item{
             if(!level.isClientSide) {
                 if(item.hasTag() && item.getTag().getBoolean("Active")) {
                     player.displayClientMessage(
-                        Component.literal("Current Selection Cancelled."),
+                        Component.literal("Current Selection Cancelled.").withStyle(ChatFormatting.GOLD),
                         true
                     );
                 }
                 else {
                     player.displayClientMessage(
-                        Component.literal("Previous Boundary Removed."),
+                        Component.literal("Previous Boundary Removed.").withStyle(ChatFormatting.GOLD),
                         true
                     );
                 }
@@ -102,19 +103,19 @@ public class BuildersCompass extends Item{
             ListTag boxes = item.getOrCreateTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
             if(boxes.size() >= MAX_BOXES) {
                 player.displayClientMessage(
-                    Component.literal("Too Many Boundaries! Can only have "+ MAX_BOXES +" at a time."),
+                    Component.literal("Too Many Boundaries! Can only have "+ MAX_BOXES +" at a time.").withStyle(ChatFormatting.RED),
                     true
                 );
             }
             else if(!item.hasTag() || !item.getTag().getBoolean("Active")) {
                 player.displayClientMessage(
-                    Component.literal("First Position Set: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()),
+                    Component.literal("First Position Set: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()).withStyle(ChatFormatting.BLUE),
                     true
                 );
             }
             else {
                 player.displayClientMessage(
-                    Component.literal("Second Position Set: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()),
+                    Component.literal("Second Position Set: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()).withStyle(ChatFormatting.BLUE),
                     true
                 );
             }
