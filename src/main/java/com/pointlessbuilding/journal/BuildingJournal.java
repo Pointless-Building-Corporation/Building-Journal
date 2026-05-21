@@ -4,7 +4,9 @@ import com.mojang.logging.LogUtils;
 import com.pointlessbuilding.journal.datagen.DataGeneration;
 
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
@@ -19,6 +21,7 @@ public class BuildingJournal
     public BuildingJournal()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, BuildingJournalConfig.SPEC);
         Registration.init(modEventBus);
 
         // Register the commonSetup method for modloading

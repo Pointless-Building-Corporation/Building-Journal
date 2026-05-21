@@ -11,6 +11,8 @@ import com.pointlessbuilding.journal.menu.JournalContainer;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -32,6 +34,7 @@ public class Registration {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, BuildingJournal.MODID);
     public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, BuildingJournal.MODID);
     public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, BuildingJournal.MODID);
+    public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, BuildingJournal.MODID);
 
     public static final RegistryObject<AnchorBlock> ANCHOR_BLOCK = BLOCKS.register("anchor_block", AnchorBlock::new);
     public static final RegistryObject<Item> ANCHOR_BLOCK_ITEM = ITEMS.register("anchor_block", () -> new BlockItem(ANCHOR_BLOCK.get(), new Item.Properties()));
@@ -69,6 +72,17 @@ public class Registration {
         })
         .build());
 
+    // Sound registration
+    public static final RegistryObject<SoundEvent> COMPASS_CLICK = SOUNDS.register("compass_click",
+        () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(BuildingJournal.MODID, "compass_click"))
+    );
+    public static final RegistryObject<SoundEvent> COMPASS_CLACK = SOUNDS.register("compass_clack",
+        () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(BuildingJournal.MODID, "compass_clack"))
+    );
+    public static final RegistryObject<SoundEvent> COMPASS_ERROR = SOUNDS.register("compass_error",
+        () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(BuildingJournal.MODID, "compass_error"))
+    );
+
     public static void init(IEventBus modEventBus) {
         // Register deffered register suppliers for blocks, block items, block entities
         BLOCKS.register(modEventBus);
@@ -76,6 +90,7 @@ public class Registration {
         BLOCK_ENTITIES.register(modEventBus);
         MENU_TYPES.register(modEventBus);
         TABS.register(modEventBus);
+        SOUNDS.register(modEventBus);
     }
 
 }

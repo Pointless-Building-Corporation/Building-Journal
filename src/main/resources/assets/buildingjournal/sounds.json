@@ -1,0 +1,17 @@
+{
+    "compass_click": {
+        "sounds": [
+            "buildingjournal:compass_click"
+        ]
+    },
+    "compass_clack": {
+        "sounds": [
+            "buildingjournal:compass_clack"
+        ]
+    },
+    "compass_error": {
+        "sounds": [
+            "buildingjournal:compass_error"
+        ]
+    }
+}

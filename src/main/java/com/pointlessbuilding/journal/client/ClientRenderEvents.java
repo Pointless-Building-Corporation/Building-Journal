@@ -106,6 +106,10 @@ public class ClientRenderEvents {
         
         if(Minecraft.getInstance().hitResult instanceof BlockHitResult blockHit && held.hasTag() && held.getTag().getBoolean("Active")) {
             secondPos = new Vector3d(blockHit.getBlockPos().getX(), blockHit.getBlockPos().getY(), blockHit.getBlockPos().getZ());
+            double clampedX = firstPos.x + Math.max(-BuildersCompass.MAX_BOX_SIZE, Math.min(BuildersCompass.MAX_BOX_SIZE, secondPos.x - firstPos.x));
+            double clampedY = firstPos.y + Math.max(-BuildersCompass.MAX_BOX_SIZE, Math.min(BuildersCompass.MAX_BOX_SIZE, secondPos.y - firstPos.y));
+            double clampedZ = firstPos.z + Math.max(-BuildersCompass.MAX_BOX_SIZE, Math.min(BuildersCompass.MAX_BOX_SIZE, secondPos.z - firstPos.z));
+            secondPos = new Vector3d(clampedX, clampedY, clampedZ);
         }
         else {
             secondPos = firstPos;
@@ -196,6 +200,10 @@ public class ClientRenderEvents {
         
         if(Minecraft.getInstance().hitResult instanceof BlockHitResult blockHit && held.hasTag() && held.getTag().getBoolean("Active")) {
             secondPos = new Vector3d(blockHit.getBlockPos().getX(), blockHit.getBlockPos().getY(), blockHit.getBlockPos().getZ());
+            double clampedX = firstPos.x + Math.max(-BuildersCompass.MAX_BOX_SIZE, Math.min(BuildersCompass.MAX_BOX_SIZE, secondPos.x - firstPos.x));
+            double clampedY = firstPos.y + Math.max(-BuildersCompass.MAX_BOX_SIZE, Math.min(BuildersCompass.MAX_BOX_SIZE, secondPos.y - firstPos.y));
+            double clampedZ = firstPos.z + Math.max(-BuildersCompass.MAX_BOX_SIZE, Math.min(BuildersCompass.MAX_BOX_SIZE, secondPos.z - firstPos.z));
+            secondPos = new Vector3d(clampedX, clampedY, clampedZ);
         }
         else {
             secondPos = firstPos;

@@ -1,10 +1,9 @@
 package com.pointlessbuilding.journal.items;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
+import com.pointlessbuilding.journal.Registration;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -24,7 +23,8 @@ import net.minecraft.world.phys.BlockHitResult;
 public class BuildersCompass extends Item{
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final int MAX_BOXES = 10;
+    public static final int MAX_BOXES = 10;
+    public static final int MAX_BOX_SIZE = 128;
 
     public BuildersCompass(Properties properties) {
         super(properties);
@@ -53,18 +53,20 @@ public class BuildersCompass extends Item{
                 }
             }
             //Client Side
-            if(!level.isClientSide) {
+            if(level.isClientSide) {
                 if(item.hasTag() && item.getTag().getBoolean("Active")) {
                     player.displayClientMessage(
                         Component.literal("Current Selection Cancelled.").withStyle(ChatFormatting.GOLD),
                         true
                     );
+                    player.playSound(Registration.COMPASS_CLACK.get(), 1.0f, 1.0f);
                 }
                 else {
                     player.displayClientMessage(
                         Component.literal("Previous Boundary Removed.").withStyle(ChatFormatting.GOLD),
                         true
                     );
+                    player.playSound(Registration.COMPASS_CLACK.get(), 1.0f, 1.0f);
                 }
             }
 
@@ -84,10 +86,15 @@ public class BuildersCompass extends Item{
             }
             else {
                 int[] first = item.getTag().getIntArray("FirstPos");
-                LOGGER.info("Created Bounding Box! At (%s,%s,%s) and (%s,%s,%s)".formatted(first[0], first[1], first[2], pos.getX(), pos.getY(), pos.getZ()));
+                int clampedX = first[0] + Math.max(-MAX_BOX_SIZE, Math.min(MAX_BOX_SIZE, pos.getX()-first[0]));
+                int clampedY = first[1] + Math.max(-MAX_BOX_SIZE, Math.min(MAX_BOX_SIZE, pos.getY()-first[1]));
+                int clampedZ = first[2] + Math.max(-MAX_BOX_SIZE, Math.min(MAX_BOX_SIZE, pos.getZ()-first[2]));
+                int[] second = new int[]{clampedX, clampedY, clampedZ};
+
+                LOGGER.info("Created Bounding Box! At (%s,%s,%s) and (%s,%s,%s)".formatted(first[0], first[1], first[2], second[0], second[1], second[2]));
                 CompoundTag box = new CompoundTag();
                 box.putIntArray("FirstPos", first);
-                box.putIntArray("SecondPos", new int[]{pos.getX(), pos.getY(), pos.getZ()});
+                box.putIntArray("SecondPos", second);
                 box.putString("Dimension", level.dimension().location().toString());
 
                 boxes.add(box);
@@ -106,18 +113,21 @@ public class BuildersCompass extends Item{
                     Component.literal("Too Many Boundaries! Can only have "+ MAX_BOXES +" at a time.").withStyle(ChatFormatting.RED),
                     true
                 );
+                player.playSound(Registration.COMPASS_ERROR.get(), 1.0f, 1.0f);
             }
             else if(!item.hasTag() || !item.getTag().getBoolean("Active")) {
                 player.displayClientMessage(
-                    Component.literal("First Position Set: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()).withStyle(ChatFormatting.BLUE),
+                    Component.literal("First Position Set: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()).withStyle(ChatFormatting.AQUA),
                     true
                 );
+                player.playSound(Registration.COMPASS_CLICK.get(), 1.0f, 1.0f);
             }
             else {
                 player.displayClientMessage(
-                    Component.literal("Second Position Set: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()).withStyle(ChatFormatting.BLUE),
+                    Component.literal("Second Position Set: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()).withStyle(ChatFormatting.AQUA),
                     true
                 );
+                player.playSound(Registration.COMPASS_CLACK.get(), 1.0f, 1.0f);
             }
         }
 
