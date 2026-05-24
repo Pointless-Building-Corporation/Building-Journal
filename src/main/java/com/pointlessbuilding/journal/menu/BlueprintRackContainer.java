@@ -1,6 +1,7 @@
-package com.pointlessbuilding.journal.blocks;
+package com.pointlessbuilding.journal.menu;
 
 import com.pointlessbuilding.journal.Registration;
+import com.pointlessbuilding.journal.blocks.BlueprintRackEntity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;

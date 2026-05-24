@@ -17,6 +17,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.logging.LogUtils;
 import com.pointlessbuilding.journal.BuildingJournal;
+import com.pointlessbuilding.journal.BuildingJournalConfig;
 import com.pointlessbuilding.journal.items.BuildersCompass;
 import com.pointlessbuilding.journal.utility.BoundaryRenderer;
 import com.pointlessbuilding.journal.utility.MultiPostChain;
@@ -106,9 +107,9 @@ public class ClientRenderEvents {
         
         if(Minecraft.getInstance().hitResult instanceof BlockHitResult blockHit && held.hasTag() && held.getTag().getBoolean("Active")) {
             secondPos = new Vector3d(blockHit.getBlockPos().getX(), blockHit.getBlockPos().getY(), blockHit.getBlockPos().getZ());
-            double clampedX = firstPos.x + Math.max(-BuildersCompass.MAX_BOX_SIZE, Math.min(BuildersCompass.MAX_BOX_SIZE, secondPos.x - firstPos.x));
-            double clampedY = firstPos.y + Math.max(-BuildersCompass.MAX_BOX_SIZE, Math.min(BuildersCompass.MAX_BOX_SIZE, secondPos.y - firstPos.y));
-            double clampedZ = firstPos.z + Math.max(-BuildersCompass.MAX_BOX_SIZE, Math.min(BuildersCompass.MAX_BOX_SIZE, secondPos.z - firstPos.z));
+            double clampedX = firstPos.x + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.x - firstPos.x));
+            double clampedY = firstPos.y + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.y - firstPos.y));
+            double clampedZ = firstPos.z + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.z - firstPos.z));
             secondPos = new Vector3d(clampedX, clampedY, clampedZ);
         }
         else {
@@ -135,10 +136,10 @@ public class ClientRenderEvents {
 
         bufferSource.endBatch(RenderType.lines());
 
-        VertexConsumer faceConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(dummyLocation));
+        //VertexConsumer faceConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(dummyLocation));
         //render translucent faces
         //BoundaryRenderer.renderCuboidFaces(ms, faceConsumer, camera, firstPos, secondPos, new Vector4d(93,215,251,128), true);
-        bufferSource.endBatch(RenderType.entityTranslucent(dummyLocation));
+        //bufferSource.endBatch(RenderType.entityTranslucent(dummyLocation));
     }
 
     protected static void renderPostShaderEffects() {
@@ -200,9 +201,9 @@ public class ClientRenderEvents {
         
         if(Minecraft.getInstance().hitResult instanceof BlockHitResult blockHit && held.hasTag() && held.getTag().getBoolean("Active")) {
             secondPos = new Vector3d(blockHit.getBlockPos().getX(), blockHit.getBlockPos().getY(), blockHit.getBlockPos().getZ());
-            double clampedX = firstPos.x + Math.max(-BuildersCompass.MAX_BOX_SIZE, Math.min(BuildersCompass.MAX_BOX_SIZE, secondPos.x - firstPos.x));
-            double clampedY = firstPos.y + Math.max(-BuildersCompass.MAX_BOX_SIZE, Math.min(BuildersCompass.MAX_BOX_SIZE, secondPos.y - firstPos.y));
-            double clampedZ = firstPos.z + Math.max(-BuildersCompass.MAX_BOX_SIZE, Math.min(BuildersCompass.MAX_BOX_SIZE, secondPos.z - firstPos.z));
+            double clampedX = firstPos.x + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.x - firstPos.x));
+            double clampedY = firstPos.y + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.y - firstPos.y));
+            double clampedZ = firstPos.z + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.z - firstPos.z));
             secondPos = new Vector3d(clampedX, clampedY, clampedZ);
         }
         else {

@@ -2,6 +2,8 @@ package com.pointlessbuilding.journal.blocks;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.pointlessbuilding.journal.menu.BlueprintRackContainer;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;

@@ -2,11 +2,12 @@ package com.pointlessbuilding.journal;
 
 import com.pointlessbuilding.journal.blocks.AnchorBlock;
 import com.pointlessbuilding.journal.blocks.BlueprintRack;
-import com.pointlessbuilding.journal.blocks.BlueprintRackContainer;
 import com.pointlessbuilding.journal.blocks.BlueprintRackEntity;
 import com.pointlessbuilding.journal.blocks.DraftingTable;
 import com.pointlessbuilding.journal.blocks.DraftingTableEntity;
 import com.pointlessbuilding.journal.items.BuildersCompass;
+import com.pointlessbuilding.journal.menu.BlueprintRackContainer;
+import com.pointlessbuilding.journal.menu.DraftingTableContainer;
 import com.pointlessbuilding.journal.menu.JournalContainer;
 
 import net.minecraft.core.registries.Registries;
@@ -43,6 +44,9 @@ public class Registration {
     public static final RegistryObject<Item> DRAFTING_TABLE_ITEM = ITEMS.register("drafting_table", () -> new BlockItem(DRAFTING_TABLE.get(), new Item.Properties()));
     public static final RegistryObject<BlockEntityType<DraftingTableEntity>> DRAFTING_TABLE_ENTITY = BLOCK_ENTITIES.register("drafting_table",
         () -> BlockEntityType.Builder.of(DraftingTableEntity::new, DRAFTING_TABLE.get()).build(null)
+    );
+    public static final RegistryObject<MenuType<DraftingTableContainer>> DRAFTING_TABLE_CONTAINER = MENU_TYPES.register("drafting_table",
+        () -> IForgeMenuType.create((windowId, inv, data) -> new DraftingTableContainer(windowId, inv.player, data.readBlockPos()))
     );
 
     public static final RegistryObject<Item> BUILDERS_COMPASS = ITEMS.register("builders_compass", () -> new BuildersCompass(new Item.Properties().stacksTo(1).setNoRepair()));

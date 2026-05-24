@@ -3,6 +3,7 @@ package com.pointlessbuilding.journal.items;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
+import com.pointlessbuilding.journal.BuildingJournalConfig;
 import com.pointlessbuilding.journal.Registration;
 
 import net.minecraft.ChatFormatting;
@@ -23,8 +24,6 @@ import net.minecraft.world.phys.BlockHitResult;
 public class BuildersCompass extends Item{
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    public static final int MAX_BOXES = 10;
-    public static final int MAX_BOX_SIZE = 128;
 
     public BuildersCompass(Properties properties) {
         super(properties);
@@ -77,7 +76,7 @@ public class BuildersCompass extends Item{
         //Server Side
         if(!level.isClientSide) {
             ListTag boxes = item.getOrCreateTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
-            if(boxes.size() >= MAX_BOXES) { // Too many existing boxes
+            if(boxes.size() >= BuildingJournalConfig.MAX_BOXES.get()) { // Too many existing boxes
                 // Do nothing
             }
             else if(!item.hasTag() || !item.getTag().getBoolean("Active")) {
@@ -86,9 +85,9 @@ public class BuildersCompass extends Item{
             }
             else {
                 int[] first = item.getTag().getIntArray("FirstPos");
-                int clampedX = first[0] + Math.max(-MAX_BOX_SIZE, Math.min(MAX_BOX_SIZE, pos.getX()-first[0]));
-                int clampedY = first[1] + Math.max(-MAX_BOX_SIZE, Math.min(MAX_BOX_SIZE, pos.getY()-first[1]));
-                int clampedZ = first[2] + Math.max(-MAX_BOX_SIZE, Math.min(MAX_BOX_SIZE, pos.getZ()-first[2]));
+                int clampedX = first[0] + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), pos.getX()-first[0]));
+                int clampedY = first[1] + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), pos.getY()-first[1]));
+                int clampedZ = first[2] + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), pos.getZ()-first[2]));
                 int[] second = new int[]{clampedX, clampedY, clampedZ};
 
                 LOGGER.info("Created Bounding Box! At (%s,%s,%s) and (%s,%s,%s)".formatted(first[0], first[1], first[2], second[0], second[1], second[2]));
@@ -108,9 +107,9 @@ public class BuildersCompass extends Item{
         //Client Side
         if(level.isClientSide) {
             ListTag boxes = item.getOrCreateTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
-            if(boxes.size() >= MAX_BOXES) {
+            if(boxes.size() >= BuildingJournalConfig.MAX_BOXES.get()) {
                 player.displayClientMessage(
-                    Component.literal("Too Many Boundaries! Can only have "+ MAX_BOXES +" at a time.").withStyle(ChatFormatting.RED),
+                    Component.literal("Too Many Boundaries! Can only have "+ BuildingJournalConfig.MAX_BOXES.get() +" at a time.").withStyle(ChatFormatting.RED),
                     true
                 );
                 player.playSound(Registration.COMPASS_ERROR.get(), 1.0f, 1.0f);

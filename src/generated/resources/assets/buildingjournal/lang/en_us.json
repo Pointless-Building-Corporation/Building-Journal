@@ -5,7 +5,6 @@
   "item.buildingjournal.builders_compass": "Builder's Compass",
   "key.buildingjournal.journal": "Open Journal",
   "screen.buildingjournal.blueprint_rack": "Blueprint Rack",
-  "tab.buildingjournal": "Building Journal",
-  "toast.buildingjournal.firstpos_set": "First Position Set.",
-  "toast.buildingjournal.secondpos_set": "Second Position Set."
+  "screen.buildingjournal.drafting_table": "Drafting Table",
+  "tab.buildingjournal": "Building Journal"
 }

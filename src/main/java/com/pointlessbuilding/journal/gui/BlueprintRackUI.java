@@ -1,7 +1,7 @@
 package com.pointlessbuilding.journal.gui;
 
 import com.pointlessbuilding.journal.BuildingJournal;
-import com.pointlessbuilding.journal.blocks.BlueprintRackContainer;
+import com.pointlessbuilding.journal.menu.BlueprintRackContainer;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;

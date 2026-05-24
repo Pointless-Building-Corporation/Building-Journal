@@ -6,11 +6,14 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import com.pointlessbuilding.journal.Registration;
+import com.pointlessbuilding.journal.items.BuildersCompass;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,10 +26,11 @@ import net.minecraftforge.items.ItemStackHandler;
 public class DraftingTableEntity extends BlockEntity {
 
     public static final String ITEMS_TAG = "Inventory";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
     
-    public static int SLOT_COUNT = 1;
-    public static int SLOT = 0;
+    public static int SLOT_COUNT = 2;
+    public static final int COMPASS_SLOT = 0;
+    public static final int BLUEPRINT_SLOT = 1;
 
     private final ItemStackHandler items = createItemHandler();
     private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> items);
@@ -95,6 +99,13 @@ public class DraftingTableEntity extends BlockEntity {
     private ItemStackHandler createItemHandler() {
         return new ItemStackHandler(SLOT_COUNT) {
             @Override
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+                if(slot == COMPASS_SLOT) return stack.getItem() instanceof BuildersCompass;
+                if(slot == BLUEPRINT_SLOT) return false;
+                return super.isItemValid(slot, stack);
+            }
+
+            @Override
             protected void onContentsChanged(int slot) {
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
@@ -102,8 +113,11 @@ public class DraftingTableEntity extends BlockEntity {
         };
     }
 
-    // This is the Capability for this block.
+    public ItemStackHandler getItems() {
+        return items;
+    }
 
+    // This is the Capability for this block.
     @NotNull
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
