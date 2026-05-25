@@ -22,7 +22,7 @@ public class ConfirmButton extends Button{
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         boolean active = hasCompass.get();
         int textureY = !active ? 111 : (isHovered ? 133 : 89);
-        guiGraphics.blit(gui, this.getX(), this.getY(), 208, textureY, 22, 22, 256, 256);
+        guiGraphics.blit(gui, this.getX(), this.getY(), 208, textureY, 22, 22, 512, 256);
     }
 
 }

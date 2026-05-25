@@ -79,12 +79,12 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
     protected void init() {
         super.init();
 
-        renderNameField();
-        renderConfirmButton();
+        initNameField();
+        initConfirmButton();
         updateCompassData();
     }
 
-    private void renderNameField() {
+    private void initNameField() {
         nameField = new EditBox(this.font, leftPos + 51, topPos + 101, 108, 14, Component.empty());
         nameField.setCanLoseFocus(false);
         nameField.setTextColor(-1);
@@ -95,7 +95,7 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
         this.addWidget(nameField);
     }
 
-    private void renderConfirmButton() {
+    private void initConfirmButton() {
         confirmButton = new ConfirmButton(leftPos + 176, topPos + 89, GUI, () -> !menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty());
         addRenderableWidget(confirmButton);
     }
@@ -152,6 +152,7 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == InputConstants.KEY_ESCAPE) {
          this.minecraft.player.closeContainer();
+         return true;
       }
 
       return !this.nameField.keyPressed(keyCode, scanCode, modifiers) && !this.nameField.canConsumeInput() ? super.keyPressed(keyCode, scanCode, modifiers) : true;
