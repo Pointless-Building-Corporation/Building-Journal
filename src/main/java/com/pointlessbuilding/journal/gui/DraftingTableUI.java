@@ -3,6 +3,7 @@ package com.pointlessbuilding.journal.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.blocks.DraftingTableEntity;
 import com.pointlessbuilding.journal.menu.DraftingTableContainer;
@@ -127,12 +128,12 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
     protected void containerTick() {
         super.containerTick();
         nameField.tick();
-        updateCompassData();
 
         boolean hasCompass = !menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty();
         if (hasCompass != lastHasCompass) {
             lastHasCompass = hasCompass;
             nameField.setEditable(hasCompass);
+            updateCompassData();
             if (!hasCompass) {
                 nameField.setValue("");
             } else {
@@ -149,7 +150,7 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 256) {
+        if (keyCode == InputConstants.KEY_ESCAPE) {
          this.minecraft.player.closeContainer();
       }
 
