@@ -42,12 +42,13 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 4210752, false);
 
+        boolean hasCompass = !(menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty());
         if(cachedBoxCount == 0) {
-            guiGraphics.drawString(this.font, "No Boundaries present in compass!", 50, 7, 0x404040, false);
+            if(hasCompass) guiGraphics.drawWordWrap(this.font, Component.literal("No boundaries loaded in compass!"), 65, 12, 70, 0xFFFFFF);
         }
         else {
-            guiGraphics.drawString(this.font, cachedBoxCount + " boundaries loaded in compass.", 50, 7, 0x404040, false);
-            guiGraphics.drawString(this.font, "Total blocks covered: " + cachedTotalBlocks, 50, 30, 0x404040, false);
+            guiGraphics.drawWordWrap(this.font, Component.literal(cachedBoxCount + " boundaries loaded in compass."), 65, 12, 70, 0xFFFFFF);
+            guiGraphics.drawWordWrap(this.font, Component.literal("Total blocks covered: " + cachedTotalBlocks), 65, 45, 70, 0xFFFFFF);
         }
     }
 
@@ -103,15 +104,15 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
         renderBackground(guiGraphics);
         int relX = (this.width - this.imageWidth) / 2;
         int relY = (this.height - this.imageHeight) / 2;
-        guiGraphics.blit(GUI, relX, relY, 0, 0, this.imageWidth, this.imageHeight);
+        guiGraphics.blit(GUI, relX, relY, 0, 0, this.imageWidth, this.imageHeight, 512, 256);
 
-        //Name Field checks
         boolean hasCompass = !(menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty());
         if(hasCompass) {
-            guiGraphics.blit(GUI, leftPos + 48, topPos + 97, 0, 205, 110, 16);
+            guiGraphics.blit(GUI, leftPos + 48, topPos + 97, 0, 205, 110, 16, 512, 256); // name field
+            guiGraphics.blit(GUI, leftPos + 55, topPos + 0, 208, 0, 98, 80, 512, 256);   // blueprint
         }
         else {
-            guiGraphics.blit(GUI, leftPos + 48, topPos + 97, 0, 221, 110, 16);
+            guiGraphics.blit(GUI, leftPos + 48, topPos + 97, 0, 221, 110, 16, 512, 256);
         }
     }
 
