@@ -15,9 +15,12 @@ import com.mojang.logging.LogUtils;
 import com.pointlessbuilding.journal.blocks.DraftingTableEntity;
 import com.pointlessbuilding.journal.items.Blueprint;
 import com.pointlessbuilding.journal.utility.BoundaryMath;
+import com.pointlessbuilding.journal.utility.SandboxWorldGenRegion;
 
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -25,7 +28,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -38,6 +40,7 @@ import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
 import net.minecraft.world.level.levelgen.blending.Blender;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class BlueprintEvaluator {
@@ -88,42 +91,48 @@ public class BlueprintEvaluator {
                 if (chunk != null) chunkCache.put(cp, chunk);
             }
 
-            Map<String, long[]> counts = computeDiff(level, boxes, diffChunks, chunkCache);
-            level.getServer().execute(() -> {
-                LOGGER.info("Back on main thread, writing blueprint");
-                unloadChunks(level, forcedChunks);
+            Map<String, long[]> counts = null;
+            try {
+                counts = computeDiff(level, boxes, diffChunks, chunkCache);
+            } finally {
+                level.getServer().execute(() -> unloadChunks(level, forcedChunks));
+            }
+            if (counts != null) {
+                final Map<String, long[]> finalCounts = counts;
+                level.getServer().execute(() -> {
+                    LOGGER.info("Back on main thread, writing blueprint");
+                    ListTag blockCounts = new ListTag();
+                    for (Map.Entry<String, long[]> entry : finalCounts.entrySet()) {
+                        CompoundTag entryTag = new CompoundTag();
+                        entryTag.putString(Blueprint.TAG_BLOCK, entry.getKey());
+                        entryTag.putLong(Blueprint.TAG_ADDED, entry.getValue()[0]);
+                        entryTag.putLong(Blueprint.TAG_REMOVED, entry.getValue()[1]);
+                        blockCounts.add(entryTag);
+                    }
 
-                ListTag blockCounts = new ListTag();
-                for (Map.Entry<String, long[]> entry : counts.entrySet()) {
-                    CompoundTag entryTag = new CompoundTag();
-                    entryTag.putString(Blueprint.TAG_BLOCK, entry.getKey());
-                    entryTag.putLong(Blueprint.TAG_ADDED, entry.getValue()[0]);
-                    entryTag.putLong(Blueprint.TAG_REMOVED, entry.getValue()[1]);
-                    blockCounts.add(entryTag);
-                }
+                    ListTag boxesTag = new ListTag();
+                    for (CompoundTag box : boxes) boxesTag.add(box);
 
-                ListTag boxesTag = new ListTag();
-                for (CompoundTag box : boxes) boxesTag.add(box);
+                    List<int[]> firsts = new ArrayList<>();
+                    List<int[]> seconds = new ArrayList<>();
+                    for(CompoundTag box : boxes) {
+                        int[] first = box.getIntArray("FirstPos");
+                        int[] second = box.getIntArray("SecondPos");
+                        firsts.add(first);
+                        seconds.add(second);
+                    }
+                    long unionVolume = BoundaryMath.unionVolume(firsts, seconds);
 
-                List<int[]> firsts = new ArrayList<>();
-                List<int[]> seconds = new ArrayList<>();
-                for(CompoundTag box : boxes) {
-                    int[] first = box.getIntArray("FirstPos");
-                    int[] second = box.getIntArray("SecondPos");
-                    firsts.add(first);
-                    seconds.add(second);
-                }
-                long unionVolume = BoundaryMath.unionVolume(firsts, seconds);
+                    ItemStack blueprintStack = Blueprint.create(name, dimension, boxesTag, blockCounts, unionVolume);
 
-                ItemStack blueprintStack = Blueprint.create(name, dimension, boxesTag, blockCounts, unionVolume);
+                    if(!(level.getBlockEntity(pos) instanceof DraftingTableEntity table)) {
+                        LOGGER.warn("DraftingTableEntity no longer exists at " + pos);
+                        return;
+                    }
+                    table.getItems().setStackInSlot(DraftingTableEntity.BLUEPRINT_SLOT, blueprintStack);
 
-                if(!(level.getBlockEntity(pos) instanceof DraftingTableEntity table)) {
-                    LOGGER.warn("DraftingTableEntity no longer exists at " + pos);
-                    return;
-                }
-                table.getItems().setStackInSlot(DraftingTableEntity.BLUEPRINT_SLOT, blueprintStack);
-
-            }); 
+                });
+            } 
         }, Util.backgroundExecutor());
 
     }
@@ -251,7 +260,11 @@ public class BlueprintEvaluator {
                 }
             }
         }
-        WorldGenRegion region = new WorldGenRegion(level, regionChunks, ChunkStatus.SURFACE, 0);
+        if(regionChunks.size() != 17*17) {
+            LOGGER.warn("Expected 289 chunks, got {}. Skipping baseline region for {}.", regionChunks.size(), chunkPos);
+            return proto;
+        }
+        SandboxWorldGenRegion region = new SandboxWorldGenRegion(level, regionChunks, ChunkStatus.SURFACE, 0);
         LOGGER.info("WorldGenRegion created.");
         
         if (gen instanceof NoiseBasedChunkGenerator noiseGen) {
@@ -272,9 +285,17 @@ public class BlueprintEvaluator {
         gen.createStructures(level.registryAccess(), level.getChunkSource().getGeneratorState(), level.structureManager(), proto, level.getStructureManager());
         LOGGER.info("createStructures complete");
 
-        // gen.applyBiomeDecoration(level, proto, level.structureManager());
-        // LOGGER.info("applyBiomeDecoration complete");
-        // TODO: Currently this bricks the entire process.
+        BoundingBox chunkBox = BoundingBox.fromCorners(
+            new Vec3i(chunkPos.getMinBlockX(), level.getMinBuildHeight(), chunkPos.getMinBlockZ()),
+            new Vec3i(chunkPos.getMaxBlockX(), level.getMaxBuildHeight(), chunkPos.getMaxBlockZ())
+        );
+        SectionPos sectionPos = SectionPos.bottomOf(proto);
+        level.registryAccess().registryOrThrow(Registries.STRUCTURE).stream().forEach(structure -> {
+            level.structureManager().startsForStructure(sectionPos, structure).forEach(start -> {
+                start.placeInChunk(region, level.structureManager(), gen, level.getRandom(), chunkBox, chunkPos);
+            });
+        });
+        LOGGER.info("Structure placeInChunk complete");
 
         return proto;
     }

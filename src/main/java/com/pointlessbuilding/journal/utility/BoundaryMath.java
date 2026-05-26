@@ -6,7 +6,7 @@ import java.util.TreeSet;
 
 public class BoundaryMath {
     
-    // This uses Klee's Alogirthm to solve for the Klee's Measure Problem. n=50 is the max number of boxes which necessitates the O(n^(3-1) log n) solution.
+    // This uses Klee's Algorithm to solve for the Klee's Measure Problem. n=50 is the max number of boxes which necessitates the O(n^(3-1) log n) solution.
     public static long unionVolume(List<int[]> firsts, List<int[]> seconds) {
 
         List<int[]> mins = new ArrayList<>();
