@@ -42,6 +42,35 @@ public class BoundaryMath {
         return total;
     }
 
+    // This is a more specific sweepY implement.
+    public static List<int[]> mergeYIntervals(int x, int z, List<int[]> mins,  List<int[]> maxs) {
+        TreeSet<Integer> ySet = new TreeSet<>();
+        for (int i = 0; i < mins.size(); i++) {
+            if (x >= mins.get(i)[0] && x <= maxs.get(i)[0] &&
+                z >= mins.get(i)[2] && z <= maxs.get(i)[2]) {
+                ySet.add(mins.get(i)[1]);
+                ySet.add(maxs.get(i)[1] + 1);
+            }
+        }
+        if (ySet.isEmpty()) return List.of();
+
+        Integer[] ys = ySet.toArray(new Integer[0]);
+        List<int[]> result = new ArrayList<>();
+        for (int yi = 0; yi < ys.length - 1; yi++) {
+            int y0 = ys[yi], y1 = ys[yi + 1] - 1;
+            // Check if this interval is covered by any box
+            for (int i = 0; i < mins.size(); i++) {
+                if (x >= mins.get(i)[0] && x <= maxs.get(i)[0] &&
+                    z >= mins.get(i)[2] && z <= maxs.get(i)[2] &&
+                    y0 >= mins.get(i)[1] && y1 <= maxs.get(i)[1]) {
+                    result.add(new int[]{y0, y1});
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
     private static long sweepY(List<int[]> mins, List<int[]> maxs) {
         TreeSet<Integer> ySet = new TreeSet<>();
         for (int i = 0; i < mins.size(); i++) {

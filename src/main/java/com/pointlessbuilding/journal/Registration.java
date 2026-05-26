@@ -5,6 +5,7 @@ import com.pointlessbuilding.journal.blocks.BlueprintRack;
 import com.pointlessbuilding.journal.blocks.BlueprintRackEntity;
 import com.pointlessbuilding.journal.blocks.DraftingTable;
 import com.pointlessbuilding.journal.blocks.DraftingTableEntity;
+import com.pointlessbuilding.journal.items.Blueprint;
 import com.pointlessbuilding.journal.items.BuildersCompass;
 import com.pointlessbuilding.journal.menu.BlueprintRackContainer;
 import com.pointlessbuilding.journal.menu.DraftingTableContainer;
@@ -50,6 +51,7 @@ public class Registration {
     );
 
     public static final RegistryObject<Item> BUILDERS_COMPASS = ITEMS.register("builders_compass", () -> new BuildersCompass(new Item.Properties().stacksTo(1).setNoRepair()));
+    public static final RegistryObject<Item> BLUEPRINT = ITEMS.register("blueprint", () -> new Blueprint(new Item.Properties().stacksTo(1).setNoRepair()));
 
     public static final RegistryObject<BlueprintRack> BLUEPRINT_RACK = BLOCKS.register("blueprint_rack", BlueprintRack::new);
     public static final RegistryObject<Item> BLUEPRINT_RACK_ITEM = ITEMS.register("blueprint_rack", () -> new BlockItem(BLUEPRINT_RACK.get(), new Item.Properties()));
@@ -73,6 +75,7 @@ public class Registration {
             output.accept(DRAFTING_TABLE.get());
             output.accept(BLUEPRINT_RACK.get());
             output.accept(BUILDERS_COMPASS.get());
+            output.accept(BLUEPRINT.get());
         })
         .build());
 

@@ -19,6 +19,7 @@ public class JournalItemModels extends ItemModelProvider{
         withExistingParent(Registration.DRAFTING_TABLE.getId().getPath(), modLoc("block/drafting_table"));
         withExistingParent(Registration.BLUEPRINT_RACK.getId().getPath(), modLoc("block/blueprint_rack"));
         basicItem(Registration.BUILDERS_COMPASS.get());
+        basicItem(Registration.BLUEPRINT.get());
     }
     
 }

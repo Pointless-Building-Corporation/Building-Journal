@@ -7,6 +7,8 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.blocks.DraftingTableEntity;
 import com.pointlessbuilding.journal.menu.DraftingTableContainer;
+import com.pointlessbuilding.journal.network.ConfirmBlueprintPacket;
+import com.pointlessbuilding.journal.network.Network;
 import com.pointlessbuilding.journal.utility.BoundaryMath;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -82,6 +84,7 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
         initNameField();
         initConfirmButton();
         updateCompassData();
+        nameField.setEditable(!menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty());
     }
 
     private void initNameField() {
@@ -96,7 +99,15 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
     }
 
     private void initConfirmButton() {
-        confirmButton = new ConfirmButton(leftPos + 176, topPos + 89, GUI, () -> !menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty());
+        // Check both that the compass slot is full and the blueprint slot is empty.
+        confirmButton = new ConfirmButton(leftPos + 176, topPos + 89, GUI, () -> 
+            !menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty() &&
+            menu.getSlot(DraftingTableEntity.BLUEPRINT_SLOT).getItem().isEmpty(),
+            btn -> {
+                if(!menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty())
+                    Network.sendToServer(new ConfirmBlueprintPacket(menu.getPos(), nameField.getValue()));
+            }
+        );
         addRenderableWidget(confirmButton);
     }
 
@@ -151,11 +162,11 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == InputConstants.KEY_ESCAPE) {
-         this.minecraft.player.closeContainer();
-         return true;
-      }
+            this.minecraft.player.closeContainer();
+            return true;
+        }
 
-      return !this.nameField.keyPressed(keyCode, scanCode, modifiers) && !this.nameField.canConsumeInput() ? super.keyPressed(keyCode, scanCode, modifiers) : true;
+        return !this.nameField.keyPressed(keyCode, scanCode, modifiers) && !this.nameField.canConsumeInput() ? super.keyPressed(keyCode, scanCode, modifiers) : true;
     }
 
 }

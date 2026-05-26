@@ -25,6 +25,7 @@ public class JournalLanguageProvider extends LanguageProvider{
         add(ClientSetup.JOURNAL_KEYMAP_STRING, "Open Journal");
         add("tab.buildingjournal", "Building Journal");
         add(Registration.BUILDERS_COMPASS.get(), "Builder's Compass");
+        add(Registration.BLUEPRINT.get(), "Blueprint");
     }
     
 }

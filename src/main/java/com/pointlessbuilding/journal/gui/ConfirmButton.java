@@ -12,8 +12,8 @@ public class ConfirmButton extends Button{
     private final ResourceLocation gui;
     private final Supplier<Boolean> hasCompass;
 
-    public ConfirmButton(int x, int y, ResourceLocation gui, Supplier<Boolean> hasCompass) {
-        super(x, y, 22,22, Component.empty(), btn -> {}, DEFAULT_NARRATION);
+    public ConfirmButton(int x, int y, ResourceLocation gui, Supplier<Boolean> hasCompass, Button.OnPress onPress) {
+        super(x, y, 22,22, Component.empty(), onPress, DEFAULT_NARRATION);
         this.gui = gui;
         this.hasCompass = hasCompass;
     }

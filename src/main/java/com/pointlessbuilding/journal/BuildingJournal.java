@@ -2,6 +2,7 @@ package com.pointlessbuilding.journal;
 
 import com.mojang.logging.LogUtils;
 import com.pointlessbuilding.journal.datagen.DataGeneration;
+import com.pointlessbuilding.journal.network.Network;
 
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 public class BuildingJournal
 {
     public static final String MODID = "buildingjournal";
+    public static final String VERSION = "1.0.0";
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public BuildingJournal()
@@ -32,6 +34,7 @@ public class BuildingJournal
     private void commonSetup(final FMLCommonSetupEvent event)
     {
         LOGGER.info("Inside commonSetup!");
+        Network.init();
     }
 
 }

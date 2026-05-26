@@ -37,6 +37,10 @@ public class DraftingTableContainer extends AbstractContainerMenu{
         }
     }
 
+    public BlockPos getPos() {
+        return pos;
+    }
+
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
         return ItemStack.EMPTY;

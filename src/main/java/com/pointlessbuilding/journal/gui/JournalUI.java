@@ -47,6 +47,7 @@ public class JournalUI extends Screen{
         super(GameNarrator.NO_TITLE);
     }
 
+    @Override
     protected void init() {
         flex();
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, (button) -> {
