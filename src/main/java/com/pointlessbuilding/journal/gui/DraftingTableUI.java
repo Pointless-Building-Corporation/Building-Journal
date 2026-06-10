@@ -32,6 +32,7 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
     private boolean lastHasCompass;
     private int cachedBoxCount = 0;
     private long cachedTotalBlocks = 0;
+    private boolean processingBlueprint = false;
 
     public DraftingTableUI(DraftingTableContainer menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -100,15 +101,21 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
 
     private void initConfirmButton() {
         // Check both that the compass slot is full and the blueprint slot is empty.
-        confirmButton = new ConfirmButton(leftPos + 176, topPos + 89, GUI, () -> 
-            !menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty() &&
-            menu.getSlot(DraftingTableEntity.BLUEPRINT_SLOT).getItem().isEmpty(),
+        confirmButton = new ConfirmButton(leftPos + 176, topPos + 89, GUI,
+            () -> !menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty() && menu.getSlot(DraftingTableEntity.BLUEPRINT_SLOT).getItem().isEmpty(),
+            () -> processingBlueprint,
             btn -> {
                 if(!menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty())
                     Network.sendToServer(new ConfirmBlueprintPacket(menu.getPos(), nameField.getValue()));
+                processingBlueprint = true;
             }
         );
         addRenderableWidget(confirmButton);
+    }
+
+    public void onBlueprintComplete() {
+        BuildingJournal.LOGGER.info("Inside onBlueprintComplete");
+        processingBlueprint = false;
     }
 
     @Override

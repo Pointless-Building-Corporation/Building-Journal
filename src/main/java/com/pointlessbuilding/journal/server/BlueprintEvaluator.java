@@ -14,6 +14,8 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
 import com.pointlessbuilding.journal.blocks.DraftingTableEntity;
 import com.pointlessbuilding.journal.items.Blueprint;
+import com.pointlessbuilding.journal.network.BlueprintCompletePacket;
+import com.pointlessbuilding.journal.network.Network;
 import com.pointlessbuilding.journal.utility.BoundaryMath;
 import com.pointlessbuilding.journal.utility.SandboxWorldGenRegion;
 
@@ -25,9 +27,12 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -53,7 +58,7 @@ public class BlueprintEvaluator {
             LOGGER.warn("Drafting Table Validation failed for " + name + "! at " + pos.toString());
             return;
         }
-        LOGGER.info("Validation passed");
+        //LOGGER.info("Validation passed");
 
         ServerLevel level = player.serverLevel();
         String dimension = level.dimension().location().toString();
@@ -63,11 +68,11 @@ public class BlueprintEvaluator {
             LOGGER.warn("No boxes found for dimension " + dimension);
             return;
         }
-        LOGGER.info("Boxes filtered: {} boxes", boxes.size());
+        //LOGGER.info("Boxes filtered: {} boxes", boxes.size());
 
         Set<ChunkPos> diffChunks = getRequiredChunks(boxes, 0);
         Set<ChunkPos> loadChunks = getRequiredChunks(boxes, 8);
-        LOGGER.info("diffChunks: {}, loadChunks: {}", diffChunks.size(), loadChunks.size());
+        //LOGGER.info("diffChunks: {}, loadChunks: {}", diffChunks.size(), loadChunks.size());
 
         Set<ChunkPos> forcedChunks = new HashSet<>();
         List<CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> futures = new ArrayList<>();
@@ -78,12 +83,12 @@ public class BlueprintEvaluator {
             }
             futures.add(level.getChunkSource().getChunkFuture(chunk.x, chunk.z, ChunkStatus.FULL, true));
         }
-        LOGGER.info("Chunks force-loaded, waiting for futures...");
+        //LOGGER.info("Chunks force-loaded, waiting for futures...");
 
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
         .thenRunAsync(() -> {
-            LOGGER.info("Background thread started");
+            //LOGGER.info("Background thread started");
 
             Map<ChunkPos, ChunkAccess> chunkCache = new HashMap<>();
             for (ChunkPos cp : loadChunks) {
@@ -100,7 +105,7 @@ public class BlueprintEvaluator {
             if (counts != null) {
                 final Map<String, long[]> finalCounts = counts;
                 level.getServer().execute(() -> {
-                    LOGGER.info("Back on main thread, writing blueprint");
+                    //LOGGER.info("Back on main thread, writing blueprint");
                     ListTag blockCounts = new ListTag();
                     for (Map.Entry<String, long[]> entry : finalCounts.entrySet()) {
                         CompoundTag entryTag = new CompoundTag();
@@ -124,13 +129,16 @@ public class BlueprintEvaluator {
                     long unionVolume = BoundaryMath.unionVolume(firsts, seconds);
 
                     ItemStack blueprintStack = Blueprint.create(name, dimension, boxesTag, blockCounts, unionVolume);
+                    blueprintStack.setHoverName(Component.literal(name));
 
                     if(!(level.getBlockEntity(pos) instanceof DraftingTableEntity table)) {
                         LOGGER.warn("DraftingTableEntity no longer exists at " + pos);
                         return;
                     }
                     table.getItems().setStackInSlot(DraftingTableEntity.BLUEPRINT_SLOT, blueprintStack);
+                    level.playSound(null, table.getBlockPos(), SoundEvents.VILLAGER_WORK_LIBRARIAN, SoundSource.BLOCKS, 1f, 1f);
 
+                    Network.sendToClient(new BlueprintCompletePacket(pos), player);
                 });
             } 
         }, Util.backgroundExecutor());
@@ -204,7 +212,7 @@ public class BlueprintEvaluator {
 
         for(ChunkPos chunk : diffChunks) {
             ChunkAccess liveChunk = chunkCache.get(chunk);
-            LOGGER.info("Starting generateBaselineChunk for {}", chunk);
+            //LOGGER.info("Starting generateBaselineChunk for {}", chunk);
             ChunkAccess baselineChunk = generateBaselineChunk(level, chunk, level.getChunkSource().getGenerator(), chunkCache);
 
             for (int x = chunk.x * 16; x < chunk.x * 16 + 16; x++) {
@@ -248,7 +256,7 @@ public class BlueprintEvaluator {
         ProtoChunk proto = new ProtoChunk(chunkPos, UpgradeData.EMPTY, level, level.registryAccess().registryOrThrow(Registries.BIOME), null);
 
         gen.fillFromNoise(Util.backgroundExecutor(), Blender.empty(), level.getChunkSource().randomState(), level.structureManager(), proto).join();
-        LOGGER.info("fillFromNoise complete");
+        //LOGGER.info("fillFromNoise complete");
 
         List<ChunkAccess> regionChunks = new ArrayList<>();
         for (int dx = -8; dx <= 8; dx++) {
@@ -265,7 +273,7 @@ public class BlueprintEvaluator {
             return proto;
         }
         SandboxWorldGenRegion region = new SandboxWorldGenRegion(level, regionChunks, ChunkStatus.SURFACE, 0);
-        LOGGER.info("WorldGenRegion created.");
+        //LOGGER.info("WorldGenRegion created.");
         
         if (gen instanceof NoiseBasedChunkGenerator noiseGen) {
             LOGGER.info("NoiseBasedChunkGenerator buildSurface called...");
@@ -276,14 +284,14 @@ public class BlueprintEvaluator {
         } else {
             gen.buildSurface(region, level.structureManager(), level.getChunkSource().randomState(), proto);
         }
-        LOGGER.info("buildSurface complete");
+        //LOGGER.info("buildSurface complete");
 
         gen.applyCarvers(region, level.getSeed(), level.getChunkSource().randomState(), level.getBiomeManager(), level.structureManager(), proto, GenerationStep.Carving.AIR);
         gen.applyCarvers(region, level.getSeed(), level.getChunkSource().randomState(), level.getBiomeManager(), level.structureManager(), proto, GenerationStep.Carving.LIQUID);
-        LOGGER.info("applyCarvers AIR complete");
+        //LOGGER.info("applyCarvers complete");
 
         gen.createStructures(level.registryAccess(), level.getChunkSource().getGeneratorState(), level.structureManager(), proto, level.getStructureManager());
-        LOGGER.info("createStructures complete");
+        //LOGGER.info("createStructures complete");
 
         BoundingBox chunkBox = BoundingBox.fromCorners(
             new Vec3i(chunkPos.getMinBlockX(), level.getMinBuildHeight(), chunkPos.getMinBlockZ()),
@@ -295,7 +303,7 @@ public class BlueprintEvaluator {
                 start.placeInChunk(region, level.structureManager(), gen, level.getRandom(), chunkBox, chunkPos);
             });
         });
-        LOGGER.info("Structure placeInChunk complete");
+        //LOGGER.info("Structure placeInChunk complete");
 
         return proto;
     }
