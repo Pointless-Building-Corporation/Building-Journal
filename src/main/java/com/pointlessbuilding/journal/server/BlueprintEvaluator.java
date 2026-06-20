@@ -129,14 +129,14 @@ public class BlueprintEvaluator {
                     long unionVolume = BoundaryMath.unionVolume(firsts, seconds);
 
                     ItemStack blueprintStack = Blueprint.create(name, dimension, boxesTag, blockCounts, unionVolume);
-                    blueprintStack.setHoverName(Component.literal(name));
+                    if(!(name.equals("Blueprint"))) blueprintStack.setHoverName(Component.literal(name));
 
                     if(!(level.getBlockEntity(pos) instanceof DraftingTableEntity table)) {
                         LOGGER.warn("DraftingTableEntity no longer exists at " + pos);
                         return;
                     }
                     table.getItems().setStackInSlot(DraftingTableEntity.BLUEPRINT_SLOT, blueprintStack);
-                    level.playSound(null, table.getBlockPos(), SoundEvents.VILLAGER_WORK_LIBRARIAN, SoundSource.BLOCKS, 1f, 1f);
+                    level.playSound(null, table.getBlockPos(), SoundEvents.VILLAGER_WORK_LIBRARIAN, SoundSource.BLOCKS, 5f, 1f);
 
                     Network.sendToClient(new BlueprintCompletePacket(pos), player);
                 });
