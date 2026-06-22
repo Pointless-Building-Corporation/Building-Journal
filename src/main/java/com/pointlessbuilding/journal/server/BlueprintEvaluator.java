@@ -276,7 +276,7 @@ public class BlueprintEvaluator {
         //LOGGER.info("WorldGenRegion created.");
         
         if (gen instanceof NoiseBasedChunkGenerator noiseGen) {
-            LOGGER.info("NoiseBasedChunkGenerator buildSurface called...");
+            //LOGGER.info("NoiseBasedChunkGenerator buildSurface called...");
             WorldGenerationContext context = new WorldGenerationContext(noiseGen, region);
             noiseGen.buildSurface(proto, context, level.getChunkSource().randomState(), 
                 level.structureManager(), level.getBiomeManager(), 
