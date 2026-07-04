@@ -1,5 +1,9 @@
 package com.pointlessbuilding.journal.items;
 
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -7,6 +11,7 @@ import com.pointlessbuilding.journal.BuildingJournalConfig;
 import com.pointlessbuilding.journal.Registration;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -17,6 +22,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -24,6 +30,9 @@ import net.minecraft.world.phys.BlockHitResult;
 public class BuildersCompass extends Item{
 
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    public static final String BUILDERS_COMPASS_TOOLTIP_SELECT = "tooltip.buildingjournal.compass.select";
+    public static final String BUILDERS_COMPASS_TOOLTIP_DESELECT = "tooltip.buildingjournal.compass.deselect";
 
     public BuildersCompass(Properties properties) {
         super(properties);
@@ -131,6 +140,14 @@ public class BuildersCompass extends Item{
         }
 
         return InteractionResultHolder.success(item);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag isAdvanced) {
+        Component useKey = Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage();
+        Component shiftKey = Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage();
+        tooltipComponents.add(Component.translatable("tooltip.buildingjournal.compass.select", useKey).withStyle(ChatFormatting.AQUA));
+        tooltipComponents.add(Component.translatable("tooltip.buildingjournal.compass.deselect", shiftKey, useKey).withStyle(ChatFormatting.RED));
     }
 
     public static boolean currentHoldingCompass(Player player) {

@@ -5,6 +5,7 @@ import com.pointlessbuilding.journal.Registration;
 import com.pointlessbuilding.journal.blocks.BlueprintRack;
 import com.pointlessbuilding.journal.blocks.DraftingTable;
 import com.pointlessbuilding.journal.client.ClientSetup;
+import com.pointlessbuilding.journal.items.BuildersCompass;
 
 import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.LanguageProvider;
@@ -26,6 +27,8 @@ public class JournalLanguageProvider extends LanguageProvider{
         add("tab.buildingjournal", "Building Journal");
         add(Registration.BUILDERS_COMPASS.get(), "Builder's Compass");
         add(Registration.BLUEPRINT.get(), "Blueprint");
+        add(BuildersCompass.BUILDERS_COMPASS_TOOLTIP_SELECT, "Press %s to select the first and last positions of individual boundaries of builds.");
+        add(BuildersCompass.BUILDERS_COMPASS_TOOLTIP_DESELECT, "Press %1$s + %2$s to remove the last boundary marked.");
     }
     
 }

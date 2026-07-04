@@ -83,7 +83,9 @@ public class BlueprintEvaluator {
         // Filter the boxes in the compass NBT to the current dimension and get the valid chunks area
         ServerLevel level = player.serverLevel();
         String dimension = level.dimension().location().toString();
-        ItemStack compass = ((DraftingTableEntity) level.getBlockEntity(pos)).getItems().getStackInSlot(DraftingTableEntity.COMPASS_SLOT);
+        DraftingTableEntity tableEntity = ((DraftingTableEntity) level.getBlockEntity(pos));
+        ItemStack compass = tableEntity.getItems().getStackInSlot(DraftingTableEntity.COMPASS_SLOT);
+        tableEntity.setProcessing(true);
 
         List<CompoundTag> boxes = filterBoxes(compass, dimension);
         if(boxes.isEmpty()) {
@@ -163,6 +165,7 @@ public class BlueprintEvaluator {
                     }
                     table.getItems().setStackInSlot(DraftingTableEntity.BLUEPRINT_SLOT, blueprintStack);
                     level.playSound(null, table.getBlockPos(), SoundEvents.VILLAGER_WORK_LIBRARIAN, SoundSource.BLOCKS, 5f, 1f);
+                    table.setProcessing(false);
 
                     Network.sendToClient(new BlueprintCompletePacket(pos), player);
                 });

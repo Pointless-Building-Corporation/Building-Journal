@@ -7,5 +7,7 @@
   "key.buildingjournal.journal": "Open Journal",
   "screen.buildingjournal.blueprint_rack": "Blueprint Rack",
   "screen.buildingjournal.drafting_table": "Drafting Table",
-  "tab.buildingjournal": "Building Journal"
+  "tab.buildingjournal": "Building Journal",
+  "tooltip.buildingjournal.compass.deselect": "Press %1$s + %2$s to remove the last boundary marked.",
+  "tooltip.buildingjournal.compass.select": "Press %s to select the first and last positions of individual boundaries of builds."
 }

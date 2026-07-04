@@ -101,6 +101,7 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
 
     private void initConfirmButton() {
         // Check both that the compass slot is full and the blueprint slot is empty.
+        processingBlueprint = menu.getProcessing();
         confirmButton = new ConfirmButton(leftPos + 176, topPos + 89, GUI,
             () -> !menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty() && menu.getSlot(DraftingTableEntity.BLUEPRINT_SLOT).getItem().isEmpty(),
             () -> processingBlueprint,
@@ -113,8 +114,13 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
         addRenderableWidget(confirmButton);
     }
 
+    public void onBlueprintStart() {
+        // BuildingJournal.LOGGER.info("Inside onBlueprintStart");
+        processingBlueprint = true;
+    }
+
     public void onBlueprintComplete() {
-        BuildingJournal.LOGGER.info("Inside onBlueprintComplete");
+        //BuildingJournal.LOGGER.info("Inside onBlueprintComplete");
         processingBlueprint = false;
     }
 

@@ -13,6 +13,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -34,6 +35,7 @@ public class DraftingTableEntity extends BlockEntity {
 
     private final ItemStackHandler items = createItemHandler();
     private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> items);
+    private boolean processing = false;
 
     public DraftingTableEntity(BlockPos pos, BlockState state) { 
         super(Registration.DRAFTING_TABLE_ENTITY.get(), pos, state);
@@ -113,8 +115,33 @@ public class DraftingTableEntity extends BlockEntity {
         };
     }
 
+    private final ContainerData data = new ContainerData() {
+        @Override
+        public int get(int index) {
+            return index == 0 ? (processing ? 1 : 0): 0;
+        }
+
+        @Override
+        public void set(int index, int value) {
+            if (index == 0) processing = value != 0;
+        }
+
+        @Override
+        public int getCount() { return 1; }
+    };
+
+    public ContainerData getData() { return data; }
+
     public ItemStackHandler getItems() {
         return items;
+    }
+
+    public Boolean isProcessing() {
+        return processing;
+    }
+
+    public void setProcessing(boolean value) {
+        processing = value;
     }
 
     // This is the Capability for this block.

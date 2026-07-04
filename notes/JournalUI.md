@@ -19,7 +19,7 @@ Should adjust ui height and width to match current screen height and width, base
 ### `protected void renderMenuButtons()`
 Renders the menu buttons in the first Journal screen.
 
-### `toMenu(), toGuide(), toCityCommissions(), toCustomCommissions()`
+### `toGuide(), toCityCommissions()`
 Handles what changes between pages.
 
 ### `updateButtonVisibility()`

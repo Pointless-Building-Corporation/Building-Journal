@@ -15,6 +15,7 @@ import net.minecraftforge.items.SlotItemHandler;
 public class DraftingTableContainer extends AbstractContainerMenu{
 
     private final BlockPos pos;
+    private DraftingTableEntity tableEntity;
 
     public DraftingTableContainer(int windowId, Player player, BlockPos pos) {
         super(Registration.DRAFTING_TABLE_CONTAINER.get(), windowId);
@@ -22,6 +23,8 @@ public class DraftingTableContainer extends AbstractContainerMenu{
         this.pos = pos;
 
         if(player.level().getBlockEntity(pos) instanceof DraftingTableEntity tableEntity) {
+            this.tableEntity = tableEntity;
+            addDataSlots(tableEntity.getData());
             this.addSlot(new SlotItemHandler(tableEntity.getItems(), DraftingTableEntity.COMPASS_SLOT, 13, 79));
             this.addSlot(new SlotItemHandler(tableEntity.getItems(), DraftingTableEntity.BLUEPRINT_SLOT, 179, 67));
         }
@@ -39,6 +42,10 @@ public class DraftingTableContainer extends AbstractContainerMenu{
 
     public BlockPos getPos() {
         return pos;
+    }
+
+    public boolean getProcessing() {
+        return tableEntity.getData().get(0) != 0;
     }
 
     @Override
