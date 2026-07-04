@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 
@@ -23,6 +27,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -42,8 +47,10 @@ import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.UpgradeData;
 import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
+import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -52,17 +59,32 @@ public class BlueprintEvaluator {
     
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    // Baseline Cache - store individual chunks in cache and reaccess them on repeat calls
+    // private static final int MAX_CACHE_SIZE = 200;
+    // private static final Map<ChunkPos, ChunkAccess> BASELINE_CACHE = Collections.synchronizedMap(
+    //     new LinkedHashMap<>(MAX_CACHE_SIZE, 0.75f, true) {
+    //         @Override
+    //         protected boolean removeEldestEntry(Map.Entry<ChunkPos, ChunkAccess> eldest) {
+    //             return size() > MAX_CACHE_SIZE;
+    //         }
+    //     }
+    // );
+
     public static void evaluate(ServerPlayer player, BlockPos pos, String name) {
-        LOGGER.info("evaluate() called for {} at {}", name, pos);
+        LOGGER.debug("evaluate() called for {} at {}", name, pos);
+
+        // Validation step: check whether the current state is valid
         if(!validate(player, pos)) {
             LOGGER.warn("Drafting Table Validation failed for " + name + "! at " + pos.toString());
             return;
         }
         //LOGGER.info("Validation passed");
 
+        // Filter the boxes in the compass NBT to the current dimension and get the valid chunks area
         ServerLevel level = player.serverLevel();
         String dimension = level.dimension().location().toString();
         ItemStack compass = ((DraftingTableEntity) level.getBlockEntity(pos)).getItems().getStackInSlot(DraftingTableEntity.COMPASS_SLOT);
+
         List<CompoundTag> boxes = filterBoxes(compass, dimension);
         if(boxes.isEmpty()) {
             LOGGER.warn("No boxes found for dimension " + dimension);
@@ -70,6 +92,7 @@ public class BlueprintEvaluator {
         }
         //LOGGER.info("Boxes filtered: {} boxes", boxes.size());
 
+        // Get the set of chunks required to load (with a border of 8 because of seed generation) and the actual chunks to be diffed
         Set<ChunkPos> diffChunks = getRequiredChunks(boxes, 0);
         Set<ChunkPos> loadChunks = getRequiredChunks(boxes, 8);
         //LOGGER.info("diffChunks: {}, loadChunks: {}", diffChunks.size(), loadChunks.size());
@@ -83,9 +106,8 @@ public class BlueprintEvaluator {
             }
             futures.add(level.getChunkSource().getChunkFuture(chunk.x, chunk.z, ChunkStatus.FULL, true));
         }
-        //LOGGER.info("Chunks force-loaded, waiting for futures...");
 
-
+        // Background thread: compute the diff
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
         .thenRunAsync(() -> {
             //LOGGER.info("Background thread started");
@@ -97,6 +119,7 @@ public class BlueprintEvaluator {
             }
 
             Map<String, long[]> counts = null;
+
             try {
                 counts = computeDiff(level, boxes, diffChunks, chunkCache);
             } finally {
@@ -106,6 +129,8 @@ public class BlueprintEvaluator {
                 final Map<String, long[]> finalCounts = counts;
                 level.getServer().execute(() -> {
                     //LOGGER.info("Back on main thread, writing blueprint");
+
+                    // After diff calculation, take all the data and put it into the blueprint item
                     ListTag blockCounts = new ListTag();
                     for (Map.Entry<String, long[]> entry : finalCounts.entrySet()) {
                         CompoundTag entryTag = new CompoundTag();
@@ -126,6 +151,7 @@ public class BlueprintEvaluator {
                         firsts.add(first);
                         seconds.add(second);
                     }
+
                     long unionVolume = BoundaryMath.unionVolume(firsts, seconds);
 
                     ItemStack blueprintStack = Blueprint.create(name, dimension, boxesTag, blockCounts, unionVolume);
@@ -210,17 +236,46 @@ public class BlueprintEvaluator {
 
         Map<String, long[]> counts = new HashMap<>();
 
+        // GANESH: MODIFIED 
+        // long totalElapsed = 0;
+
+        ExecutorService chunkGenExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+        List<Future<?>> generatedFutures = new ArrayList<>();
+        Map<ChunkPos, ChunkAccess> results = new ConcurrentHashMap<>();
+
+        for (ChunkPos chunk: diffChunks) {
+            generatedFutures.add(chunkGenExecutor.submit(() -> {
+                    ChunkAccess genChunk = generateBaselineChunk(level, chunk, level.getChunkSource().getGenerator(), chunkCache);
+                    results.put(chunk, genChunk);
+                }
+            ));
+        }
+
+        for (Future<?> f : generatedFutures) {
+           try {
+            f.get();
+           }
+            catch (Exception e) {
+                throw new RuntimeException("Chunk generation failed", e.getCause());
+            }
+        }
+
         for(ChunkPos chunk : diffChunks) {
+
             ChunkAccess liveChunk = chunkCache.get(chunk);
-            //LOGGER.info("Starting generateBaselineChunk for {}", chunk);
-            ChunkAccess baselineChunk = generateBaselineChunk(level, chunk, level.getChunkSource().getGenerator(), chunkCache);
+
+            ChunkAccess baselineChunk = results.get(chunk);
+
+            MutableBlockPos bp = new BlockPos.MutableBlockPos();
 
             for (int x = chunk.x * 16; x < chunk.x * 16 + 16; x++) {
                 for (int z = chunk.z * 16; z < chunk.z * 16 + 16; z++) {
                     List<int[]> yIntervals = BoundaryMath.mergeYIntervals(x,z, mins, maxs);
                     for (int[] interval : yIntervals) {
                         for (int y = interval[0]; y <= interval[1]; y++) {
-                            BlockPos bp = new BlockPos(x,y,z);
+                            //BlockPos bp = new BlockPos(x,y,z);
+                            bp.set(x,y,z);
                             BlockState live = liveChunk.getBlockState(bp);
                             BlockState baseline = baselineChunk.getBlockState(bp);
 
@@ -245,14 +300,16 @@ public class BlueprintEvaluator {
                     }
                 }
             }
-
         }
+
+        chunkGenExecutor.shutdown();
+        //LOGGER.info("Active threads: {}", Thread.activeCount());
 
         return counts;
     }
 
     private static ChunkAccess generateBaselineChunk(ServerLevel level, ChunkPos chunkPos, ChunkGenerator gen, Map<ChunkPos, ChunkAccess> chunkCache) {
-        
+
         ProtoChunk proto = new ProtoChunk(chunkPos, UpgradeData.EMPTY, level, level.registryAccess().registryOrThrow(Registries.BIOME), null);
 
         gen.fillFromNoise(Util.backgroundExecutor(), Blender.empty(), level.getChunkSource().randomState(), level.structureManager(), proto).join();
@@ -274,7 +331,7 @@ public class BlueprintEvaluator {
         }
         SandboxWorldGenRegion region = new SandboxWorldGenRegion(level, regionChunks, ChunkStatus.SURFACE, 0);
         //LOGGER.info("WorldGenRegion created.");
-        
+
         if (gen instanceof NoiseBasedChunkGenerator noiseGen) {
             //LOGGER.info("NoiseBasedChunkGenerator buildSurface called...");
             WorldGenerationContext context = new WorldGenerationContext(noiseGen, region);
@@ -297,14 +354,17 @@ public class BlueprintEvaluator {
             new Vec3i(chunkPos.getMinBlockX(), level.getMinBuildHeight(), chunkPos.getMinBlockZ()),
             new Vec3i(chunkPos.getMaxBlockX(), level.getMaxBuildHeight(), chunkPos.getMaxBlockZ())
         );
+
+        WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(level.getSeed() ^ chunkPos.toLong()));
+
         SectionPos sectionPos = SectionPos.bottomOf(proto);
         level.registryAccess().registryOrThrow(Registries.STRUCTURE).stream().forEach(structure -> {
             level.structureManager().startsForStructure(sectionPos, structure).forEach(start -> {
-                start.placeInChunk(region, level.structureManager(), gen, level.getRandom(), chunkBox, chunkPos);
+                start.placeInChunk(region, level.structureManager(), gen, random, chunkBox, chunkPos);
             });
         });
         //LOGGER.info("Structure placeInChunk complete");
-
+        
         return proto;
     }
 
