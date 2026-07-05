@@ -2,8 +2,10 @@ package com.pointlessbuilding.journal;
 
 import com.mojang.logging.LogUtils;
 import com.pointlessbuilding.journal.datagen.DataGeneration;
+import com.pointlessbuilding.journal.gui.ConfigUI;
 import com.pointlessbuilding.journal.network.Network;
 
+import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -23,7 +25,13 @@ public class BuildingJournal
     public BuildingJournal()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, BuildingJournalConfig.SPEC);
+        ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,
+            () -> new ConfigScreenHandler.ConfigScreenFactory(
+                (mc, screen) -> new ConfigUI(screen)
+            ));
+
         Registration.init(modEventBus);
 
         // Register the commonSetup method for modloading

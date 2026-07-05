@@ -7,6 +7,13 @@
   "key.buildingjournal.journal": "Open Journal",
   "screen.buildingjournal.blueprint_rack": "Blueprint Rack",
   "screen.buildingjournal.drafting_table": "Drafting Table",
+  "screen.buildingjournal.max_box_size": "Maximum Size of Boxes",
+  "screen.buildingjournal.max_box_size_desc": "Maximum boundary size in any direction",
+  "screen.buildingjournal.max_boxes": "Maximum Boxes",
+  "screen.buildingjournal.max_boxes_desc": "Maximum number of stored boundaries",
+  "screen.buildingjournal.ui_title": "Building Journal Config",
+  "screen.buildingjournal.use_blueprint_shader": "Use Blueprint Shader",
+  "screen.buildingjournal.use_blueprint_shader_desc": "Is the custom compass blueprint shader enabled?",
   "tab.buildingjournal": "Building Journal",
   "tooltip.buildingjournal.compass.deselect": "Press %1$s + %2$s to remove the last boundary marked.",
   "tooltip.buildingjournal.compass.select": "Press %s to select the first and last positions of individual boundaries of builds."

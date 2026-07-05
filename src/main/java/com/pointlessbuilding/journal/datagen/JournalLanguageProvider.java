@@ -5,6 +5,7 @@ import com.pointlessbuilding.journal.Registration;
 import com.pointlessbuilding.journal.blocks.BlueprintRack;
 import com.pointlessbuilding.journal.blocks.DraftingTable;
 import com.pointlessbuilding.journal.client.ClientSetup;
+import com.pointlessbuilding.journal.gui.ConfigUI;
 import com.pointlessbuilding.journal.items.BuildersCompass;
 
 import net.minecraft.data.PackOutput;
@@ -18,6 +19,15 @@ public class JournalLanguageProvider extends LanguageProvider{
 
     @Override
     protected void addTranslations() {
+        // Config translatables
+        add(ConfigUI.CONFIG_UI_TITLE, "Building Journal Config");
+        add(ConfigUI.CONFIG_UI_MAX_BOXES, "Maximum Boxes");
+        add(ConfigUI.CONFIG_UI_MAX_BOXES_DESC, "Maximum number of stored boundaries");
+        add(ConfigUI.CONFIG_UI_MAX_BOX_SIZE, "Maximum Size of Boxes");
+        add(ConfigUI.CONFIG_UI_MAX_BOX_SIZE_DESC, "Maximum boundary size in any direction");
+        add(ConfigUI.CONFIG_UI_USE_BLUEPRINT_SHADER, "Use Blueprint Shader");
+        add(ConfigUI.CONFIG_UI_USE_BLUEPRINT_SHADER_DESC, "Is the custom compass blueprint shader enabled?");
+        
         add(Registration.ANCHOR_BLOCK.get(), "Anchor Block");
         add(Registration.DRAFTING_TABLE.get(), "Drafting Table");
         add(Registration.BLUEPRINT_RACK.get(), "Blueprint Rack");

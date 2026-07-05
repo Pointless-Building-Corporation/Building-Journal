@@ -56,7 +56,7 @@ public class ClientRenderEvents {
         if(event.getStage() == RenderLevelStageEvent.Stage.AFTER_TRIPWIRE_BLOCKS)
             renderCompassBoundaries(event);
         else if(event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER)
-            renderPostShaderEffects();
+            if(BuildingJournalConfig.USE_BLUEPRINT_SHADER.get()) renderPostShaderEffects();
         else
             return;
     }
@@ -136,10 +136,23 @@ public class ClientRenderEvents {
 
         bufferSource.endBatch(RenderType.lines());
 
-        //VertexConsumer faceConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(dummyLocation));
-        //render translucent faces
-        //BoundaryRenderer.renderCuboidFaces(ms, faceConsumer, camera, firstPos, secondPos, new Vector4d(93,215,251,128), true);
-        //bufferSource.endBatch(RenderType.entityTranslucent(dummyLocation));
+        // Render faces if shader is off
+        if(!BuildingJournalConfig.USE_BLUEPRINT_SHADER.get()) {
+            VertexConsumer faceConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(dummyLocation));
+            if(held.hasTag()) {
+                ListTag boxes = held.getTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
+                for(int i = 0; i < boxes.size(); i++) {
+                    CompoundTag box = boxes.getCompound(i);
+                    if(!box.getString("Dimension").equals(Minecraft.getInstance().level.dimension().location().toString())) continue;
+                    first = box.getIntArray("FirstPos");
+                    second = box.getIntArray("SecondPos");
+                    firstPos = new Vector3d(first[0], first[1], first[2]);
+                    secondPos = new Vector3d(second[0], second[1], second[2]);
+                    BoundaryRenderer.renderCuboidFaces(ms, faceConsumer, camera, firstPos, secondPos, new Vector4d(93,215,251,128), true);
+                }
+            }
+            bufferSource.endBatch(RenderType.entityTranslucent(dummyLocation));
+        }
     }
 
     protected static void renderPostShaderEffects() {
