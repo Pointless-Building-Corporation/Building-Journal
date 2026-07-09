@@ -10,6 +10,9 @@ Size of the texture in the window.
 ### `public JournalUI()`
 Constructor. This just needs to set a title if required. Right now just sets it to no title, as in BookViewScreen.
 
+## `public void init()`
+This is called when the window is created and on every resize - essentially every time it needs to be refreshed. A kind of super-render.
+
 ### `public void render()`
 Has to be overridden. This renders all the necessary elements of the screen.
 
