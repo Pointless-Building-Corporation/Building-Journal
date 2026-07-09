@@ -16,5 +16,7 @@
   "screen.buildingjournal.use_blueprint_shader_desc": "Is the custom compass blueprint shader enabled?",
   "tab.buildingjournal": "Building Journal",
   "tooltip.buildingjournal.compass.deselect": "Press %1$s + %2$s to remove the last boundary marked.",
-  "tooltip.buildingjournal.compass.select": "Press %s to select the first and last positions of individual boundaries of builds."
+  "tooltip.buildingjournal.compass.select": "Press %s to select the first and last positions of individual boundaries of builds.",
+  "tutorial.buildingjournal.desc": "Open with %s",
+  "tutorial.buildingjournal.title": "Try out the Journal!"
 }

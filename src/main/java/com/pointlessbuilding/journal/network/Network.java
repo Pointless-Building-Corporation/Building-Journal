@@ -31,6 +31,12 @@ public class Network {
             BlueprintCompletePacket::decode,
             BlueprintCompletePacket::handle
         );
+
+        CHANNEL.registerMessage(ID++, JournalToastPacket.class,
+            JournalToastPacket::encode,
+            JournalToastPacket::decode,
+            JournalToastPacket::handle
+        );
     }
 
     public static void sendToClient(Object packet, ServerPlayer player) {

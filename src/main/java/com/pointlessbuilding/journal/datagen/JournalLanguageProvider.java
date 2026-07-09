@@ -7,6 +7,7 @@ import com.pointlessbuilding.journal.blocks.DraftingTable;
 import com.pointlessbuilding.journal.client.ClientSetup;
 import com.pointlessbuilding.journal.gui.ConfigUI;
 import com.pointlessbuilding.journal.items.BuildersCompass;
+import com.pointlessbuilding.journal.network.JournalToastPacket;
 
 import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.LanguageProvider;
@@ -28,6 +29,9 @@ public class JournalLanguageProvider extends LanguageProvider{
         add(ConfigUI.CONFIG_UI_USE_BLUEPRINT_SHADER, "Use Blueprint Shader");
         add(ConfigUI.CONFIG_UI_USE_BLUEPRINT_SHADER_DESC, "Is the custom compass blueprint shader enabled?");
         
+        add(JournalToastPacket.JOURNAL_TOAST_TITLE, "Try out the Journal!");
+        add(JournalToastPacket.JOURNAL_TOAST_DESC, "Open with %s");
+
         add(Registration.ANCHOR_BLOCK.get(), "Anchor Block");
         add(Registration.DRAFTING_TABLE.get(), "Drafting Table");
         add(Registration.BLUEPRINT_RACK.get(), "Blueprint Rack");
