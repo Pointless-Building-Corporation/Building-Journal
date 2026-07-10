@@ -36,6 +36,7 @@ public class ConfigUI extends Screen{
             this.max = max;
             this.configField = configField;
             applyValue();
+            updateMessage();
         }
 
         @Override
