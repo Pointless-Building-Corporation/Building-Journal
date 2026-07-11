@@ -1,5 +1,6 @@
 package com.pointlessbuilding.journal.gui;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import org.slf4j.Logger;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
 import com.pointlessbuilding.journal.client.ClientSetup;
+import com.pointlessbuilding.journal.commission.CommissionState;
 
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.GuiGraphics;
@@ -17,6 +19,7 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 
@@ -27,9 +30,10 @@ public class JournalUI extends Screen{
     public static List<ResourceLocation> JOURNAL_PAGES = Arrays.asList(
         new ResourceLocation("buildingjournal:textures/gui/journal_ui_guidebook.png"),
         new ResourceLocation("buildingjournal:textures/gui/journal_ui_commscreen.png")
-        );
+    );
     public static ResourceLocation JOURNAL_TABS = new ResourceLocation("buildingjournal:textures/gui/journal_page_tabs.png");
     public static ResourceLocation JOURNAL_BOOKMARKS = new ResourceLocation("buildingjournal:textures/gui/journal_page_bookmarks.png");
+    public static ResourceLocation TEST_COMM_IMAGE = new ResourceLocation("buildingjournal:textures/gui/test.png");
 
     public static int ui_width = 800;
     public static int ui_height = 450;
@@ -40,7 +44,6 @@ public class JournalUI extends Screen{
 
     private int currentPage;
     private int currentCommissionPage;
-    private static int commissionCount = 7;
 
     private int scaledTabOffset = (int)(68 * ((double) ui_width / 3840));
     private int scaledTabWidth = (int)(118 * ((double) ui_width / 3840));
@@ -49,6 +52,28 @@ public class JournalUI extends Screen{
     private int scaledBookmarkOffset = (int)(40 * ((double) ui_width / 3840));
     private int scaledBookmarkWidth = (int)(600 * ((double) ui_width / 3840));
     private int scaledBookmarkHeight = (int)(80 * ((double) ui_height / 2160));
+
+    private final List<CommissionCard> allCards = new ArrayList<>();
+    private final List<CommissionCard> visibleCards = new ArrayList<>();
+
+    private int cardWidth = 920, cardHeight = 633;
+    private int commissionY = 60, commisionSpacing = 673;
+    private int commissionAnchor = 500;
+
+    private void buildAllCards() {
+        // Hardcoded for now
+
+        allCards.add(new CommissionCard(0,0,0,0,
+            Component.literal("Test card 1"), null, CommissionState.AVAILABLE
+        ));
+        allCards.add(new CommissionCard(0,0,0,0,
+            Component.literal("Test card 2"), null, CommissionState.UNAVAILABLE
+        ));
+        allCards.add(new CommissionCard(0,0,0,0,
+            Component.literal("Test card 3"), null, CommissionState.COMPLETED
+        ));
+
+    }
 
     private class BookmarkButton extends AbstractButton {
         
@@ -92,7 +117,7 @@ public class JournalUI extends Screen{
 
         @Override
         public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            boolean isActive = isLeft ? currentCommissionPage > 0 : currentCommissionPage < Math.ceil(commissionCount / 6.0) - 1;
+            boolean isActive = isLeft ? currentCommissionPage > 0 : currentCommissionPage < Math.ceil(allCards.size() / 6.0) - 1;
 
             int frame = isLeft ? (isActive ? 0 : 1) : (isActive ? 3 : 2);
             guiGraphics.pose().pushPose();
@@ -104,7 +129,7 @@ public class JournalUI extends Screen{
         @Override
         public void onPress() {
             if(isLeft) currentCommissionPage = Math.max(0, currentCommissionPage - 1);
-            else currentCommissionPage = Math.min((int)Math.ceil(commissionCount / 6.0) - 1, currentCommissionPage + 1);
+            else currentCommissionPage = Math.min((int)Math.ceil(allCards.size() / 6.0) - 1, currentCommissionPage + 1);
         }
 
         @Override
@@ -215,6 +240,32 @@ public class JournalUI extends Screen{
         scaledBookmarkOffset = (int)(40 * ((double) ui_width / 3840));
         scaledBookmarkWidth = (int)(600 * ((double) ui_width / 3840));
         scaledBookmarkHeight = (int)(80 * ((double) ui_height / 2160));
+
+        if (allCards.isEmpty()) buildAllCards();
+
+        int scaled_w = (int) (cardWidth * ((double) ui_width / 3840));
+        int scaled_h = (int) (cardHeight * ((double) ui_width / 3840));
+        int scaled_spacing = (int) (commisionSpacing * ((double) ui_width / 3840));
+        int scaled_y = (int) (commissionY * ((double) ui_width / 3840));
+        int scaled_anchor = (int) (commissionAnchor * ((double) ui_width / 3840));
+        int page_halfwidth = (int) (1920 * ((double) ui_width / 3840));
+
+        int start = currentCommissionPage * 6;
+        int end = Math.min(start + 6, allCards.size());
+
+        for (CommissionCard card: visibleCards) this.removeWidget(card);
+        visibleCards.clear();
+
+        for (int i = start; i < end; i++) {
+            CommissionCard card = allCards.get(i);
+            int x = (this.width - ui_width) / 2 + ((i - start)/3 == 0 ? 0 : page_halfwidth) + scaled_anchor;
+            int y = scaled_y + ((i - start) % 3) * scaled_spacing;
+            card.setX(x); card.setY(y);
+            card.setWidth(scaled_w); card.setHeight(scaled_h);
+
+            this.addRenderableWidget(card);
+            visibleCards.add(card);
+        }
     }
     
 }
