@@ -131,6 +131,7 @@ public class BlueprintEvaluator {
                 final Map<String, long[]> finalCounts = diffResult.counts();
                 List<int[]> finalBoxMins = diffResult.boxMins();
                 List<int[]> finalBoxMaxs = diffResult.boxMaxs();
+                final long finalModifiedCount = diffResult.modifiedCount();
                 level.getServer().execute(() -> {
                     //LOGGER.info("Back on main thread, writing blueprint");
 
@@ -156,7 +157,7 @@ public class BlueprintEvaluator {
 
                     long unionVolume = BoundaryMath.unionVolume(finalBoxMins, finalBoxMaxs);
 
-                    ItemStack blueprintStack = Blueprint.create(name, dimension, boxesTag, blockCounts, unionVolume);
+                    ItemStack blueprintStack = Blueprint.create(name, dimension, boxesTag, blockCounts, finalModifiedCount, unionVolume);
                     if(!(name.equals("Blueprint"))) blueprintStack.setHoverName(Component.literal(name));
 
                     if(!(level.getBlockEntity(pos) instanceof DraftingTableEntity table)) {
@@ -226,7 +227,7 @@ public class BlueprintEvaluator {
         }
     }
 
-    private record DiffResult(Map<String, long[]> counts, List<int[]> boxMins, List<int[]> boxMaxs) {}
+    private record DiffResult(Map<String, long[]> counts, List<int[]> boxMins, List<int[]> boxMaxs, long modifiedCount) {}
 
     private static DiffResult computeDiff(ServerLevel level, List<CompoundTag> boxes, Set<ChunkPos> diffChunks, Map<ChunkPos, ChunkAccess> chunkCache) {
 
@@ -235,6 +236,8 @@ public class BlueprintEvaluator {
 
         List<int[]> diffMins = new ArrayList<>();
         List<int[]> diffMaxs = new ArrayList<>();
+
+        long modifiedCount = 0;
 
         for(CompoundTag box : boxes) {
             int[] first = box.getIntArray("FirstPos");
@@ -311,9 +314,7 @@ public class BlueprintEvaluator {
                             }
 
                             if(isModified) {
-                                // blocks_modified++; I haven't made this variable yet, I would need to do it in order from the blueprint
-                                // tag definition to the modification of evaluate to this function's return type.
-
+                                modifiedCount++;
                                 // Check if position is in which box
                                 for (int i = 0; i < diffMins.size(); i++) {
                                     
@@ -358,7 +359,7 @@ public class BlueprintEvaluator {
             }
         }
 
-        return new DiffResult(counts, resultMins, resultMaxs);
+        return new DiffResult(counts, resultMins, resultMaxs, modifiedCount);
     }
 
     private static ChunkAccess generateBaselineChunk(ServerLevel level, ChunkPos chunkPos, ChunkGenerator gen, Map<ChunkPos, ChunkAccess> chunkCache) {

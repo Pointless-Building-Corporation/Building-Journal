@@ -24,6 +24,7 @@ public class Blueprint extends Item{
     public static final String TAG_BLOCK = "Block";
     public static final String TAG_ADDED = "Added";
     public static final String TAG_REMOVED = "Removed";
+    public static final String TAG_MODIFIED = "ModifiedCount";
     public static final String TAG_UNION_VOLUME = "UnionVolume";
     public static final String TAG_UUID = "UUID";
 
@@ -31,13 +32,14 @@ public class Blueprint extends Item{
         super(properties);
     }
     
-    public static ItemStack create(String name, String dimension, ListTag boxes, ListTag blockCounts, long unionVolume) {
+    public static ItemStack create(String name, String dimension, ListTag boxes, ListTag blockCounts, long modifiedCount, long unionVolume) {
         ItemStack stack = new ItemStack(Registration.BLUEPRINT.get());
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString(TAG_NAME, name);
         tag.putString(TAG_DIMENSION, dimension);
         tag.put(TAG_BOXES, boxes);
         tag.put(TAG_BLOCK_COUNTS, blockCounts);
+        tag.putLong(TAG_MODIFIED, modifiedCount);
         tag.putLong(TAG_UNION_VOLUME, unionVolume);
         tag.put(TAG_UUID, NbtUtils.createUUID(UUID.randomUUID()));
         return stack;
@@ -70,6 +72,11 @@ public class Blueprint extends Item{
             });
         }
         return result;
+    }
+
+    public static long getModifiedCount(ItemStack stack) {
+        if (!stack.hasTag()) return 0;
+        return stack.getTag().getLong(TAG_MODIFIED);
     }
 
     public static long getUnionVolume(ItemStack stack) {
