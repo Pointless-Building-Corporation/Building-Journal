@@ -120,15 +120,17 @@ public class BlueprintEvaluator {
                 if (chunk != null) chunkCache.put(cp, chunk);
             }
 
-            Map<String, long[]> counts = null;
+            DiffResult diffResult = null;
 
             try {
-                counts = computeDiff(level, boxes, diffChunks, chunkCache);
+                diffResult = computeDiff(level, boxes, diffChunks, chunkCache);
             } finally {
                 level.getServer().execute(() -> unloadChunks(level, forcedChunks));
             }
-            if (counts != null) {
-                final Map<String, long[]> finalCounts = counts;
+            if (diffResult != null) {
+                final Map<String, long[]> finalCounts = diffResult.counts();
+                List<int[]> finalBoxMins = diffResult.boxMins();
+                List<int[]> finalBoxMaxs = diffResult.boxMaxs();
                 level.getServer().execute(() -> {
                     //LOGGER.info("Back on main thread, writing blueprint");
 
@@ -143,18 +145,16 @@ public class BlueprintEvaluator {
                     }
 
                     ListTag boxesTag = new ListTag();
-                    for (CompoundTag box : boxes) boxesTag.add(box);
-
-                    List<int[]> firsts = new ArrayList<>();
-                    List<int[]> seconds = new ArrayList<>();
-                    for(CompoundTag box : boxes) {
-                        int[] first = box.getIntArray("FirstPos");
-                        int[] second = box.getIntArray("SecondPos");
-                        firsts.add(first);
-                        seconds.add(second);
+                    for(int i = 0; i < finalBoxMins.size(); i++) {
+                        int[] min = finalBoxMins.get(i);
+                        int[] max = finalBoxMaxs.get(i);
+                        CompoundTag boxTag = new CompoundTag();
+                        boxTag.putIntArray("FirstPos", new int[]{min[0], min[1], min[2]});
+                        boxTag.putIntArray("SecondPos", new int[]{max[0], max[1], max[2]});
+                        boxesTag.add(boxTag);
                     }
 
-                    long unionVolume = BoundaryMath.unionVolume(firsts, seconds);
+                    long unionVolume = BoundaryMath.unionVolume(finalBoxMins, finalBoxMaxs);
 
                     ItemStack blueprintStack = Blueprint.create(name, dimension, boxesTag, blockCounts, unionVolume);
                     if(!(name.equals("Blueprint"))) blueprintStack.setHoverName(Component.literal(name));
@@ -226,21 +226,27 @@ public class BlueprintEvaluator {
         }
     }
 
-    private static Map<String, long[]> computeDiff(ServerLevel level, List<CompoundTag> boxes, Set<ChunkPos> diffChunks, Map<ChunkPos, ChunkAccess> chunkCache) {
+    private record DiffResult(Map<String, long[]> counts, List<int[]> boxMins, List<int[]> boxMaxs) {}
+
+    private static DiffResult computeDiff(ServerLevel level, List<CompoundTag> boxes, Set<ChunkPos> diffChunks, Map<ChunkPos, ChunkAccess> chunkCache) {
 
         List<int[]> mins = new ArrayList<>();
         List<int[]> maxs = new ArrayList<>();
+
+        List<int[]> diffMins = new ArrayList<>();
+        List<int[]> diffMaxs = new ArrayList<>();
+
         for(CompoundTag box : boxes) {
             int[] first = box.getIntArray("FirstPos");
             int[] second = box.getIntArray("SecondPos");
             mins.add(new int[]{Math.min(first[0],second[0]), Math.min(first[1],second[1]), Math.min(first[2],second[2])});
             maxs.add(new int[]{Math.max(first[0],second[0]), Math.max(first[1],second[1]), Math.max(first[2],second[2])});
+
+            diffMins.add(null);
+            diffMaxs.add(null);
         }
 
         Map<String, long[]> counts = new HashMap<>();
-
-        // GANESH: MODIFIED 
-        // long totalElapsed = 0;
 
         ExecutorService chunkGenExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
@@ -284,21 +290,56 @@ public class BlueprintEvaluator {
 
                             boolean liveAir = live.isAir();
                             boolean baseAir = baseline.isAir();
+                            boolean isModified = false;
 
                             if(!liveAir && baseAir) {   // Added block
+                                isModified = true;
                                 String key = ForgeRegistries.BLOCKS.getKey(live.getBlock()).toString();
                                 counts.computeIfAbsent(key, k -> new long[2])[0]++;
                             }
                             else if(liveAir && !baseAir) {  //Removed block
+                                isModified = true;
                                 String key = ForgeRegistries.BLOCKS.getKey(baseline.getBlock()).toString();
                                 counts.computeIfAbsent(key, k -> new long[2])[1]++;
                             }
                             else if(!liveAir && !baseAir && live.getBlock() != baseline.getBlock()) {   //Replaced block
+                                isModified = true;
                                 String liveKey = ForgeRegistries.BLOCKS.getKey(live.getBlock()).toString();
                                 String baseKey = ForgeRegistries.BLOCKS.getKey(baseline.getBlock()).toString();
                                 counts.computeIfAbsent(liveKey, k -> new long[2])[0]++;
                                 counts.computeIfAbsent(baseKey, k -> new long[2])[1]++;
                             }
+
+                            if(isModified) {
+                                // blocks_modified++; I haven't made this variable yet, I would need to do it in order from the blueprint
+                                // tag definition to the modification of evaluate to this function's return type.
+
+                                // Check if position is in which box
+                                for (int i = 0; i < diffMins.size(); i++) {
+                                    
+                                    int[] boxMin = mins.get(i);
+                                    int[] boxMax = maxs.get(i);
+                                    if (x < boxMin[0] || x > boxMax[0]) continue;
+                                    if (y < boxMin[1] || y > boxMax[1]) continue;
+                                    if (z < boxMin[2] || z > boxMax[2]) continue;
+
+                                    if(diffMins.get(i) == null) {
+                                        diffMins.set(i, new int[]{x,y,z});
+                                        diffMaxs.set(i, new int[]{x,y,z});
+                                    }
+                                    else {
+                                        int[] dMin = diffMins.get(i);
+                                        int[] dMax = diffMaxs.get(i);
+                                        dMin[0] = Math.min(dMin[0], x);
+                                        dMin[1] = Math.min(dMin[1], y);
+                                        dMin[2] = Math.min(dMin[2], z);
+                                        dMax[0] = Math.max(dMax[0], x);
+                                        dMax[1] = Math.max(dMax[1], y);
+                                        dMax[2] = Math.max(dMax[2], z);
+                                    }
+                                }
+                            }
+
                         }
                     }
                 }
@@ -308,7 +349,16 @@ public class BlueprintEvaluator {
         chunkGenExecutor.shutdown();
         //LOGGER.info("Active threads: {}", Thread.activeCount());
 
-        return counts;
+        List<int[]> resultMins = new ArrayList<>();
+        List<int[]> resultMaxs = new ArrayList<>();
+        for (int i = 0; i < diffMins.size(); i++) {
+            if (diffMins.get(i) != null) {
+                resultMins.add(diffMins.get(i));
+                resultMaxs.add(diffMaxs.get(i));
+            }
+        }
+
+        return new DiffResult(counts, resultMins, resultMaxs);
     }
 
     private static ChunkAccess generateBaselineChunk(ServerLevel level, ChunkPos chunkPos, ChunkGenerator gen, Map<ChunkPos, ChunkAccess> chunkCache) {

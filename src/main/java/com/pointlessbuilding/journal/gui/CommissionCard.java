@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -30,6 +31,7 @@ public class CommissionCard extends AbstractWidget{
         super(x, y, width, height, title);
         this.thumbnail = thumbnail;
         this.state = state;
+        this.setTooltip(Tooltip.create(title));
     }
 
     @Override
@@ -67,16 +69,18 @@ public class CommissionCard extends AbstractWidget{
         // Title
         Font font = Minecraft.getInstance().font;
         Component title = this.getMessage();
-        int captionTop = getY() + Math.round((frame_height - 10 + 1) * scale);
-        int captionBottom = getY() + Math.round((frame_height - 1) * scale);
-        int captionY = captionTop + (captionBottom - captionTop - font.lineHeight) / 2;
+
+        int textMargin = 2;
+        int captionTop = getY() + Math.round((frame_height - 10 + textMargin) * scale);
+        int captionBottom = getY() + Math.round((frame_height - textMargin) * scale);
+        float fontScale = (float) (captionBottom - captionTop)/font.lineHeight;
+        fontScale = (float) Math.floor(fontScale * 4f) / 4f;
         int textWidth = font.width(title);
-        float drawnWidth = textWidth * scale;
-        int textX = getX() + this.width / 2 - Math.round(drawnWidth / 2);
+        int textX = getX() + this.width / 2 - Math.round(textWidth * fontScale / 2);
 
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(textX, captionY, 0);
-        guiGraphics.pose().scale(scale, scale, 1f);
+        guiGraphics.pose().translate(textX, captionTop, 0);
+        guiGraphics.pose().scale(fontScale, fontScale, 1f);
         guiGraphics.drawString(font, title, 0, 0, 0xFF3C2E1A, false);
         guiGraphics.pose().popPose();
     }
