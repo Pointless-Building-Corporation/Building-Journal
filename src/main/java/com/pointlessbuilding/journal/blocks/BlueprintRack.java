@@ -127,7 +127,7 @@ public class BlueprintRack extends Block implements EntityBlock{
                 }
             }
 
-         super.onRemove(state, level, pos, newState, isMoving);
+            super.onRemove(state, level, pos, newState, isMoving);
         }
     }
 
