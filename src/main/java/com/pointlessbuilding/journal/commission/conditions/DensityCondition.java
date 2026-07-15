@@ -7,17 +7,17 @@ public class DensityCondition implements CommissionCondition{
     
     public enum Operator { LESS_THAN, GREATER_THAN, EQUAL }
 
-    private final long threshold;
+    private final float threshold;
     private final Operator operator;
 
-    public DensityCondition(long threshold, Operator operator) {
+    public DensityCondition(float threshold, Operator operator) {
         this.threshold = threshold;
         this.operator = operator;
     }
 
     @Override
     public boolean test(EvaluationResult result) {
-        long density = result.modifiedCount() / result.unionVolume();
+        float density = result.modifiedCount() / result.unionVolume();
 
         return switch (operator) {
             case LESS_THAN -> density < threshold;

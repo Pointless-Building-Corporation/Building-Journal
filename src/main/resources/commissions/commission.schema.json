@@ -1,0 +1,346 @@
+{
+    "$schema" : "https://json-schema.org/draft/2020-12/schema",
+    "$id" : "commission.schema.json",
+    "title" : "Commission",
+    "description": "A Commission in the Building Journal",
+    "type": "object",
+    "properties": {
+        "$schema" : {
+            "description": "This current Schema",
+            "type" : "string"
+        },
+        "schema_version" : {
+            "description": "Schema version",
+            "$ref": "#/$defs/schema_version"
+        },
+        "id" : {
+            "description": "Unique Identifier of the Commission",
+            "type" : "string"
+        },
+        "title" : {
+            "description": "Title of the Commission",
+            "type" : "string"
+        },
+        "thumbnailPath" : {
+            "description": "Path to the thumbnail of the Commission",
+            "type" : "string"
+        },
+        "conditions": {
+            "description": "Conditions required to satisfy the Commission",
+            "type" : "array",
+            "items" : {
+                "type" : "object",
+                "properties": {
+                    "title" : {
+                        "description": "What the condition is called in-game",
+                        "type" : "string"
+                    },
+                    "condition" : {
+                        "description": "The condition type",
+                        "$ref": "#/$defs/condition"
+                    },
+                    "failureDescription" : {
+                        "description": "What to tell the player if the condition fails",
+                        "type": "string"
+                    }
+                },
+                "allOf": [
+                    {
+                        "if" : {
+                            "properties": {
+                                "condition" : { "const" : "BlockAdded"}
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "blocks" : {
+                                    "description": "Block ids to check",
+                                    "type": "array",
+                                    "items" : {
+                                        "type": "string"
+                                    }
+                                },
+                                "operator" : {
+                                    "description": "Comparison operator",
+                                    "enum": ["<", ">", "=="]
+                                },
+                                "threshold" : {
+                                    "description": "Value to compare against",
+                                    "type": "integer"
+                                }
+                            },
+                            "required": ["operator", "threshold"]
+                        }
+                    },
+                    {
+                        "if" : {
+                            "properties": {
+                                "condition" : { "const" : "BlockRemoved"}
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "blocks" : {
+                                    "description": "Block ids to check",
+                                    "type": "array",
+                                    "items" : {
+                                        "type": "string"
+                                    }
+                                },
+                                "operator" : {
+                                    "description": "Comparison operator",
+                                    "enum": ["<", ">", "=="]
+                                },
+                                "threshold" : {
+                                    "description": "Value to compare against",
+                                    "type": "integer"
+                                }
+                            },
+                            "required": ["operator", "threshold"]
+                        }
+                    },
+                    {
+                        "if" : {
+                            "properties": {
+                                "condition" : { "const" : "BlockModified"}
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "operator" : {
+                                    "description": "Comparison operator",
+                                    "enum": ["<", ">", "=="]
+                                },
+                                "threshold" : {
+                                    "description": "Value to compare against",
+                                    "type": "integer"
+                                }
+                            },
+                            "required": ["operator", "threshold"]
+                        }
+                    },
+                    {
+                        "if" : {
+                            "properties": {
+                                "condition" : { "const" : "Density"}
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "operator" : {
+                                    "description": "Comparison operator",
+                                    "enum": ["<", ">", "=="]
+                                },
+                                "threshold" : {
+                                    "description": "Value to compare against",
+                                    "type": "number"
+                                }
+                            },
+                            "required": ["operator", "threshold"]
+                        }
+                    },
+                    {
+                        "if" : {
+                            "properties": {
+                                "condition" : { "const" : "Dimension"}
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "dimensions" : {
+                                    "description": "Dimensions allowed",
+                                    "type": "array",
+                                    "items" : {
+                                        "type": "string"
+                                    },
+                                    "minItems": 1
+                                }
+                            },
+                            "required": ["dimensions"]
+                        }
+                    },
+                    {
+                        "if" : {
+                            "properties": {
+                                "condition" : { "const" : "Elevation"}
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "operator" : {
+                                    "description": "Comparison operator",
+                                    "enum": ["<", ">"]
+                                },
+                                "threshold" : {
+                                    "description": "Value to compare against",
+                                    "type": "integer"
+                                }
+                            },
+                            "required": ["operator", "threshold"]
+                        }
+                    },
+                    {
+                        "if" : {
+                            "properties": {
+                                "condition" : { "const" : "Length"}
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "operator" : {
+                                    "description": "Comparison operator",
+                                    "enum": ["<", ">", "=="]
+                                },
+                                "threshold" : {
+                                    "description": "Value to compare against",
+                                    "type": "integer"
+                                }
+                            },
+                            "required": ["operator", "threshold"]
+                        }
+                    },
+                    {
+                        "if" : {
+                            "properties": {
+                                "condition" : { "const" : "Tallness"}
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "operator" : {
+                                    "description": "Comparison operator",
+                                    "enum": ["<", ">", "=="]
+                                },
+                                "threshold" : {
+                                    "description": "Value to compare against",
+                                    "type": "integer"
+                                }
+                            },
+                            "required": ["operator", "threshold"]
+                        }
+                    },
+                    {
+                        "if" : {
+                            "properties": {
+                                "condition" : { "const" : "TotalVolume"}
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "operator" : {
+                                    "description": "Comparison operator",
+                                    "enum": ["<", ">", "=="]
+                                },
+                                "threshold" : {
+                                    "description": "Value to compare against",
+                                    "type": "integer"
+                                }
+                            },
+                            "required": ["operator", "threshold"]
+                        }
+                    }
+                ],
+                "unevaluatedProperties": false,
+                "required" : ["condition"]
+            }
+        },
+        "unlocks": {
+            "description": "What the Commission unlocks once completed",
+            "type" : "array",
+            "items" : {
+                "type" : "object",
+                "properties": {
+                    "title": {
+                        "description": "What the unlock is called in-game",
+                        "type" : "string"
+                    },
+                    "unlock" : {
+                        "description": "The unlock type",
+                        "$ref": "#/$defs/unlock"
+                    }
+                },
+                "allOf": [
+                    {
+                        "if" : {
+                            "properties": {
+                                "unlock" : { "const" : "BlockReward"}
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "block" : {
+                                    "description": "The block ID",
+                                    "type": "string"
+                                },
+                                "count" : {
+                                    "description": "Number of blocks rewarded",
+                                    "type": "integer"
+                                }
+                            },
+                            "required": ["block", "count"]
+                        }
+                    },
+                    {
+                        "if" : {
+                            "properties": {
+                                "unlock" : { "const" : "ExpReward"}
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "expAmount" : {
+                                    "description": "The amount of exp rewarded",
+                                    "type": "integer"
+                                },
+                                "expType" : {
+                                    "description": "Whether the amount is in levels or points",
+                                    "enum" : ["Points", "Levels"]
+                                }
+                            },
+                            "required": ["expAmount", "expType"]
+                        }
+                    },
+                    {
+                        "if" : {
+                            "properties": {
+                                "unlock" : { "const" : "CommissionReward"}
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "commission" : {
+                                    "description": "The commission ID",
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["commission"]
+                        }
+                    }
+                ],
+                "unevaluatedProperties": false,
+                "required" : ["unlock"]
+            }
+        },
+        "prerequisites": {
+            "description": "What's required to be completed to unlock this Commission",
+            "type" : "array",
+            "items" : {
+                "type" : "string"
+            }
+        }
+    },
+    "required" : ["schema_version", "title", "conditions"],
+    "unevaluatedProperties": false,
+
+    "$defs": {
+        "schema_version" : {
+            "enum": [1]
+        },
+        "condition" : {
+            "enum" : ["BlockAdded", "BlockModified", "BlockRemoved", "Density", "Dimension", "Elevation", "Length", "Tallness", "TotalVolume"]
+        },
+        "unlock" : {
+            "enum" : ["BlockReward", "ExpReward", "CommissionReward"]
+        }
+    }
+}

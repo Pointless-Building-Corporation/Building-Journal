@@ -8,5 +8,6 @@ public record Commission(
     String title,
     Path thumbnailPath,
     List<CommissionCondition> conditions,
-    List<CommissionUnlock> unlocks
+    List<CommissionUnlock> unlocks,
+    List<String> prerequisites
 ) {}

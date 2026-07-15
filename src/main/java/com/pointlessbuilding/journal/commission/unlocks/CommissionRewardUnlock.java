@@ -5,11 +5,11 @@ import com.pointlessbuilding.journal.commission.CommissionUnlock;
 
 import net.minecraft.server.level.ServerPlayer;
 
-public class LockedCommissionUnlock implements CommissionUnlock{
+public class CommissionRewardUnlock implements CommissionUnlock{
 
     private final String commissionId;
 
-    public LockedCommissionUnlock(String commissionId) {
+    public CommissionRewardUnlock(String commissionId) {
         this.commissionId = commissionId;
     }
 
