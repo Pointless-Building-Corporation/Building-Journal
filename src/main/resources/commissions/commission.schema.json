@@ -9,7 +9,7 @@
             "description": "This current Schema",
             "type" : "string"
         },
-        "schema_version" : {
+        "schemaVersion" : {
             "description": "Schema version",
             "$ref": "#/$defs/schema_version"
         },
@@ -329,7 +329,7 @@
             }
         }
     },
-    "required" : ["schema_version", "title", "conditions"],
+    "required" : ["schemaVersion", "title", "conditions"],
     "unevaluatedProperties": false,
 
     "$defs": {

@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.logging.LogUtils;
 import com.pointlessbuilding.journal.client.ClientSetup;
 import com.pointlessbuilding.journal.commission.CommissionState;
 
@@ -23,9 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 
-public class JournalUI extends Screen{
-
-    private static final Logger LOGGER = LogUtils.getLogger();
+public class JournalUI extends Screen {
 
     public static List<ResourceLocation> JOURNAL_PAGES = Arrays.asList(
         new ResourceLocation("buildingjournal:textures/gui/journal_ui_guidebook.png"),

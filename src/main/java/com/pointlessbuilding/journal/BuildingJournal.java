@@ -1,6 +1,8 @@
 package com.pointlessbuilding.journal;
 
 import com.mojang.logging.LogUtils;
+import com.pointlessbuilding.journal.commission.Commission;
+import com.pointlessbuilding.journal.commission.CommissionSetup;
 import com.pointlessbuilding.journal.datagen.DataGeneration;
 import com.pointlessbuilding.journal.gui.ConfigUI;
 import com.pointlessbuilding.journal.network.Network;
@@ -12,6 +14,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+
+import java.util.List;
+
 import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -41,8 +46,11 @@ public class BuildingJournal
 
     private void commonSetup(final FMLCommonSetupEvent event)
     {
-        LOGGER.info("Inside commonSetup!");
         Network.init();
+        CommissionSetup.setup();
+        List<Commission> loaded = CommissionSetup.loadCommissions();
+        LOGGER.info("Loaded {} commissions", loaded.size());
+        for(Commission c : loaded) LOGGER.info(" - {} ({})", c.title(), c.id());
     }
 
 }

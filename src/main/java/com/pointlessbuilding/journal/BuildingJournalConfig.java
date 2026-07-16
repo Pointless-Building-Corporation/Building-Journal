@@ -10,7 +10,7 @@ public class BuildingJournalConfig {
     public static final ForgeConfigSpec.IntValue MAX_BOXES;
     public static final ForgeConfigSpec.IntValue MAX_BOX_SIZE;
     public static final ForgeConfigSpec.BooleanValue USE_BLUEPRINT_SHADER;
-
+    
     static {
         BUILDER.comment("Builder's Compass Settings");
         MAX_BOXES = BUILDER.comment("Maximum number of stored boundaries").defineInRange("max_boxes",10,1,50);

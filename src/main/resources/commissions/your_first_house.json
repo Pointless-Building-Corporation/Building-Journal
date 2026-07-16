@@ -1,6 +1,6 @@
 {
     "$schema" : "commission.schema.json",
-    "schema_version": 1,
+    "schemaVersion": 1,
     "title": "Your First House",
     "conditions": [
         {"title": "Add less than 100 blocks", "condition": "BlockAdded", "operator": "<", "threshold": 100},

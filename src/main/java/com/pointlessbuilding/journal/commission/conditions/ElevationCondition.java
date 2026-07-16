@@ -1,5 +1,9 @@
 package com.pointlessbuilding.journal.commission.conditions;
 
+import java.util.Map;
+
+import com.google.gson.JsonObject;
+import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.commission.CommissionCondition;
 import com.pointlessbuilding.journal.commission.EvaluationResult;
 
@@ -7,10 +11,19 @@ public class ElevationCondition implements CommissionCondition{
 
     public enum Operator { LESS_THAN, GREATER_THAN }
 
+    private static Map<String, Operator> operatorMap = Map.of(
+        ">", Operator.GREATER_THAN,
+        "<", Operator.LESS_THAN
+    );
+
+    private final String title;
+    private final String failureDescription;
     private final long threshold;
     private final Operator operator;
 
-    public ElevationCondition(long threshold, Operator operator) {
+    public ElevationCondition(String title, String failureDescription, long threshold, Operator operator) {
+        this.title = title;
+        this.failureDescription = failureDescription;
         this.threshold = threshold;
         this.operator = operator;
     }
@@ -31,7 +44,45 @@ public class ElevationCondition implements CommissionCondition{
     }
 
     @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
     public String describeFailure(EvaluationResult result) {
-        return "";
+        return failureDescription;
+    }
+
+    public static CommissionCondition fromJson(JsonObject json) {
+        String jsonTitle = null;
+        String jsonFailure = null;
+        Operator jsonOperator;
+        long jsonThreshold;
+
+        if(json.has("title")) {
+            jsonTitle = json.get("title").getAsString();
+        }
+
+        if(json.has("failureDescription")) {
+            jsonTitle = json.get("failureDescription").getAsString();
+        }
+
+        if(json.has("operator")) {
+            jsonOperator = operatorMap.get(json.get("operator").getAsString());
+        }
+        else {
+            BuildingJournal.LOGGER.warn("Missing operator field in condition {}", jsonTitle != null ? jsonTitle : "ElevationCondition");
+            return null;
+        }
+        
+        if(json.has("threshold")) {
+            jsonThreshold = json.get("threshold").getAsLong();
+        }
+        else {
+            BuildingJournal.LOGGER.warn("Missing threshold field in condition {}", jsonTitle != null ? jsonTitle : "ElevationCondition");
+            return null;
+        }
+
+        return new ElevationCondition(jsonTitle, jsonFailure, jsonThreshold, jsonOperator);
     }
 }
