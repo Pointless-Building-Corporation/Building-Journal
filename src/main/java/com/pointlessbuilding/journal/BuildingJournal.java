@@ -2,7 +2,7 @@ package com.pointlessbuilding.journal;
 
 import com.mojang.logging.LogUtils;
 import com.pointlessbuilding.journal.commission.Commission;
-import com.pointlessbuilding.journal.commission.CommissionSetup;
+import com.pointlessbuilding.journal.commission.CommissionLoader;
 import com.pointlessbuilding.journal.datagen.DataGeneration;
 import com.pointlessbuilding.journal.gui.ConfigUI;
 import com.pointlessbuilding.journal.network.Network;
@@ -47,8 +47,8 @@ public class BuildingJournal
     private void commonSetup(final FMLCommonSetupEvent event)
     {
         Network.init();
-        CommissionSetup.setup();
-        List<Commission> loaded = CommissionSetup.loadCommissions();
+        CommissionLoader.setup();
+        List<Commission> loaded = CommissionLoader.loadCommissions();
         LOGGER.info("Loaded {} commissions", loaded.size());
         for(Commission c : loaded) LOGGER.info(" - {} ({})", c.title(), c.id());
     }

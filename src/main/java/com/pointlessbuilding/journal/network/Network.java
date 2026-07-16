@@ -37,6 +37,12 @@ public class Network {
             JournalToastPacket::decode,
             JournalToastPacket::handle
         );
+
+        CHANNEL.registerMessage(ID++, RequestCardCommissionsPacket.class,
+            RequestCardCommissionsPacket::encode,
+            RequestCardCommissionsPacket::decode,
+            RequestCardCommissionsPacket::handle
+        );
     }
 
     public static void sendToClient(Object packet, ServerPlayer player) {

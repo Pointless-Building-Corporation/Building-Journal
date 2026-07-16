@@ -9,8 +9,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import com.google.gson.JsonArray;
@@ -30,9 +32,10 @@ import com.pointlessbuilding.journal.commission.unlocks.BlockRewardUnlock;
 import com.pointlessbuilding.journal.commission.unlocks.CommissionRewardUnlock;
 import com.pointlessbuilding.journal.commission.unlocks.ExpRewardUnlock;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.fml.loading.FMLPaths;
 
-public class CommissionSetup {
+public class CommissionLoader {
 
     public static enum SUPPORTED_SCHEMA_VERSION {
         V1(1);
@@ -171,6 +174,56 @@ public class CommissionSetup {
         }
 
         return availableCommissions;
+    }
+
+    public static void sendCommissionCardData(ServerPlayer player) {
+
+        List<Commission> availableCommissions = loadCommissions();
+        Set<String> completed = player.getCapability(CommissionProgress.COMMISSION_PROGRESS)
+            .resolve()
+            .map(ICommissionProgress::getCompletedCommissions)
+            .orElse(Collections.emptySet());
+
+        List<CommissionCardData> cardCommissions = new ArrayList<>();
+
+        for (Commission c : availableCommissions) {
+            String id = c.id();
+            String title = c.title();
+            
+           
+                Path thumbnailPath = c.thumbnailPath();
+                byte[] thumbnailBytes;
+                if(thumbnailPath == null) thumbnailBytes = new byte[0];
+                else {
+                    try {
+                        thumbnailBytes = Files.readAllBytes(thumbnailPath);
+                    }
+                    catch(Exception e) {
+                        BuildingJournal.LOGGER.error("Failed to read thumbnail for commission {} : {}", id, e);
+                        thumbnailBytes = new byte[0];
+                    }
+                }
+
+
+            CommissionState state = CommissionState.AVAILABLE;
+
+            //Is it already completed?
+            if (completed.contains(id)) state = CommissionState.COMPLETED;
+            else {
+                for (String prereq : c.prerequisites()) {
+                    if(!completed.contains(prereq)) {
+                        state = CommissionState.UNAVAILABLE;
+                        break;
+                    }
+                }
+            }
+
+            cardCommissions.add(new CommissionCardData(id, title, thumbnailBytes, state));
+
+        }
+
+        // Send the list of cardCommissions via packet
+
     }
 
 }
