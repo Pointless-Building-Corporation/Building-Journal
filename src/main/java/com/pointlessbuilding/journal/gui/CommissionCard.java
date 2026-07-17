@@ -18,6 +18,7 @@ public class CommissionCard extends AbstractWidget{
 
     private final ResourceLocation thumbnail;
     private final CommissionState state;
+    private final int currentCommissionPage;
 
     private static final int frame_width = 128, frame_height = 88;
     private static final int window_width = 122, window_height = 75;
@@ -27,10 +28,12 @@ public class CommissionCard extends AbstractWidget{
     private static ResourceLocation COMMISSION_STATE_ICONS = new ResourceLocation("buildingjournal:textures/gui/commission_state_icons.png");
 
 
-    public CommissionCard(int x, int y, int width, int height, Component title, @Nullable ResourceLocation thumbnail, CommissionState state) {
-        super(x, y, width, height, title);
+    public CommissionCard(Component title, @Nullable ResourceLocation thumbnail, CommissionState state, int currentCommissionPage) {
+        // I'm manually resizing the cards in flex()
+        super(0, 0, 0, 0, title);
         this.thumbnail = thumbnail;
         this.state = state;
+        this.currentCommissionPage = currentCommissionPage;
         this.setTooltip(Tooltip.create(title));
     }
 
@@ -83,6 +86,12 @@ public class CommissionCard extends AbstractWidget{
         guiGraphics.pose().scale(fontScale, fontScale, 1f);
         guiGraphics.drawString(font, title, 0, 0, 0xFF3C2E1A, false);
         guiGraphics.pose().popPose();
+    }
+
+    @Override
+    public void onClick(double mouseX, double mouseY) {
+        super.onClick(mouseX, mouseY);
+        // Something with currentCommissionPage
     }
 
     @Override

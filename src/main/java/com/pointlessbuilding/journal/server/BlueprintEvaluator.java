@@ -90,6 +90,7 @@ public class BlueprintEvaluator {
         List<CompoundTag> boxes = filterBoxes(compass, dimension);
         if(boxes.isEmpty()) {
             LOGGER.warn("No boxes found for dimension " + dimension);
+            Network.sendToClient(new BlueprintCompletePacket(pos), player);
             return;
         }
         //LOGGER.info("Boxes filtered: {} boxes", boxes.size());

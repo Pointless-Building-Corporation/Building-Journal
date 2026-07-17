@@ -1,8 +1,5 @@
 package com.pointlessbuilding.journal.client;
 
-import org.slf4j.Logger;
-
-import com.mojang.logging.LogUtils;
 import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.gui.JournalUI;
 
@@ -15,14 +12,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @Mod.EventBusSubscriber(modid = BuildingJournal.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientTickEvents {
-    
-    public static final Logger LOGGER = LogUtils.getLogger();
+
+    public static int currentJournalPage = 0;
+    public static int currentJournalCommissionPage = 0;
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent event) {
         if(event.phase == TickEvent.Phase.END) {
             while(ClientSetup.JOURNAL_KEYMAP.get().consumeClick()) {
-                Minecraft.getInstance().setScreen(new JournalUI());
+                Minecraft.getInstance().setScreen(new JournalUI(currentJournalPage, currentJournalCommissionPage));
             }
         }
     }

@@ -26,6 +26,11 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
 
     private final ResourceLocation GUI = new ResourceLocation(BuildingJournal.MODID, "textures/gui/drafting_table.png");
 
+    public static final String DRAFTING_TABLE_NO_BOUNDARIES_LOADED = "screen.buildingjournal.drafting_table.no_boundaries";
+    public static final String DRAFTING_TABLE_BOUNDARIES_COUNT = "screen.buildingjournal.drafting_table.boundaries_count";
+    public static final String DRAFTING_TABLE_BLOCKS_COUNT = "screen.buildingjournal.drafting_table.blocks_count";
+
+
     private EditBox nameField;
     private ConfirmButton confirmButton;
 
@@ -48,11 +53,11 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
 
         boolean hasCompass = !(menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty());
         if(cachedBoxCount == 0) {
-            if(hasCompass) guiGraphics.drawWordWrap(this.font, Component.literal("No boundaries loaded in compass!"), 65, 12, 70, 0xFFFFFF);
+            if(hasCompass) guiGraphics.drawWordWrap(this.font, Component.translatable(DRAFTING_TABLE_NO_BOUNDARIES_LOADED), 65, 12, 70, 0xFFFFFF);
         }
         else {
-            guiGraphics.drawWordWrap(this.font, Component.literal(cachedBoxCount + " boundaries loaded in compass."), 65, 12, 70, 0xFFFFFF);
-            guiGraphics.drawWordWrap(this.font, Component.literal("Total blocks covered: " + cachedTotalBlocks), 65, 45, 70, 0xFFFFFF);
+            guiGraphics.drawWordWrap(this.font, Component.translatable(DRAFTING_TABLE_BOUNDARIES_COUNT, cachedBoxCount), 65, 12, 70, 0xFFFFFF);
+            guiGraphics.drawWordWrap(this.font, Component.translatable(DRAFTING_TABLE_BLOCKS_COUNT, cachedTotalBlocks), 65, 45, 70, 0xFFFFFF);
         }
     }
 
@@ -103,12 +108,17 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
         // Check both that the compass slot is full and the blueprint slot is empty.
         processingBlueprint = menu.getProcessing();
         confirmButton = new ConfirmButton(leftPos + 176, topPos + 89, GUI,
-            () -> !menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty() && menu.getSlot(DraftingTableEntity.BLUEPRINT_SLOT).getItem().isEmpty(),
+            () -> !menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty() 
+                && menu.getSlot(DraftingTableEntity.BLUEPRINT_SLOT).getItem().isEmpty()
+                && cachedBoxCount > 0,
             () -> processingBlueprint,
             btn -> {
-                if(!menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty())
+                if( !menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty() 
+                    && menu.getSlot(DraftingTableEntity.BLUEPRINT_SLOT).getItem().isEmpty() 
+                    && cachedBoxCount > 0) {
                     Network.sendToServer(new ConfirmBlueprintPacket(menu.getPos(), nameField.getValue()));
-                processingBlueprint = true;
+                    processingBlueprint = true;
+                }
             }
         );
         addRenderableWidget(confirmButton);

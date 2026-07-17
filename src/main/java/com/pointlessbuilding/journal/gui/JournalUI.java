@@ -7,6 +7,7 @@ import java.util.List;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.pointlessbuilding.journal.client.ClientCommonEvents;
 import com.pointlessbuilding.journal.client.ClientSetup;
+import com.pointlessbuilding.journal.client.ClientTickEvents;
 import com.pointlessbuilding.journal.commission.CommissionCardData;
 import com.pointlessbuilding.journal.network.Network;
 import com.pointlessbuilding.journal.network.packets.RequestCardCommissionsPacket;
@@ -65,37 +66,11 @@ public class JournalUI extends Screen {
     private static int commissionAnchor = (int) ((1920 - cardWidth) / 2);
 
     private void buildAllCards() {
-
         // Loop through allCardData and construct the cards
         for (CommissionCardData cardData : allCardData) {
             ResourceLocation thumbnail = ClientCommonEvents.getCardThumbnail(cardData.id());
-            allCards.add(new CommissionCard(0,0,0,0,
-                Component.literal(cardData.title()), thumbnail, cardData.state()
-            ));
+            allCards.add(new CommissionCard( Component.literal(cardData.title()), thumbnail, cardData.state(), currentCommissionPage));
         }
-
-        // allCards.add(new CommissionCard(0,0,0,0,
-        //     Component.literal("Test card 1"), null, CommissionState.AVAILABLE
-        // ));
-        // allCards.add(new CommissionCard(0,0,0,0,
-        //     Component.literal("Test card 2"), null, CommissionState.UNAVAILABLE
-        // ));
-        // allCards.add(new CommissionCard(0,0,0,0,
-        //     Component.literal("Test card 3"), null, CommissionState.COMPLETED
-        // ));
-        // allCards.add(new CommissionCard(0,0,0,0,
-        //     Component.literal("Test card 4"), TEST_COMM_IMAGE, CommissionState.AVAILABLE
-        // ));
-        // allCards.add(new CommissionCard(0,0,0,0,
-        //     Component.literal("Test card 5"), TEST_COMM_IMAGE, CommissionState.UNAVAILABLE
-        // ));
-        // allCards.add(new CommissionCard(0,0,0,0,
-        //     Component.literal("Test card 6"), TEST_COMM_IMAGE, CommissionState.COMPLETED
-        // ));
-        // allCards.add(new CommissionCard(0,0,0,0,
-        //     Component.literal("Test card 7"), TEST_COMM_IMAGE, CommissionState.COMPLETED
-        // ));
-
     }
 
     private class BookmarkButton extends AbstractButton {
@@ -164,10 +139,10 @@ public class JournalUI extends Screen {
     private TabButton leftButton;
     private TabButton rightButton;
 
-    public JournalUI() {
+    public JournalUI(int currentPage, int currentCommissionPage) {
         super(GameNarrator.NO_TITLE);
-        currentPage = 0;
-        currentCommissionPage = 0;
+        this.currentPage = currentPage;
+        this.currentCommissionPage = currentCommissionPage;
     }
 
     @Override
@@ -303,4 +278,11 @@ public class JournalUI extends Screen {
         }
     }
     
+    @Override
+    public void removed() {
+        ClientTickEvents.currentJournalPage = this.currentPage;
+        ClientTickEvents.currentJournalCommissionPage = this.currentCommissionPage;
+        super.removed();
+    }
+
 }
