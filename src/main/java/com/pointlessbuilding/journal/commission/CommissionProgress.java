@@ -42,6 +42,11 @@ public class CommissionProgress implements ICommissionProgress, ICapabilityProvi
         completionCount++;
     }
     @Override
+    public void markIncomplete(String commissionId) {
+        if(completedCommissions.contains(commissionId)) completionCount--;
+        completedCommissions.remove(commissionId);
+    }
+    @Override
     public Set<String> getCompletedCommissions() {
         // Maybe unmodifiable, idk
         return completedCommissions;
