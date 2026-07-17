@@ -1,6 +1,11 @@
 package com.pointlessbuilding.journal.network;
 
 import com.pointlessbuilding.journal.BuildingJournal;
+import com.pointlessbuilding.journal.network.packets.BlueprintCompletePacket;
+import com.pointlessbuilding.journal.network.packets.ConfirmBlueprintPacket;
+import com.pointlessbuilding.journal.network.packets.JournalToastPacket;
+import com.pointlessbuilding.journal.network.packets.RequestCardCommissionsPacket;
+import com.pointlessbuilding.journal.network.packets.SyncCardCommissionsPacket;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,29 +25,11 @@ public class Network {
             BuildingJournal.VERSION::equals
         );
 
-        CHANNEL.registerMessage(ID++, ConfirmBlueprintPacket.class,
-            ConfirmBlueprintPacket::encode,
-            ConfirmBlueprintPacket::decode,
-            ConfirmBlueprintPacket::handle
-        );
-
-        CHANNEL.registerMessage(ID++, BlueprintCompletePacket.class,
-            BlueprintCompletePacket::encode,
-            BlueprintCompletePacket::decode,
-            BlueprintCompletePacket::handle
-        );
-
-        CHANNEL.registerMessage(ID++, JournalToastPacket.class,
-            JournalToastPacket::encode,
-            JournalToastPacket::decode,
-            JournalToastPacket::handle
-        );
-
-        CHANNEL.registerMessage(ID++, RequestCardCommissionsPacket.class,
-            RequestCardCommissionsPacket::encode,
-            RequestCardCommissionsPacket::decode,
-            RequestCardCommissionsPacket::handle
-        );
+        CHANNEL.registerMessage(ID++, ConfirmBlueprintPacket.class, ConfirmBlueprintPacket::encode, ConfirmBlueprintPacket::decode, ConfirmBlueprintPacket::handle);
+        CHANNEL.registerMessage(ID++, BlueprintCompletePacket.class, BlueprintCompletePacket::encode, BlueprintCompletePacket::decode, BlueprintCompletePacket::handle);
+        CHANNEL.registerMessage(ID++, JournalToastPacket.class, JournalToastPacket::encode, JournalToastPacket::decode, JournalToastPacket::handle);
+        CHANNEL.registerMessage(ID++, RequestCardCommissionsPacket.class, RequestCardCommissionsPacket::encode, RequestCardCommissionsPacket::decode, RequestCardCommissionsPacket::handle);
+        CHANNEL.registerMessage(ID++, SyncCardCommissionsPacket.class, SyncCardCommissionsPacket::encode, SyncCardCommissionsPacket::decode, SyncCardCommissionsPacket::handle);
     }
 
     public static void sendToClient(Object packet, ServerPlayer player) {

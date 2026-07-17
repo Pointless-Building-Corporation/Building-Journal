@@ -7,7 +7,7 @@ import com.pointlessbuilding.journal.blocks.DraftingTable;
 import com.pointlessbuilding.journal.client.ClientSetup;
 import com.pointlessbuilding.journal.gui.ConfigUI;
 import com.pointlessbuilding.journal.items.BuildersCompass;
-import com.pointlessbuilding.journal.network.JournalToastPacket;
+import com.pointlessbuilding.journal.network.packets.JournalToastPacket;
 
 import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.LanguageProvider;

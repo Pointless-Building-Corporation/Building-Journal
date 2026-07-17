@@ -5,8 +5,8 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.commission.CommissionProgress;
-import com.pointlessbuilding.journal.network.JournalToastPacket;
 import com.pointlessbuilding.journal.network.Network;
+import com.pointlessbuilding.journal.network.packets.JournalToastPacket;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;

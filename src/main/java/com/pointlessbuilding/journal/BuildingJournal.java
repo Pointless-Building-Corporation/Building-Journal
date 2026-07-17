@@ -37,9 +37,8 @@ public class BuildingJournal
                 (mc, screen) -> new ConfigUI(screen)
             ));
 
-        Registration.init(modEventBus);
+        Registration.init(modEventBus); 
 
-        // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(DataGeneration::generate);
     }

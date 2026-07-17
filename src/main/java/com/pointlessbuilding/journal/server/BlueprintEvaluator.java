@@ -18,8 +18,8 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
 import com.pointlessbuilding.journal.blocks.DraftingTableEntity;
 import com.pointlessbuilding.journal.items.Blueprint;
-import com.pointlessbuilding.journal.network.BlueprintCompletePacket;
 import com.pointlessbuilding.journal.network.Network;
+import com.pointlessbuilding.journal.network.packets.BlueprintCompletePacket;
 import com.pointlessbuilding.journal.utility.BoundaryMath;
 import com.pointlessbuilding.journal.utility.SandboxWorldGenRegion;
 

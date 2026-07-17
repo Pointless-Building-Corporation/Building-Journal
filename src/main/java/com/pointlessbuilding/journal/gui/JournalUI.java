@@ -5,8 +5,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.pointlessbuilding.journal.client.ClientCommonEvents;
 import com.pointlessbuilding.journal.client.ClientSetup;
-import com.pointlessbuilding.journal.commission.CommissionState;
+import com.pointlessbuilding.journal.commission.CommissionCardData;
+import com.pointlessbuilding.journal.network.Network;
+import com.pointlessbuilding.journal.network.packets.RequestCardCommissionsPacket;
 
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.GuiGraphics;
@@ -53,37 +56,45 @@ public class JournalUI extends Screen {
     private int scaledBookmarkWidth = (int)(bookmarkWidth * ((double) ui_width / 3840));
     private int scaledBookmarkHeight = (int)(bookmarkHeight * ((double) ui_height / 2160));
 
-    private final List<CommissionCard> allCards = new ArrayList<>();
-    private final List<CommissionCard> visibleCards = new ArrayList<>();
+    private List<CommissionCard> allCards = new ArrayList<>();
+    private List<CommissionCard> visibleCards = new ArrayList<>();
+    private List<CommissionCardData> allCardData = new ArrayList<>();
 
     private static int cardWidth = 873, cardHeight = 600;
     private static int commissionY = 120, commisionSpacing = cardHeight + 40;
     private static int commissionAnchor = (int) ((1920 - cardWidth) / 2);
 
     private void buildAllCards() {
-        // Hardcoded for now
 
-        allCards.add(new CommissionCard(0,0,0,0,
-            Component.literal("Test card 1"), null, CommissionState.AVAILABLE
-        ));
-        allCards.add(new CommissionCard(0,0,0,0,
-            Component.literal("Test card 2"), null, CommissionState.UNAVAILABLE
-        ));
-        allCards.add(new CommissionCard(0,0,0,0,
-            Component.literal("Test card 3"), null, CommissionState.COMPLETED
-        ));
-        allCards.add(new CommissionCard(0,0,0,0,
-            Component.literal("Test card 4"), TEST_COMM_IMAGE, CommissionState.AVAILABLE
-        ));
-        allCards.add(new CommissionCard(0,0,0,0,
-            Component.literal("Test card 5"), TEST_COMM_IMAGE, CommissionState.UNAVAILABLE
-        ));
-        allCards.add(new CommissionCard(0,0,0,0,
-            Component.literal("Test card 6"), TEST_COMM_IMAGE, CommissionState.COMPLETED
-        ));
-        allCards.add(new CommissionCard(0,0,0,0,
-            Component.literal("Test card 7"), TEST_COMM_IMAGE, CommissionState.COMPLETED
-        ));
+        // Loop through allCardData and construct the cards
+        for (CommissionCardData cardData : allCardData) {
+            ResourceLocation thumbnail = ClientCommonEvents.getCardThumbnail(cardData.id());
+            allCards.add(new CommissionCard(0,0,0,0,
+                Component.literal(cardData.title()), thumbnail, cardData.state()
+            ));
+        }
+
+        // allCards.add(new CommissionCard(0,0,0,0,
+        //     Component.literal("Test card 1"), null, CommissionState.AVAILABLE
+        // ));
+        // allCards.add(new CommissionCard(0,0,0,0,
+        //     Component.literal("Test card 2"), null, CommissionState.UNAVAILABLE
+        // ));
+        // allCards.add(new CommissionCard(0,0,0,0,
+        //     Component.literal("Test card 3"), null, CommissionState.COMPLETED
+        // ));
+        // allCards.add(new CommissionCard(0,0,0,0,
+        //     Component.literal("Test card 4"), TEST_COMM_IMAGE, CommissionState.AVAILABLE
+        // ));
+        // allCards.add(new CommissionCard(0,0,0,0,
+        //     Component.literal("Test card 5"), TEST_COMM_IMAGE, CommissionState.UNAVAILABLE
+        // ));
+        // allCards.add(new CommissionCard(0,0,0,0,
+        //     Component.literal("Test card 6"), TEST_COMM_IMAGE, CommissionState.COMPLETED
+        // ));
+        // allCards.add(new CommissionCard(0,0,0,0,
+        //     Component.literal("Test card 7"), TEST_COMM_IMAGE, CommissionState.COMPLETED
+        // ));
 
     }
 
@@ -161,8 +172,10 @@ public class JournalUI extends Screen {
 
     @Override
     protected void init() {
-        flex();
+        Network.sendToServer(new RequestCardCommissionsPacket());
+        allCardData = ClientCommonEvents.getCards();
 
+        flex();
         // Done button
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, (button) -> {
          this.onClose();

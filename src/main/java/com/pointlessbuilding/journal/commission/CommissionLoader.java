@@ -31,6 +31,8 @@ import com.pointlessbuilding.journal.commission.conditions.TotalVolumeCondition;
 import com.pointlessbuilding.journal.commission.unlocks.BlockRewardUnlock;
 import com.pointlessbuilding.journal.commission.unlocks.CommissionRewardUnlock;
 import com.pointlessbuilding.journal.commission.unlocks.ExpRewardUnlock;
+import com.pointlessbuilding.journal.network.Network;
+import com.pointlessbuilding.journal.network.packets.SyncCardCommissionsPacket;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -222,7 +224,7 @@ public class CommissionLoader {
 
         }
 
-        // Send the list of cardCommissions via packet
+        Network.sendToClient(new SyncCardCommissionsPacket(cardCommissions), player);
 
     }
 

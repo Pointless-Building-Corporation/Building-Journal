@@ -1,4 +1,4 @@
-package com.pointlessbuilding.journal.network;
+package com.pointlessbuilding.journal.network.packets;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -7,8 +7,8 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.blocks.DraftingTableEntity;
 import com.pointlessbuilding.journal.menu.DraftingTableContainer;
-import com.pointlessbuilding.journal.network.ConfirmBlueprintPacket;
 import com.pointlessbuilding.journal.network.Network;
+import com.pointlessbuilding.journal.network.packets.ConfirmBlueprintPacket;
 import com.pointlessbuilding.journal.utility.BoundaryMath;
 
 import net.minecraft.client.gui.GuiGraphics;

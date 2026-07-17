@@ -7,11 +7,15 @@ import java.util.Map;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.commission.CommissionCardData;
+import com.pointlessbuilding.journal.network.Network;
+import com.pointlessbuilding.journal.network.packets.RequestCardCommissionsPacket;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = BuildingJournal.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
@@ -47,6 +51,12 @@ public class ClientCommonEvents {
 
     public static ResourceLocation getCardThumbnail(String commissionId) {
         return commissionThumbnails.get(commissionId);
+    }
+
+    @SubscribeEvent
+    public static void onLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
+        Network.sendToServer(new RequestCardCommissionsPacket());
+        BuildingJournal.LOGGER.info("Updated Commission List.");
     }
 
 }
