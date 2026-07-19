@@ -39,24 +39,21 @@ public class JournalUI extends Screen {
     private int x_offset = (this.width - ui_width) / 2;
     private int y_offset = (int) (this.height * 0.05f);
 
-    private static int button_width = 50;
-    private static int button_height = 20;
-    private static int padding = 20;
+    private static int button_width = 50, button_height = 20, button_padding = 20;
 
     private int currentPage;
     private int currentCommissionPage;
 
-    private int scaledTabOffset = (int)(68 * ((double) ui_width / 3840));
-    private int scaledTabWidth = (int)(118 * ((double) ui_width / 3840));
-    private int scaledTabHeight = (int)(480 * ((double) ui_height / 2160));
+    // Tab buttons
+    private int scaledTabOffset, scaledTabWidth, scaledTabHeight;
 
+    // Bookmark buttons
     private int bookmarkWidth = 96*8;
     private int bookmarkHeight = 16*8;
     private int bookmarkOffset = -40;
-    private int scaledBookmarkOffset = (int)(bookmarkOffset * ((double) ui_width / 3840));
-    private int scaledBookmarkWidth = (int)(bookmarkWidth * ((double) ui_width / 3840));
-    private int scaledBookmarkHeight = (int)(bookmarkHeight * ((double) ui_height / 2160));
+    private int scaledBookmarkOffset, scaledBookmarkWidth, scaledBookmarkHeight;
 
+    // Cards
     private List<CommissionCard> allCards = new ArrayList<>();
     private List<CommissionCard> visibleCards = new ArrayList<>();
     private List<CommissionCardData> allCardData = new ArrayList<>();
@@ -69,7 +66,7 @@ public class JournalUI extends Screen {
         // Loop through allCardData and construct the cards
         for (CommissionCardData cardData : allCardData) {
             ResourceLocation thumbnail = ClientCommonEvents.getCardThumbnail(cardData.id());
-            allCards.add(new CommissionCard( Component.literal(cardData.title()), thumbnail, cardData.state(), currentCommissionPage));
+            allCards.add(new CommissionCard(cardData.id(), Component.literal(cardData.title()), thumbnail, cardData.state(), currentCommissionPage));
         }
     }
 
@@ -154,7 +151,7 @@ public class JournalUI extends Screen {
         // Done button
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, (button) -> {
          this.onClose();
-        }).bounds(this.width / 2 - 2 * button_width, Math.min(y_offset + ui_height + padding, this.height - button_height), button_width * 4, button_height).build());
+        }).bounds(this.width / 2 - 2 * button_width, Math.min(y_offset + ui_height + button_padding, this.height - button_height), button_width * 4, button_height).build());
         
         renderMenuButtons();
         updateButtonVisibility();

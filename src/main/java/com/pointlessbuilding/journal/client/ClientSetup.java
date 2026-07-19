@@ -6,6 +6,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.Registration;
 import com.pointlessbuilding.journal.gui.BlueprintRackUI;
+import com.pointlessbuilding.journal.gui.CommissionUI;
 import com.pointlessbuilding.journal.gui.DraftingTableUI;
 
 import net.minecraft.client.KeyMapping;
@@ -31,6 +32,7 @@ public class ClientSetup {
         event.enqueueWork(() -> {
             MenuScreens.register(Registration.BLUEPRINT_RACK_CONTAINER.get(), BlueprintRackUI::new);
             MenuScreens.register(Registration.DRAFTING_TABLE_CONTAINER.get(), DraftingTableUI::new);
+            MenuScreens.register(Registration.COMMISSION_CONTAINER.get(), CommissionUI::new);
         });
     }
 

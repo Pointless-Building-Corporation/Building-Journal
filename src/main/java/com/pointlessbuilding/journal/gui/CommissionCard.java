@@ -3,6 +3,8 @@ package com.pointlessbuilding.journal.gui;
 import javax.annotation.Nullable;
 
 import com.pointlessbuilding.journal.commission.CommissionState;
+import com.pointlessbuilding.journal.network.Network;
+import com.pointlessbuilding.journal.network.packets.CommissionDetailPacket;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -16,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class CommissionCard extends AbstractWidget{
 
+    private final String commissionId;
     private final ResourceLocation thumbnail;
     private final CommissionState state;
     private final int currentCommissionPage;
@@ -28,9 +31,11 @@ public class CommissionCard extends AbstractWidget{
     private static ResourceLocation COMMISSION_STATE_ICONS = new ResourceLocation("buildingjournal:textures/gui/commission_state_icons.png");
 
 
-    public CommissionCard(Component title, @Nullable ResourceLocation thumbnail, CommissionState state, int currentCommissionPage) {
+    public CommissionCard(String commissionId, Component title, @Nullable ResourceLocation thumbnail, CommissionState state, int currentCommissionPage) {
         // I'm manually resizing the cards in flex()
         super(0, 0, 0, 0, title);
+
+        this.commissionId = commissionId;
         this.thumbnail = thumbnail;
         this.state = state;
         this.currentCommissionPage = currentCommissionPage;
@@ -91,7 +96,7 @@ public class CommissionCard extends AbstractWidget{
     @Override
     public void onClick(double mouseX, double mouseY) {
         super.onClick(mouseX, mouseY);
-        // Something with currentCommissionPage
+        Network.sendToServer(new CommissionDetailPacket(commissionId, currentCommissionPage));
     }
 
     @Override

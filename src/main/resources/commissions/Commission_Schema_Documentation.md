@@ -18,7 +18,7 @@ All supported schema versions as of writing: `1`
 | `schemaVersion` | enum | **Yes** | Schema version — must be one of the allowed schema versions. |
 | `id` | string | No | Unique identifier of the Commission |
 | `title` | string | **Yes** | Title of the Commission |
-| `thumbnailPath` | string | No | Path to the thumbnail of the Commission |
+| `thumbnailPath` | string | No | Path to the thumbnail of the Commission. For correct aspect ratio, attach images of aspect ratio equivalent to 122x75. |
 | `conditions` | array | **Yes** | Conditions required to satisfy the Commission |
 | `unlocks` | array | No | What the Commission unlocks once completed |
 | `prerequisites` | array of strings | No | Commission IDs that must be completed to unlock this Commission |
@@ -166,9 +166,9 @@ Unlocks another Commission.
 {
   "$schema": "commission.schema.json",
   "schemaVersion": 1,
-  "id": "tall-tower",
+  "id": "tall_tower",
   "title": "Tall Tower",
-  "thumbnailPath": "thumbnails/tall-tower.png",
+  "thumbnailPath": "thumbnails/tall_tower.png",
   "prerequisites": ["first-structure"],
   "conditions": [
     {

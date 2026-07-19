@@ -10,8 +10,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -31,11 +33,15 @@ import com.pointlessbuilding.journal.commission.conditions.TotalVolumeCondition;
 import com.pointlessbuilding.journal.commission.unlocks.BlockRewardUnlock;
 import com.pointlessbuilding.journal.commission.unlocks.CommissionRewardUnlock;
 import com.pointlessbuilding.journal.commission.unlocks.ExpRewardUnlock;
+import com.pointlessbuilding.journal.menu.CommissionContainer;
 import com.pointlessbuilding.journal.network.Network;
 import com.pointlessbuilding.journal.network.packets.SyncCardCommissionsPacket;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.network.NetworkHooks;
 
 public class CommissionLoader {
 
@@ -70,6 +76,9 @@ public class CommissionLoader {
     public static final String[] defaultCommissions = {
         "your_first_house.json"
     };
+
+    private static List<Commission> loadedCommissions = new ArrayList<>();
+    private static Map<String, String> rawConditionsJson = new HashMap<>();
 
     public static void setup() {
         if (!Files.exists(commissionsFolder)) {
@@ -133,6 +142,8 @@ public class CommissionLoader {
                     }
 
                     JsonArray conditionsArray = jsonObject.getAsJsonArray("conditions");
+                    rawConditionsJson.put(id, conditionsArray.toString());
+                       
                     JsonArray unlocksArray = jsonObject.has("unlocks") ? jsonObject.getAsJsonArray("unlocks") : new JsonArray();
 
                     List<CommissionCondition> conditions = new ArrayList<>();
@@ -163,7 +174,7 @@ public class CommissionLoader {
                         unlocks.add(parser.apply(unlockObject));        
                     }
 
-                    availableCommissions.add(new Commission(id, title, thumbnailPath, conditions, unlocks, prerequisites));    
+                    availableCommissions.add(new Commission(id, title, thumbnailPath, conditions, unlocks, prerequisites)); 
                 
                 }
                 catch(IOException e) {
@@ -175,7 +186,37 @@ public class CommissionLoader {
             BuildingJournal.LOGGER.error("Failed to list commissions folder: {}", e);
         }
 
+        loadedCommissions = availableCommissions;
         return availableCommissions;
+    }
+
+    public static Optional<Commission> getById(String id) {
+        return loadedCommissions.stream().filter(c -> c.id().equals(id)).findFirst();
+    }
+
+    public static String getRawConditionsJson(String id) {
+        return rawConditionsJson.getOrDefault(id, "[]");
+    }
+
+    public static CommissionState fetchCommissionState(Set<String> completed, Commission commission) {
+        if (completed.contains(commission.id())) return CommissionState.COMPLETED;
+        for (String prereq : commission.prerequisites()) {
+            if(!completed.contains(prereq)) return CommissionState.UNAVAILABLE;
+        }
+
+        return CommissionState.AVAILABLE;
+    }
+
+    public static byte[] fetchThumbnailBytes(Commission commission) {
+        Path thumbnailPath = commission.thumbnailPath();
+        if(thumbnailPath == null) return new byte[0];
+        try {
+            return Files.readAllBytes(thumbnailPath);
+        }
+        catch(Exception e) {
+            BuildingJournal.LOGGER.error("Failed to read thumbnail for commission {} : {}", commission.id(), e);
+            return new byte[0];
+        }
     }
 
     public static void sendCommissionCardData(ServerPlayer player) {
@@ -191,34 +232,10 @@ public class CommissionLoader {
         for (Commission c : availableCommissions) {
             String id = c.id();
             String title = c.title();
-            
-           
-                Path thumbnailPath = c.thumbnailPath();
-                byte[] thumbnailBytes;
-                if(thumbnailPath == null) thumbnailBytes = new byte[0];
-                else {
-                    try {
-                        thumbnailBytes = Files.readAllBytes(thumbnailPath);
-                    }
-                    catch(Exception e) {
-                        BuildingJournal.LOGGER.error("Failed to read thumbnail for commission {} : {}", id, e);
-                        thumbnailBytes = new byte[0];
-                    }
-                }
 
+            byte[] thumbnailBytes = fetchThumbnailBytes(c);
 
-            CommissionState state = CommissionState.AVAILABLE;
-
-            //Is it already completed?
-            if (completed.contains(id)) state = CommissionState.COMPLETED;
-            else {
-                for (String prereq : c.prerequisites()) {
-                    if(!completed.contains(prereq)) {
-                        state = CommissionState.UNAVAILABLE;
-                        break;
-                    }
-                }
-            }
+            CommissionState state = fetchCommissionState(completed, c);
 
             cardCommissions.add(new CommissionCardData(id, title, thumbnailBytes, state));
 
@@ -226,6 +243,34 @@ public class CommissionLoader {
 
         Network.sendToClient(new SyncCardCommissionsPacket(cardCommissions), player);
 
+    }
+
+    public static void sendCommissionDetailData(ServerPlayer player, String commissionId, int commissionPage) {
+        Commission commission = CommissionLoader.getById(commissionId).orElse(null);
+        if (commission == null) {
+            BuildingJournal.LOGGER.error("Commission doesn't exist of the id {} inside CommissionLoader.", commissionId);
+            return;
+        }
+
+        Set<String> completed = player.getCapability(CommissionProgress.COMMISSION_PROGRESS)
+            .resolve()
+            .map(ICommissionProgress::getCompletedCommissions)
+            .orElse(Collections.emptySet());
+
+        CommissionState state = fetchCommissionState(completed, commission);
+
+        String conditionsJson = CommissionLoader.getRawConditionsJson(commissionId);
+
+        NetworkHooks.openScreen(player, new SimpleMenuProvider(
+            (windowId, inv, p) -> new CommissionContainer(windowId, inv.player, commissionId, commission.title(), state, conditionsJson, commission.unlocks(), commissionPage), Component.literal(commission.title())),
+            buf -> {
+                buf.writeUtf(commissionId);
+                buf.writeUtf(commission.title());
+                buf.writeEnum(state);
+                buf.writeUtf(conditionsJson);
+                buf.writeInt(commissionPage);
+            }
+        );
     }
 
 }

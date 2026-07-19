@@ -1,5 +1,6 @@
 package com.pointlessbuilding.journal.client;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,21 +29,29 @@ public class ClientCommonEvents {
         commissionCardData = cards;
 
         for(CommissionCardData data : commissionCardData) {
-            if(data.thumbnailBytes().length == 0 || commissionThumbnails.containsKey(data.id()))
+            if(data.thumbnailBytes().length == 0 || commissionThumbnails.containsKey(data.id())) {
                 continue;
-            
+            }
+                        
             try {
-                NativeImage image = NativeImage.read(data.thumbnailBytes());
+                // If I call NativeImage.read(thumbnailBytes) directly it loops internally and closes the thread, stopping the loading of every other card.
+                // This has something to do with the malloc() call there, but unsure. God knows why this happens
+                ByteBuffer buffer = ByteBuffer.allocateDirect(data.thumbnailBytes().length);
+                buffer.put(data.thumbnailBytes());
+                buffer.flip();
+
+                NativeImage image = NativeImage.read(buffer);
                 DynamicTexture texture = new DynamicTexture(image);
                 ResourceLocation location = new ResourceLocation(BuildingJournal.MODID, "commission_thumb_" + data.id());
                 Minecraft.getInstance().getTextureManager().register(location, texture);
                 commissionThumbnails.put(data.id(), location);
+                image.close();
             }
             catch(Exception e) {
                 BuildingJournal.LOGGER.error("Failed to load thumbnail for commission {}: {}", data.id(), e);
             }
-
         }
+
     }
 
     public static List<CommissionCardData> getCards() {

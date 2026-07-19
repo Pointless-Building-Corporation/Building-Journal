@@ -1,15 +1,18 @@
 package com.pointlessbuilding.journal;
 
+import java.util.ArrayList;
+
 import com.pointlessbuilding.journal.blocks.AnchorBlock;
 import com.pointlessbuilding.journal.blocks.BlueprintRack;
 import com.pointlessbuilding.journal.blocks.BlueprintRackEntity;
 import com.pointlessbuilding.journal.blocks.DraftingTable;
 import com.pointlessbuilding.journal.blocks.DraftingTableEntity;
+import com.pointlessbuilding.journal.commission.CommissionState;
 import com.pointlessbuilding.journal.items.Blueprint;
 import com.pointlessbuilding.journal.items.BuildersCompass;
 import com.pointlessbuilding.journal.menu.BlueprintRackContainer;
 import com.pointlessbuilding.journal.menu.DraftingTableContainer;
-import com.pointlessbuilding.journal.menu.JournalContainer;
+import com.pointlessbuilding.journal.menu.CommissionContainer;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -62,8 +65,16 @@ public class Registration {
         () -> IForgeMenuType.create((windowId, inv, data) -> new BlueprintRackContainer(windowId, inv.player, data.readBlockPos()))
     );
 
-    public static final RegistryObject<MenuType<JournalContainer>> JOURNAL_CONTAINER = MENU_TYPES.register("journal_menu",
-        () -> IForgeMenuType.create((windowId, inv, data) -> new JournalContainer(windowId, inv.player))
+    public static final RegistryObject<MenuType<CommissionContainer>> COMMISSION_CONTAINER = MENU_TYPES.register("commission_menu",
+        () -> IForgeMenuType.create((windowId, inv, data) -> {
+            String commissionId = data.readUtf();
+            String title = data.readUtf();
+            CommissionState state = data.readEnum(CommissionState.class);
+            String conditionsJson = data.readUtf();
+            int commissionPage = data.readInt();
+            BuildingJournal.LOGGER.info("Read all fields");
+            return new CommissionContainer(windowId, inv.player, commissionId, title, state, conditionsJson, new ArrayList<>(), commissionPage);
+        })
     );
 
     public static RegistryObject<CreativeModeTab> TAB = TABS.register("building_journal", () -> CreativeModeTab.builder()

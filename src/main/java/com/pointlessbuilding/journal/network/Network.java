@@ -2,6 +2,7 @@ package com.pointlessbuilding.journal.network;
 
 import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.network.packets.BlueprintCompletePacket;
+import com.pointlessbuilding.journal.network.packets.CommissionDetailPacket;
 import com.pointlessbuilding.journal.network.packets.ConfirmBlueprintPacket;
 import com.pointlessbuilding.journal.network.packets.JournalToastPacket;
 import com.pointlessbuilding.journal.network.packets.RequestCardCommissionsPacket;
@@ -30,6 +31,7 @@ public class Network {
         CHANNEL.registerMessage(ID++, JournalToastPacket.class, JournalToastPacket::encode, JournalToastPacket::decode, JournalToastPacket::handle);
         CHANNEL.registerMessage(ID++, RequestCardCommissionsPacket.class, RequestCardCommissionsPacket::encode, RequestCardCommissionsPacket::decode, RequestCardCommissionsPacket::handle);
         CHANNEL.registerMessage(ID++, SyncCardCommissionsPacket.class, SyncCardCommissionsPacket::encode, SyncCardCommissionsPacket::decode, SyncCardCommissionsPacket::handle);
+        CHANNEL.registerMessage(ID++, CommissionDetailPacket.class, CommissionDetailPacket::encode, CommissionDetailPacket::decode, CommissionDetailPacket::handle);
     }
 
     public static void sendToClient(Object packet, ServerPlayer player) {
