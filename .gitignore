@@ -27,3 +27,7 @@ repo
 
 # caches
 src/generated/resources/.cache/*
+
+.eclipse
+.vscode
+notes
