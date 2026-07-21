@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.pointlessbuilding.journal.BuildingJournal;
+import com.pointlessbuilding.journal.commission.conditions.BiomeCondition;
 import com.pointlessbuilding.journal.commission.conditions.BlockAddedCondition;
 import com.pointlessbuilding.journal.commission.conditions.BlockModifiedCondition;
 import com.pointlessbuilding.journal.commission.conditions.BlockRemovedCondition;
@@ -65,7 +66,8 @@ public class CommissionLoader {
         "Elevation", ElevationCondition::fromJson,
         "Tallness", TallnessCondition::fromJson,
         "TotalVolume", TotalVolumeCondition::fromJson,
-        "Whitelist", WhitelistCondition::fromJson
+        "Whitelist", WhitelistCondition::fromJson,
+        "Biome", BiomeCondition::fromJson
     );
 
     public static final Map<String, Function<JsonObject, CommissionUnlock>> UNLOCK_PARSERS = Map.of(

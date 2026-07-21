@@ -78,7 +78,7 @@ Checks the density of the structure. 1 is a fully dense structure i.e every bloc
 
 #### `Dimension`
 
-Checks that the structure is present at one of the given dimensions.
+Checks that the structure is present at one of the given dimensions. `{value}` is the dimension the build is in.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
@@ -129,6 +129,14 @@ Checks the list of blocks given against the build and verifies if they are prese
 |---|---|---|---|
 | `blocks` | array of strings | **Yes** | Block ids to check. Unlike the other conditions this cannot be empty. |
 | `isBlacklist` | integer | No | Is this a blacklist? By default this is false. |
+
+#### `Biome`
+
+Checks that the structure is within the given biome. Part of the build can be inside the biome to satisfy this. `{value}` is not relevant here and will not work.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `dimensions` | string | **Yes** | Biome required |
 
 ---
 

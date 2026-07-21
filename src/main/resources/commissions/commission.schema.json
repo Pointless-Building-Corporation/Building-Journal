@@ -262,6 +262,22 @@
                             },
                             "required": ["blocks"]
                         }
+                    },
+                    {
+                        "if" : {
+                            "properties": {
+                                "condition" : { "const" : "Biome"}
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "biome" : {
+                                    "description": "Biome required",
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["biome"]
+                        }
                     }
                 ],
                 "unevaluatedProperties": false,
@@ -361,7 +377,7 @@
             "enum": [1]
         },
         "condition" : {
-            "enum" : ["BlockAdded", "BlockModified", "BlockRemoved", "Density", "Dimension", "Elevation", "Length", "Tallness", "TotalVolume", "Whitelist"]
+            "enum" : ["BlockAdded", "BlockModified", "BlockRemoved", "Density", "Dimension", "Elevation", "Length", "Tallness", "TotalVolume", "Whitelist", "Biome"]
         },
         "unlock" : {
             "enum" : ["BlockReward", "ExpReward", "CommissionReward"]

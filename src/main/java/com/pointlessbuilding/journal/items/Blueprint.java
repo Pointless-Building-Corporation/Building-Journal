@@ -17,6 +17,7 @@ public class Blueprint extends Item{
 
     public static final String TAG_NAME = "BlueprintName";
     public static final String TAG_DIMENSION = "Dimension";
+    public static final String TAG_BIOME = "Biome";
     public static final String TAG_BOXES = "Boxes";
     public static final String TAG_FIRSTPOS = "FirstPos";
     public static final String TAG_SECONDPOS = "SecondPos";
@@ -32,11 +33,12 @@ public class Blueprint extends Item{
         super(properties);
     }
     
-    public static ItemStack create(String name, String dimension, ListTag boxes, ListTag blockCounts, long modifiedCount, long unionVolume) {
+    public static ItemStack create(String name, String dimension, ListTag biome, ListTag boxes, ListTag blockCounts, long modifiedCount, long unionVolume) {
         ItemStack stack = new ItemStack(Registration.BLUEPRINT.get());
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString(TAG_NAME, name);
         tag.putString(TAG_DIMENSION, dimension);
+        tag.put(TAG_BIOME, biome);
         tag.put(TAG_BOXES, boxes);
         tag.put(TAG_BLOCK_COUNTS, blockCounts);
         tag.putLong(TAG_MODIFIED, modifiedCount);
@@ -53,6 +55,11 @@ public class Blueprint extends Item{
     public static String getDimension(ItemStack stack) {
         if (!stack.hasTag()) return "";
         return stack.getTag().getString(TAG_DIMENSION);
+    }
+
+    public static ListTag getBiome(ItemStack stack) {
+        if (!stack.hasTag()) return new ListTag();
+        return stack.getTag().getList(TAG_BIOME, Tag.TAG_STRING);
     }
 
     public static ListTag getBoxes(ItemStack stack) {

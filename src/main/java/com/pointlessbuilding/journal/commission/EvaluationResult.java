@@ -18,6 +18,7 @@ public record EvaluationResult(
     UUID id,
     String name,
     String dimension,
+    List<String> biomes,
     long unionVolume,
     long modifiedCount,
     List<Box> boxes,
@@ -33,6 +34,12 @@ public record EvaluationResult(
         String dimension = tag.getString(Blueprint.TAG_DIMENSION);
         long unionVolume = tag.getLong(Blueprint.TAG_UNION_VOLUME);
         long modifiedCount = tag.getLong(Blueprint.TAG_MODIFIED);
+
+        List<String> biomes = new ArrayList<>();
+        ListTag biomeList = tag.getList(Blueprint.TAG_BIOME, Tag.TAG_STRING);
+        for(int i = 0; i < biomeList.size(); i++) {
+            biomes.add(biomeList.getString(i));
+        }
 
         List<Box> boxes = new ArrayList<>();
         ListTag boxList = tag.getList(Blueprint.TAG_BOXES, Tag.TAG_COMPOUND);
@@ -55,6 +62,6 @@ public record EvaluationResult(
             blockData.put(blockId, new BlockCounts(added, removed));
         }
 
-        return new EvaluationResult(id, name, dimension, unionVolume, modifiedCount, boxes, blockData);
+        return new EvaluationResult(id, name, dimension, biomes, unionVolume, modifiedCount, boxes, blockData);
     }
 }

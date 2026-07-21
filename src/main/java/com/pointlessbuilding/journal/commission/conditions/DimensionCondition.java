@@ -30,7 +30,7 @@ public class DimensionCondition implements CommissionCondition{
     @Override
     public String getTitle() {
         if(title == null) {
-            String generatedTitle = "Dimension is not one of ";
+            String generatedTitle = "Dimension is one of ";
             generatedTitle += dimensions;
             return generatedTitle;
         }
@@ -64,6 +64,10 @@ public class DimensionCondition implements CommissionCondition{
 
         if(json.has("dimensions")) {
             JsonArray dimensionArray = json.get("dimensions").getAsJsonArray();
+            if(dimensionArray.size() == 0) {
+                BuildingJournal.LOGGER.warn("Too few dimensions in condition {}", jsonTitle != null ? jsonTitle : "DimensionCondition");
+                return null;
+            }
             for (JsonElement block : dimensionArray) {
                 jsonDimensions.add(block.getAsString());
             }

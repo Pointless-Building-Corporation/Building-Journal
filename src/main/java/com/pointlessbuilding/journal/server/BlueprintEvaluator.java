@@ -31,8 +31,10 @@ import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -40,6 +42,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -133,6 +136,7 @@ public class BlueprintEvaluator {
                 List<int[]> finalBoxMins = diffResult.boxMins();
                 List<int[]> finalBoxMaxs = diffResult.boxMaxs();
                 final long finalModifiedCount = diffResult.modifiedCount();
+                List<String> finalBiomes = diffResult.biomes().stream().map(key -> key.location().toString()).toList();
                 level.getServer().execute(() -> {
                     //LOGGER.info("Back on main thread, writing blueprint");
 
@@ -156,9 +160,14 @@ public class BlueprintEvaluator {
                         boxesTag.add(boxTag);
                     }
 
+                    ListTag biomesTag = new ListTag();
+                    for(String biome : finalBiomes) {
+                        biomesTag.add(StringTag.valueOf(biome));
+                    }
+
                     long unionVolume = BoundaryMath.unionVolume(finalBoxMins, finalBoxMaxs);
 
-                    ItemStack blueprintStack = Blueprint.create(name, dimension, boxesTag, blockCounts, finalModifiedCount, unionVolume);
+                    ItemStack blueprintStack = Blueprint.create(name, dimension, biomesTag, boxesTag, blockCounts, finalModifiedCount, unionVolume);
                     if(!(name.equals("Blueprint"))) blueprintStack.setHoverName(Component.literal(name));
 
                     if(!(level.getBlockEntity(pos) instanceof DraftingTableEntity table)) {
@@ -228,7 +237,7 @@ public class BlueprintEvaluator {
         }
     }
 
-    private record DiffResult(Map<String, long[]> counts, List<int[]> boxMins, List<int[]> boxMaxs, long modifiedCount) {}
+    private record DiffResult(Map<String, long[]> counts, List<int[]> boxMins, List<int[]> boxMaxs, long modifiedCount, Set<ResourceKey<Biome>> biomes) {}
 
     private static DiffResult computeDiff(ServerLevel level, List<CompoundTag> boxes, Set<ChunkPos> diffChunks, Map<ChunkPos, ChunkAccess> chunkCache) {
 
@@ -237,6 +246,8 @@ public class BlueprintEvaluator {
 
         List<int[]> diffMins = new ArrayList<>();
         List<int[]> diffMaxs = new ArrayList<>();
+
+        Set<ResourceKey<Biome>> biomes = new HashSet<>();
 
         long modifiedCount = 0;
 
@@ -286,6 +297,16 @@ public class BlueprintEvaluator {
                 for (int z = chunk.z * 16; z < chunk.z * 16 + 16; z++) {
                     List<int[]> yIntervals = BoundaryMath.mergeYIntervals(x,z, mins, maxs);
                     for (int[] interval : yIntervals) {
+
+                        // Biomes
+                        for (int y = interval[0]; y <= interval[1]; y += 4) {
+                            biomes.add(level.getBiome(bp.set(x, y, z)).unwrapKey().orElseThrow());
+                        }
+                        if ((interval[1] - interval[0]) % 4 != 0) {
+                            biomes.add(level.getBiome(bp.set(x, interval[1], z)).unwrapKey().orElseThrow());
+                        }
+
+    
                         for (int y = interval[0]; y <= interval[1]; y++) {
                             //BlockPos bp = new BlockPos(x,y,z);
                             bp.set(x,y,z);
@@ -360,7 +381,7 @@ public class BlueprintEvaluator {
             }
         }
 
-        return new DiffResult(counts, resultMins, resultMaxs, modifiedCount);
+        return new DiffResult(counts, resultMins, resultMaxs, modifiedCount, biomes);
     }
 
     private static ChunkAccess generateBaselineChunk(ServerLevel level, ChunkPos chunkPos, ChunkGenerator gen, Map<ChunkPos, ChunkAccess> chunkCache) {
