@@ -44,7 +44,7 @@ Checks how many of certain blocks have been added. This includes fluids but not 
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `blocks` | array of strings | No | Block IDs to check |
+| `blocks` | array of strings | No | Block IDs to check. If empty, checks for all added blocks in general. |
 | `operator` | `<` \| `>` \| `==` | **Yes** | Comparison operator |
 | `threshold` | integer | **Yes** | Value to compare against |
 
@@ -54,7 +54,7 @@ Checks how many of certain blocks have been removed. This includes fluids but no
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `blocks` | array of strings | No | Block IDs to check |
+| `blocks` | array of strings | No | Block IDs to check. If empty, checks for all removed blocks in general. |
 | `operator` | `<` \| `>` \| `==` | **Yes** | Comparison operator |
 | `threshold` | integer | **Yes** | Value to compare against |
 
@@ -119,6 +119,16 @@ Checks the total volume of the structure.
 |---|---|---|---|
 | `operator` | `<` \| `>` \| `==` | **Yes** | Comparison operator |
 | `threshold` | integer | **Yes** | Value to compare against |
+
+#### `Whitelist`
+
+Checks the list of blocks given against the build and verifies if they are present. If isBlacklist is true, instead verifies that the blocks are NOT present.
+`{value}` for this condition is the first block requirement found that clashes with the build.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `blocks` | array of strings | **Yes** | Block ids to check. Unlike the other conditions this cannot be empty. |
+| `isBlacklist` | integer | No | Is this a blacklist? By default this is false. |
 
 ---
 

@@ -30,6 +30,7 @@ import com.pointlessbuilding.journal.commission.conditions.DimensionCondition;
 import com.pointlessbuilding.journal.commission.conditions.ElevationCondition;
 import com.pointlessbuilding.journal.commission.conditions.TallnessCondition;
 import com.pointlessbuilding.journal.commission.conditions.TotalVolumeCondition;
+import com.pointlessbuilding.journal.commission.conditions.WhitelistCondition;
 import com.pointlessbuilding.journal.commission.unlocks.BlockRewardUnlock;
 import com.pointlessbuilding.journal.commission.unlocks.CommissionRewardUnlock;
 import com.pointlessbuilding.journal.commission.unlocks.ExpRewardUnlock;
@@ -63,7 +64,8 @@ public class CommissionLoader {
         "Dimension", DimensionCondition::fromJson,
         "Elevation", ElevationCondition::fromJson,
         "Tallness", TallnessCondition::fromJson,
-        "TotalVolume", TotalVolumeCondition::fromJson
+        "TotalVolume", TotalVolumeCondition::fromJson,
+        "Whitelist", WhitelistCondition::fromJson
     );
 
     public static final Map<String, Function<JsonObject, CommissionUnlock>> UNLOCK_PARSERS = Map.of(
