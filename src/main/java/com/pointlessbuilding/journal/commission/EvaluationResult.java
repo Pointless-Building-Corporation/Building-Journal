@@ -11,7 +11,6 @@ import com.pointlessbuilding.journal.items.Blueprint;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 
@@ -29,7 +28,7 @@ public record EvaluationResult(
 
     public static EvaluationResult fromTag(CompoundTag tag) {
 
-        UUID id = NbtUtils.loadUUID(tag.getCompound(Blueprint.TAG_UUID));
+        UUID id = tag.getUUID(Blueprint.TAG_UUID);
         String name = tag.getString(Blueprint.TAG_NAME);
         String dimension = tag.getString(Blueprint.TAG_DIMENSION);
         long unionVolume = tag.getLong(Blueprint.TAG_UNION_VOLUME);

@@ -42,12 +42,35 @@ public class TotalVolumeCondition implements CommissionCondition{
 
     @Override
     public String getTitle() {
+        if(title == null) {
+            String generatedTitle = "Total volume of build ";
+            switch (operator) {
+                case LESS_THAN -> generatedTitle += " < ";
+                case GREATER_THAN -> generatedTitle += " > ";
+                case EQUAL -> generatedTitle += " = ";
+            };
+            generatedTitle += threshold;
+            return generatedTitle;
+        }
         return title;
     }
 
     @Override
     public String describeFailure(EvaluationResult result) {
-        return failureDescription;
+        if(failureDescription == null) {
+            String generatedDesc = "Total Volume not ";
+             switch (operator) {
+                case LESS_THAN -> generatedDesc += "less than ";
+                case GREATER_THAN -> generatedDesc += "greater than ";
+                case EQUAL -> generatedDesc += "equal to ";
+            };
+            generatedDesc += threshold + "!";
+            return generatedDesc;
+        }
+        else {
+            long volume = result.unionVolume();
+            return failureDescription.replace("{value}", Long.toString(volume));
+        }
     }
     
     public static CommissionCondition fromJson(JsonObject json) {
@@ -61,7 +84,7 @@ public class TotalVolumeCondition implements CommissionCondition{
         }
 
         if(json.has("failureDescription")) {
-            jsonTitle = json.get("failureDescription").getAsString();
+            jsonFailure = json.get("failureDescription").getAsString();
         }
 
         if(json.has("operator")) {

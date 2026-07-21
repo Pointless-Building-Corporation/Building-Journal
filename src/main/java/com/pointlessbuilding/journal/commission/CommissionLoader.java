@@ -55,7 +55,7 @@ public class CommissionLoader {
         }
     }
 
-    private static final Map<String, Function<JsonObject, CommissionCondition>> CONDITION_PARSERS = Map.of(
+    public static final Map<String, Function<JsonObject, CommissionCondition>> CONDITION_PARSERS = Map.of(
         "BlockAdded", BlockAddedCondition::fromJson,
         "BlockRemoved", BlockRemovedCondition::fromJson,
         "BlockModified", BlockModifiedCondition::fromJson,
@@ -66,7 +66,7 @@ public class CommissionLoader {
         "TotalVolume", TotalVolumeCondition::fromJson
     );
 
-    private static final Map<String, Function<JsonObject, CommissionUnlock>> UNLOCK_PARSERS = Map.of(
+    public static final Map<String, Function<JsonObject, CommissionUnlock>> UNLOCK_PARSERS = Map.of(
         "BlockReward", BlockRewardUnlock::fromJson,
         "CommissionReward", CommissionRewardUnlock::fromJson,
         "ExpReward", ExpRewardUnlock::fromJson
@@ -115,6 +115,10 @@ public class CommissionLoader {
                 try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
                     JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
                     
+                    if(!jsonObject.has("schemaVersion")) {
+                        BuildingJournal.LOGGER.error("Missing schemaVersion in file {}", file);
+                        continue;
+                    }
                     int schemaVersion = jsonObject.get("schemaVersion").getAsInt();
                     boolean supported = Arrays.stream(SUPPORTED_SCHEMA_VERSION.values()).anyMatch(v -> v.ver == schemaVersion);
                     if(!supported) {
@@ -126,6 +130,10 @@ public class CommissionLoader {
                         ? jsonObject.get("id").getAsString()
                         : file.getFileName().toString().replace(".json", "");
 
+                    if(!jsonObject.has("title")) {
+                        BuildingJournal.LOGGER.error("Missing title in file {}", file);
+                        continue;
+                    }
                     String title = jsonObject.get("title").getAsString();
 
                     String thumbnailPathString = jsonObject.has("thumbnailPath")
@@ -141,6 +149,10 @@ public class CommissionLoader {
                             prerequisites.add(el.getAsString());
                     }
 
+                    if(!jsonObject.has("conditions")) {
+                        BuildingJournal.LOGGER.error("Missing conditions in file {}", file);
+                        continue;
+                    }
                     JsonArray conditionsArray = jsonObject.getAsJsonArray("conditions");
                     rawConditionsJson.put(id, conditionsArray.toString());
                        
@@ -152,6 +164,10 @@ public class CommissionLoader {
                     // Conditions registry
                     for (JsonElement condition : conditionsArray) {
                         JsonObject conditionObject = condition.getAsJsonObject();
+                        if(!conditionObject.has("condition")) {
+                            BuildingJournal.LOGGER.error("Missing condition field within conditions at file {}", file);
+                            continue;
+                        }
                         String conditionType = conditionObject.get("condition").getAsString();
                         Function<JsonObject, CommissionCondition> parser = CONDITION_PARSERS.get(conditionType);
                         if(parser == null) {
@@ -165,6 +181,10 @@ public class CommissionLoader {
                     // Unlocks registry
                     for (JsonElement unlock : unlocksArray) {
                         JsonObject unlockObject = unlock.getAsJsonObject();
+                         if(!unlockObject.has("unlock")) {
+                            BuildingJournal.LOGGER.error("Missing unlock field within unlocks at file {}", file);
+                            continue;
+                        }
                         String unlockType = unlockObject.get("unlock").getAsString();
                         Function<JsonObject, CommissionUnlock> parser = UNLOCK_PARSERS.get(unlockType);
                         if(parser == null) {

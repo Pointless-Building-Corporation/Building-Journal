@@ -25,6 +25,10 @@ public class CommissionRewardUnlock implements CommissionUnlock{
     
     @Override
     public String getTitle() {
+        if(title == null) {
+            String generatedTitle = "Unlock " + commissionId;
+            return generatedTitle;
+        }
         return title;
     }
 

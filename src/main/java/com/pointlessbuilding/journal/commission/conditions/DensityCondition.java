@@ -43,12 +43,35 @@ public class DensityCondition implements CommissionCondition{
 
     @Override
     public String getTitle() {
+        if(title == null) {
+            String generatedTitle = "Density of build ";
+            switch (operator) {
+                case LESS_THAN -> generatedTitle += " < ";
+                case GREATER_THAN -> generatedTitle += " > ";
+                case EQUAL -> generatedTitle += " = ";
+            };
+            generatedTitle += threshold;
+            return generatedTitle;
+        }
         return title;
     }
 
     @Override
     public String describeFailure(EvaluationResult result) {
-        return failureDescription;
+        if(failureDescription == null) {
+            String generatedDesc = "Density not ";
+             switch (operator) {
+                case LESS_THAN -> generatedDesc += "less than ";
+                case GREATER_THAN -> generatedDesc += "greater than ";
+                case EQUAL -> generatedDesc += "equal to ";
+            };
+            generatedDesc += threshold + "!";
+            return generatedDesc;
+        }
+        else {
+            float density = result.modifiedCount() / result.unionVolume();
+            return failureDescription.replace("{value}", Float.toString(density));
+        }
     }
 
     public static CommissionCondition fromJson(JsonObject json) {
@@ -62,7 +85,7 @@ public class DensityCondition implements CommissionCondition{
         }
 
         if(json.has("failureDescription")) {
-            jsonTitle = json.get("failureDescription").getAsString();
+            jsonFailure = json.get("failureDescription").getAsString();
         }
 
         if(json.has("operator")) {

@@ -63,12 +63,53 @@ public class BlockRemovedCondition implements CommissionCondition{
     
     @Override
     public String getTitle() {
+        if(title == null) {
+            String generatedTitle = "Removed ";
+            List<String> blockStrings = new ArrayList<>();
+            for(ResourceLocation block : blocks) {
+                blockStrings.add(block.toString());
+            }
+            if(blockStrings.size() == 0) generatedTitle += "blocks";
+            else generatedTitle += blockStrings;
+            switch (operator) {
+                case LESS_THAN -> generatedTitle += " < ";
+                case GREATER_THAN -> generatedTitle += " > ";
+                case EQUAL -> generatedTitle += " = ";
+            };
+            generatedTitle += threshold;
+            return generatedTitle;
+        }
         return title;
     }
 
     @Override
     public String describeFailure(EvaluationResult result) {
-        return failureDescription;
+        if(failureDescription == null) {
+            String generatedDesc = "Removed blocks not ";
+             switch (operator) {
+                case LESS_THAN -> generatedDesc += "less than ";
+                case GREATER_THAN -> generatedDesc += "greater than ";
+                case EQUAL -> generatedDesc += "equal to ";
+            };
+            generatedDesc += threshold + "!";
+            return generatedDesc;
+        }
+        else {
+            long total;
+            if (blocks.isEmpty()) {
+                total = result.blockData().values().stream()
+                    .mapToLong(EvaluationResult.BlockCounts::removed)
+                    .sum();
+            }
+            else {
+                total = 0;
+                for (ResourceLocation block : blocks) {
+                    EvaluationResult.BlockCounts counts = result.blockData().get(block);
+                    if(counts != null) total += counts.removed();
+                }
+            }
+            return failureDescription.replace("{value}", Long.toString(total));
+        }
     }
 
     public static CommissionCondition fromJson(JsonObject json) {
@@ -83,7 +124,7 @@ public class BlockRemovedCondition implements CommissionCondition{
         }
 
         if(json.has("failureDescription")) {
-            jsonTitle = json.get("failureDescription").getAsString();
+            jsonFailure = json.get("failureDescription").getAsString();
         }
 
         if(json.has("blocks")) {

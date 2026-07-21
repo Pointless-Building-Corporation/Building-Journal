@@ -43,12 +43,35 @@ public class BlockModifiedCondition implements CommissionCondition{
 
     @Override
     public String getTitle() {
+        if(title == null) {
+            String generatedTitle = "Modified blocks";
+            switch (operator) {
+                case LESS_THAN -> generatedTitle += " < ";
+                case GREATER_THAN -> generatedTitle += " > ";
+                case EQUAL -> generatedTitle += " = ";
+            };
+            generatedTitle += threshold;
+            return generatedTitle;
+        }
         return title;
     }
 
     @Override
     public String describeFailure(EvaluationResult result) {
-        return failureDescription;
+        if(failureDescription == null) {
+            String generatedDesc = "Modified blocks not ";
+             switch (operator) {
+                case LESS_THAN -> generatedDesc += "less than ";
+                case GREATER_THAN -> generatedDesc += "greater than ";
+                case EQUAL -> generatedDesc += "equal to ";
+            };
+            generatedDesc += threshold + "!";
+            return generatedDesc;
+        }
+        else {
+            long blocksModified = result.modifiedCount();
+            return failureDescription.replace("{value}", Long.toString(blocksModified));
+        }
     }
 
     public static CommissionCondition fromJson(JsonObject json) {
@@ -62,7 +85,7 @@ public class BlockModifiedCondition implements CommissionCondition{
         }
 
         if(json.has("failureDescription")) {
-            jsonTitle = json.get("failureDescription").getAsString();
+            jsonFailure = json.get("failureDescription").getAsString();
         }
 
         if(json.has("operator")) {

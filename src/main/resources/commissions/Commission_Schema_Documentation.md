@@ -32,8 +32,9 @@ Each entry in `conditions` describes a requirement the player must meet. All con
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `condition` | enum | **Yes** | The condition type (see types below) |
-| `title` | string | No | What the condition is called in-game |
-| `failureDescription` | string | No | What to tell the player if the condition fails |
+| `title` | string | No | What the condition is called in-game. It must ideally describe the condition well, so players can understand it. |
+| `failureDescription` | string | No | What to tell the player if the condition fails. You can use templating to reference the relevant in-game value the condition is testing using curly braces around `value`. For example: `{value} is too low! Must be 50 or higher.` |
+---
 
 ### Condition Types
 
@@ -172,11 +173,11 @@ Unlocks another Commission.
   "prerequisites": ["first-structure"],
   "conditions": [
     {
-      "title": "Build tall enough",
+      "title": "Tower taller than 20 blocks",
       "condition": "Tallness",
       "operator": ">",
       "threshold": 20,
-      "failureDescription": "The tower must be taller than 20 blocks!"
+      "failureDescription": "The tower must be taller than 20 blocks, currently {value}."
     }
   ],
   "unlocks": [

@@ -30,6 +30,10 @@ public class BlockRewardUnlock implements CommissionUnlock{
     
     @Override
     public String getTitle() {
+        if(title == null) {
+            String generatedTitle = blockCount + "x " + blockId.toString();
+            return generatedTitle;
+        }
         return title;
     }
 

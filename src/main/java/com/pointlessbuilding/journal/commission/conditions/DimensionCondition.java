@@ -29,12 +29,24 @@ public class DimensionCondition implements CommissionCondition{
     
     @Override
     public String getTitle() {
+        if(title == null) {
+            String generatedTitle = "Dimension is not one of ";
+            generatedTitle += dimensions;
+            return generatedTitle;
+        }
         return title;
     }
 
     @Override
     public String describeFailure(EvaluationResult result) {
-        return failureDescription;
+        if(failureDescription == null) {
+            String generatedDesc = "Build dimension not satisfied!";
+            return generatedDesc;
+        }
+        else {
+            String dimension = result.dimension();
+            return failureDescription.replace("{value}", dimension);
+        }
     }
 
     public static CommissionCondition fromJson(JsonObject json) {
@@ -47,7 +59,7 @@ public class DimensionCondition implements CommissionCondition{
         }
 
         if(json.has("failureDescription")) {
-            jsonTitle = json.get("failureDescription").getAsString();
+            jsonFailure = json.get("failureDescription").getAsString();
         }
 
         if(json.has("dimensions")) {

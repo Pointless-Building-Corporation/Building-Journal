@@ -72,7 +72,6 @@ public class Registration {
             CommissionState state = data.readEnum(CommissionState.class);
             String conditionsJson = data.readUtf();
             int commissionPage = data.readInt();
-            BuildingJournal.LOGGER.info("Read all fields");
             return new CommissionContainer(windowId, inv.player, commissionId, title, state, conditionsJson, new ArrayList<>(), commissionPage);
         })
     );

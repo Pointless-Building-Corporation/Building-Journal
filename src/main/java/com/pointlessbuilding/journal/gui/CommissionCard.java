@@ -53,7 +53,7 @@ public class CommissionCard extends AbstractWidget{
 
         // If thumbnail is missing
         if (thumbnail == null) {
-            guiGraphics.fillGradient(winX, winY, winX + winW, winY + winH, 0xFFDCD8CE, 0XFFC9C4B6);
+            guiGraphics.fillGradient(winX, winY, winX + winW, winY + winH, 0xFF000000, 0xFFFFFFFF);
         }
         else {
             guiGraphics.blit(thumbnail, winX, winY, winW, winH, 0, 0, winW, winH, winW, winH);

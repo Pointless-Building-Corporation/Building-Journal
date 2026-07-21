@@ -45,12 +45,39 @@ public class ElevationCondition implements CommissionCondition{
 
     @Override
     public String getTitle() {
+        if(title == null) {
+            String generatedTitle = "Elevation of build ";
+            switch (operator) {
+                case LESS_THAN -> generatedTitle += " < ";
+                case GREATER_THAN -> generatedTitle += " > ";
+            };
+            generatedTitle += threshold;
+            return generatedTitle;
+        }
         return title;
     }
 
     @Override
     public String describeFailure(EvaluationResult result) {
-        return failureDescription;
+        if(failureDescription == null) {
+            String generatedDesc = "Elevation not ";
+             switch (operator) {
+                case LESS_THAN -> generatedDesc += "less than ";
+                case GREATER_THAN -> generatedDesc += "greater than ";
+            };
+            generatedDesc += threshold + "!";
+            return generatedDesc;
+        }
+        else {
+            int elevation;
+            if(operator == Operator.GREATER_THAN) elevation = result.boxes().stream()
+                .mapToInt(b -> Math.min(b.firstPos().getY(), b.secondPos().getY()))
+                .min().orElseThrow();
+            else elevation = result.boxes().stream()
+                .mapToInt(b -> Math.max(b.firstPos().getY(), b.secondPos().getY()))
+                .max().orElseThrow();
+            return failureDescription.replace("{value}", Integer.toString(elevation));
+        }
     }
 
     public static CommissionCondition fromJson(JsonObject json) {
@@ -64,7 +91,7 @@ public class ElevationCondition implements CommissionCondition{
         }
 
         if(json.has("failureDescription")) {
-            jsonTitle = json.get("failureDescription").getAsString();
+            jsonFailure = json.get("failureDescription").getAsString();
         }
 
         if(json.has("operator")) {

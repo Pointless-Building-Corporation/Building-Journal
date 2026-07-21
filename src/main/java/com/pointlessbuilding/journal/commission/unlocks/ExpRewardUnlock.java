@@ -35,6 +35,13 @@ public class ExpRewardUnlock  implements CommissionUnlock{
     
     @Override
     public String getTitle() {
+        if(title == null) {
+            String generatedTitle = "";
+            generatedTitle += expAmount;
+            if(expType == ExpType.POINTS) generatedTitle += " points";
+            else generatedTitle += " levels";
+            return generatedTitle;
+        }
         return title;
     }
 
