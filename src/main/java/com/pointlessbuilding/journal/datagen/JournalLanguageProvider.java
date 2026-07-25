@@ -48,6 +48,7 @@ public class JournalLanguageProvider extends LanguageProvider{
         //Tooltips
         add(BuildersCompass.BUILDERS_COMPASS_TOOLTIP_SELECT, "Press %s to select the first and last positions of individual boundaries of builds.");
         add(BuildersCompass.BUILDERS_COMPASS_TOOLTIP_DESELECT, "Press %1$s + %2$s to remove the last boundary marked.");
+        add(BuildersCompass.BUILDERS_COMPASS_TOLLTIP_HINT, "Hold <%s> for hint");
 
         add(ClientSetup.JOURNAL_KEYMAP_STRING, "Open Journal");
         add("tab.buildingjournal", "Building Journal");

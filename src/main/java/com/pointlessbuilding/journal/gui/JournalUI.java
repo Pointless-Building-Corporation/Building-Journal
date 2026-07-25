@@ -2,13 +2,16 @@ package com.pointlessbuilding.journal.gui;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.pointlessbuilding.journal.client.ClientCommonEvents;
 import com.pointlessbuilding.journal.client.ClientSetup;
 import com.pointlessbuilding.journal.client.ClientTickEvents;
 import com.pointlessbuilding.journal.commission.CommissionCardData;
+import com.pointlessbuilding.journal.commission.CommissionState;
 import com.pointlessbuilding.journal.network.Network;
 import com.pointlessbuilding.journal.network.packets.RequestCardCommissionsPacket;
 
@@ -62,9 +65,21 @@ public class JournalUI extends Screen {
     private static int commissionY = 120, commisionSpacing = cardHeight + 40;
     private static int commissionAnchor = (int) ((1920 - cardWidth) / 2);
 
+    private static final Map<CommissionState, Integer> STATE_ORDER = Map.of(
+        CommissionState.AVAILABLE, 0,
+        CommissionState.UNAVAILABLE, 1,
+        CommissionState.COMPLETED, 2
+    );
+
     private void buildAllCards() {
+        List<CommissionCardData> sorted = allCardData.stream()
+        .sorted(Comparator
+            .comparingInt((CommissionCardData data) -> STATE_ORDER.get(data.state()))
+            .thenComparing(CommissionCardData::id))
+        .toList();
+
         // Loop through allCardData and construct the cards
-        for (CommissionCardData cardData : allCardData) {
+        for (CommissionCardData cardData : sorted) {
             ResourceLocation thumbnail = ClientCommonEvents.getCardThumbnail(cardData.id());
             allCards.add(new CommissionCard(cardData.id(), Component.literal(cardData.title()), thumbnail, cardData.state(), currentCommissionPage));
         }

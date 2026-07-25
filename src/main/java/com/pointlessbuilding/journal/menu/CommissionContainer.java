@@ -15,6 +15,7 @@ import com.pointlessbuilding.journal.commission.CommissionLoader;
 import com.pointlessbuilding.journal.commission.CommissionState;
 import com.pointlessbuilding.journal.commission.CommissionUnlock;
 import com.pointlessbuilding.journal.commission.EvaluationResult;
+import com.pointlessbuilding.journal.items.Blueprint;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Inventory;
@@ -209,7 +210,28 @@ public class CommissionContainer extends AbstractContainerMenu{
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        return ItemStack.EMPTY; // Do nothing. This probably changes later
+        ItemStack newStack = ItemStack.EMPTY;
+        Slot slot = this.slots.get(index);
+
+        if (slot != null && slot.hasItem()) {
+            ItemStack slotStack = slot.getItem();
+            newStack = slotStack.copy();
+
+            if (index == 0) {
+                if (!this.moveItemStackTo(slotStack, 1, 37, true)) return ItemStack.EMPTY;
+            }
+            else {
+                if (slotStack.getItem() instanceof Blueprint) {
+                    if (!this.moveItemStackTo(slotStack, 0, 1, false)) return ItemStack.EMPTY;
+                }
+                else return ItemStack.EMPTY;
+            }
+
+            if (slotStack.isEmpty()) slot.set(ItemStack.EMPTY);
+            else slot.setChanged();
+        }
+
+        return newStack;
     }
 
     @Override

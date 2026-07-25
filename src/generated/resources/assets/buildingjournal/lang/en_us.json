@@ -1,11 +1,8 @@
 {
-  "block.buildingjournal.anchor_block": "Anchor Block",
-  "block.buildingjournal.blueprint_rack": "Blueprint Rack",
   "block.buildingjournal.drafting_table": "Drafting Table",
   "item.buildingjournal.blueprint": "Blueprint",
   "item.buildingjournal.builders_compass": "Builder's Compass",
   "key.buildingjournal.journal": "Open Journal",
-  "screen.buildingjournal.blueprint_rack": "Blueprint Rack",
   "screen.buildingjournal.drafting_table": "Drafting Table",
   "screen.buildingjournal.drafting_table.blocks_count": "Total blocks covered: %s",
   "screen.buildingjournal.drafting_table.boundaries_count": "%s boundaries loaded in compass.",
@@ -20,6 +17,7 @@
   "tab.buildingjournal": "Building Journal",
   "tooltip.buildingjournal.compass.deselect": "Press %1$s + %2$s to remove the last boundary marked.",
   "tooltip.buildingjournal.compass.select": "Press %s to select the first and last positions of individual boundaries of builds.",
+  "tooltip.buildjournal.compass.hint": "Hold <%s> for hint",
   "tutorial.buildingjournal.desc": "Open with %s",
   "tutorial.buildingjournal.title": "Try out the Journal!"
 }

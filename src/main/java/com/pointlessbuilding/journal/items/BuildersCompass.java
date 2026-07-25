@@ -12,6 +12,7 @@ import com.pointlessbuilding.journal.Registration;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -33,6 +34,7 @@ public class BuildersCompass extends Item{
 
     public static final String BUILDERS_COMPASS_TOOLTIP_SELECT = "tooltip.buildingjournal.compass.select";
     public static final String BUILDERS_COMPASS_TOOLTIP_DESELECT = "tooltip.buildingjournal.compass.deselect";
+    public static final String BUILDERS_COMPASS_TOLLTIP_HINT = "tooltip.buildjournal.compass.hint";
 
     public BuildersCompass(Properties properties) {
         super(properties);
@@ -146,8 +148,15 @@ public class BuildersCompass extends Item{
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag isAdvanced) {
         Component useKey = Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage();
         Component shiftKey = Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage();
-        tooltipComponents.add(Component.translatable("tooltip.buildingjournal.compass.select", useKey).withStyle(ChatFormatting.AQUA));
-        tooltipComponents.add(Component.translatable("tooltip.buildingjournal.compass.deselect", shiftKey, useKey).withStyle(ChatFormatting.RED));
+
+        if(Screen.hasShiftDown()) {
+            tooltipComponents.add(Component.translatable(BUILDERS_COMPASS_TOOLTIP_SELECT, useKey).withStyle(ChatFormatting.AQUA));
+            tooltipComponents.add(Component.translatable(BUILDERS_COMPASS_TOOLTIP_DESELECT, shiftKey, useKey).withStyle(ChatFormatting.RED));
+        }
+        else {
+            tooltipComponents.add(Component.translatable(BUILDERS_COMPASS_TOLLTIP_HINT, shiftKey)
+                .withStyle(style -> style.withColor(ChatFormatting.DARK_GRAY).withItalic(true)));
+        }
     }
 
     public static boolean currentHoldingCompass(Player player) {

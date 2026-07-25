@@ -2,6 +2,7 @@ package com.pointlessbuilding.journal.menu;
 
 import com.pointlessbuilding.journal.Registration;
 import com.pointlessbuilding.journal.blocks.DraftingTableEntity;
+import com.pointlessbuilding.journal.items.BuildersCompass;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
@@ -50,7 +51,28 @@ public class DraftingTableContainer extends AbstractContainerMenu{
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        return ItemStack.EMPTY;
+        ItemStack newStack = ItemStack.EMPTY;
+        Slot slot = this.slots.get(index);
+
+        if(slot != null && slot.hasItem()) {
+            ItemStack slotStack = slot.getItem();
+            newStack = slotStack.copy();
+
+            if(index == 0 || index == 1) {
+                if(!this.moveItemStackTo(slotStack, 2, 38, true)) return ItemStack.EMPTY;
+            }
+            else {
+                if(slotStack.getItem() instanceof BuildersCompass) {
+                    if(!this.moveItemStackTo(slotStack, 0, 1, false)) return ItemStack.EMPTY;
+                }
+                else return ItemStack.EMPTY;
+            }
+
+            if(slotStack.isEmpty()) slot.set(ItemStack.EMPTY);
+            else slot.setChanged();
+        }
+
+        return newStack;
     }
 
     @Override
