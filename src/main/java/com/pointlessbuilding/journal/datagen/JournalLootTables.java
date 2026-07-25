@@ -13,9 +13,7 @@ public class JournalLootTables extends VanillaBlockLoot{
     
     @Override
     protected void generate() {
-        dropSelf(Registration.ANCHOR_BLOCK.get());
         dropSelf(Registration.DRAFTING_TABLE.get());
-        dropSelf(Registration.BLUEPRINT_RACK.get());
     }
 
     @Override

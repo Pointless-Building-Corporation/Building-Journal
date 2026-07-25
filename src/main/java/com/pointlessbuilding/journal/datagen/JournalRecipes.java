@@ -11,7 +11,6 @@ import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.common.Tags;
 
 public class JournalRecipes extends RecipeProvider{
 
@@ -42,17 +41,6 @@ public class JournalRecipes extends RecipeProvider{
             .define('i', Items.IRON_INGOT)
             .unlockedBy("has_iron", InventoryChangeTrigger.TriggerInstance.hasItems(
                 ItemPredicate.Builder.item().of(Items.IRON_INGOT).build()))
-            .save(consumer);
-
-        // The blueprint rack needs 4 sticks and a chest.
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, Registration.BLUEPRINT_RACK.get())
-            .pattern("   ")
-            .pattern("s s")
-            .pattern("scs")
-            .define('s', Items.STICK)
-            .define('c', Tags.Items.CHESTS)
-            .unlockedBy("has_crafting_table", InventoryChangeTrigger.TriggerInstance.hasItems(
-                ItemPredicate.Builder.item().of(Items.CRAFTING_TABLE).build()))
             .save(consumer);
     }
     

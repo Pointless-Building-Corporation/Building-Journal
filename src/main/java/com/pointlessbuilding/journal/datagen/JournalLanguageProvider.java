@@ -2,7 +2,6 @@ package com.pointlessbuilding.journal.datagen;
 
 import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.Registration;
-import com.pointlessbuilding.journal.blocks.BlueprintRack;
 import com.pointlessbuilding.journal.blocks.DraftingTable;
 import com.pointlessbuilding.journal.client.ClientSetup;
 import com.pointlessbuilding.journal.gui.ConfigUI;
@@ -35,7 +34,6 @@ public class JournalLanguageProvider extends LanguageProvider{
         add(JournalToastPacket.JOURNAL_TOAST_DESC, "Open with %s");
 
         // UI
-        add(BlueprintRack.BLUEPRINT_RACK_UI_TITLE, "Blueprint Rack");
         add(DraftingTable.DRAFTING_TABLE_UI_TITLE, "Drafting Table");
 
         add(DraftingTableUI.DRAFTING_TABLE_NO_BOUNDARIES_LOADED, "No boundaries loaded in compass!");
@@ -43,9 +41,7 @@ public class JournalLanguageProvider extends LanguageProvider{
         add(DraftingTableUI.DRAFTING_TABLE_BLOCKS_COUNT, "Total blocks covered: %s");
         
         // Blocks and items
-        add(Registration.ANCHOR_BLOCK.get(), "Anchor Block");
         add(Registration.DRAFTING_TABLE.get(), "Drafting Table");
-        add(Registration.BLUEPRINT_RACK.get(), "Blueprint Rack");
         add(Registration.BUILDERS_COMPASS.get(), "Builder's Compass");
         add(Registration.BLUEPRINT.get(), "Blueprint");
 
