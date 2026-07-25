@@ -31,16 +31,16 @@ public class BoundaryRenderer {
 
         switch (getDirection(origin, destination)) {
             case NORTH, SOUTH -> {
-                origin.add(-width/2, -width/2, 0);
-                destination.add(width/2, width/2, 0);
+                origin.add(-width/2, -width/2, -width/2);
+                destination.add(width/2, width/2, width/2);
             }
             case EAST, WEST -> {
-                origin.add(0, -width/2, -width/2);
-                destination.add(0, width/2, width/2);
+                origin.add(-width/2, -width/2, -width/2);
+                destination.add(width/2, width/2, width/2);
             }
             case UP, DOWN -> {
-                origin.add(-width/2, 0, -width/2);
-                destination.add(width/2, 0, width/2);
+                origin.add(-width/2, -width/2, -width/2);
+                destination.add(width/2, width/2, width/2);
             }
         }
 
@@ -183,7 +183,7 @@ public class BoundaryRenderer {
 
     public static void renderCuboid(PoseStack poseStack, VertexConsumer consumer, Vec3 camera, Vector3d originIn, Vector3d destinationIn, Vector4d color) {
         
-        float width = 0.02f;
+        float width = 0.01f;
         Vector3d origin = new Vector3d(originIn);
         Vector3d destination = new Vector3d(destinationIn);
 
@@ -236,6 +236,10 @@ public class BoundaryRenderer {
         else origin.add(0,1,0);
         if(destination.z >= origin.z) destination.add(0,0,1);
         else origin.add(0,0,1);
+
+        double eps = 0.002;
+        origin.sub(eps, eps, eps);
+        destination.add(eps, eps, eps);
 
         Vector3d v0 = origin;
         Vector3d v1 = new Vector3d(destination.x(), origin.y(), origin.z());
