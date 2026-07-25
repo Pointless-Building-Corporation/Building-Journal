@@ -7,7 +7,9 @@ import java.util.function.Supplier;
 import com.pointlessbuilding.journal.client.ClientCommonEvents;
 import com.pointlessbuilding.journal.commission.CommissionCardData;
 import com.pointlessbuilding.journal.commission.CommissionState;
+import com.pointlessbuilding.journal.gui.JournalUI;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -45,6 +47,10 @@ public class SyncCardCommissionsPacket {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ClientCommonEvents.updateCards(this.cards);
+
+            if(Minecraft.getInstance().screen instanceof JournalUI ui) {
+                ui.refreshCards();
+            }
         });
         ctx.get().setPacketHandled(true);
     }

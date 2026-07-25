@@ -32,7 +32,8 @@ public class CommissionContainer extends AbstractContainerMenu{
     private final CommissionState state;
     private final String conditionsJson;
     private List<CommissionCondition> conditions = new ArrayList<>();
-    private final List<CommissionUnlock> unlocks;
+    private final String unlocksJson;
+    private List<CommissionUnlock> unlocks = new ArrayList<>();
     private final int commissionPage;
 
     private final ItemStackHandler blueprintHandler = new ItemStackHandler(1) {
@@ -50,16 +51,17 @@ public class CommissionContainer extends AbstractContainerMenu{
     private List<Boolean> conditionResults = new ArrayList<>();
     private List<String> failureDescriptions = new ArrayList<>();
 
-    public CommissionContainer(int containerId, Player player, String commissionId, String title, CommissionState state, String conditionsJson, List<CommissionUnlock> unlocks, int commissionPage) {
+    public CommissionContainer(int containerId, Player player, String commissionId, String title, CommissionState state, String conditionsJson, String unlocksJson, int commissionPage) {
         super(Registration.COMMISSION_CONTAINER.get(), containerId);
         this.commissionId = commissionId;
         this.title = title;
         this.state = state;
         this.conditionsJson = conditionsJson;
-        this.unlocks = unlocks;
+        this.unlocksJson = unlocksJson;
         this.commissionPage = commissionPage;
 
         parseConditionsJson();
+        parseUnlocksJson();
 
         Inventory curInventory = player.getInventory();
 
@@ -102,6 +104,33 @@ public class CommissionContainer extends AbstractContainerMenu{
             }
             CommissionCondition result = parser.apply(conditionObject);
             if(result != null) conditions.add(result);
+        }
+    }
+
+    protected void parseUnlocksJson() {
+        JsonArray unlocksArray;
+        try {
+            unlocksArray = JsonParser.parseString(unlocksJson).getAsJsonArray();
+        }
+        catch (Exception e) {
+            BuildingJournal.LOGGER.error("Failed to parse unlocks Json for commission {}: {}", commissionId, e);
+            return;
+        }
+
+        for (JsonElement unlock : unlocksArray) {
+            JsonObject unlockObject = unlock.getAsJsonObject();
+            if(!unlockObject.has("unlock")) {
+                BuildingJournal.LOGGER.error("Missing unlock field within unlocks of {}", commissionId);
+                continue;
+            }
+            String unlockType = unlockObject.get("unlock").getAsString();
+            Function<JsonObject, CommissionUnlock> parser = CommissionLoader.UNLOCK_PARSERS.get(unlockType);
+            if(parser == null) {
+                BuildingJournal.LOGGER.error("Unknown unlock type {} in commission {}", unlockType, commissionId);
+                continue;
+            }
+            CommissionUnlock result = parser.apply(unlockObject);
+            if(result != null) unlocks.add(result);
         }
     }
 
@@ -169,6 +198,13 @@ public class CommissionContainer extends AbstractContainerMenu{
         for (int i = 0; i < conditions.size(); i++) {
             failureDescriptions.add(conditions.get(i).describeFailure(result));
         }
+    }
+
+    public boolean isSubmitActive() {
+        return state != CommissionState.COMPLETED &&
+            !conditionResults.isEmpty() &&
+            conditionResults.size() == conditions.size() && 
+            conditionResults.stream().allMatch(Boolean::booleanValue);
     }
 
     @Override

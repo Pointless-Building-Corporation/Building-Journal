@@ -83,6 +83,7 @@ public class CommissionLoader {
 
     private static List<Commission> loadedCommissions = new ArrayList<>();
     private static Map<String, String> rawConditionsJson = new HashMap<>();
+    private static Map<String, String> rawUnlocksJson = new HashMap<>();
 
     public static void setup() {
         if (!Files.exists(commissionsFolder)) {
@@ -158,9 +159,14 @@ public class CommissionLoader {
                         continue;
                     }
                     JsonArray conditionsArray = jsonObject.getAsJsonArray("conditions");
+                    if(conditionsArray.size() == 0) {
+                        BuildingJournal.LOGGER.error("Too few conditions in file {}", file);
+                        continue;
+                    }
                     rawConditionsJson.put(id, conditionsArray.toString());
                        
                     JsonArray unlocksArray = jsonObject.has("unlocks") ? jsonObject.getAsJsonArray("unlocks") : new JsonArray();
+                    rawUnlocksJson.put(id, unlocksArray.toString());
 
                     List<CommissionCondition> conditions = new ArrayList<>();
                     List<CommissionUnlock> unlocks = new ArrayList<>();
@@ -220,6 +226,10 @@ public class CommissionLoader {
 
     public static String getRawConditionsJson(String id) {
         return rawConditionsJson.getOrDefault(id, "[]");
+    }
+
+    public static String getRawUnlocksJson(String id) {
+        return rawUnlocksJson.getOrDefault(id, "[]");
     }
 
     public static CommissionState fetchCommissionState(Set<String> completed, Commission commission) {
@@ -284,14 +294,16 @@ public class CommissionLoader {
         CommissionState state = fetchCommissionState(completed, commission);
 
         String conditionsJson = CommissionLoader.getRawConditionsJson(commissionId);
+        String unlocksJson = CommissionLoader.getRawUnlocksJson(commissionId);
 
         NetworkHooks.openScreen(player, new SimpleMenuProvider(
-            (windowId, inv, p) -> new CommissionContainer(windowId, inv.player, commissionId, commission.title(), state, conditionsJson, commission.unlocks(), commissionPage), Component.literal(commission.title())),
+            (windowId, inv, p) -> new CommissionContainer(windowId, inv.player, commissionId, commission.title(), state, conditionsJson, unlocksJson, commissionPage), Component.literal(commission.title())),
             buf -> {
                 buf.writeUtf(commissionId);
                 buf.writeUtf(commission.title());
                 buf.writeEnum(state);
                 buf.writeUtf(conditionsJson);
+                buf.writeUtf(unlocksJson);
                 buf.writeInt(commissionPage);
             }
         );

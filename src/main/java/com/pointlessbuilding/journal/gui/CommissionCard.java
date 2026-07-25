@@ -96,7 +96,7 @@ public class CommissionCard extends AbstractWidget{
     @Override
     public void onClick(double mouseX, double mouseY) {
         super.onClick(mouseX, mouseY);
-        Network.sendToServer(new CommissionDetailPacket(commissionId, currentCommissionPage));
+        if(this.state != CommissionState.UNAVAILABLE) Network.sendToServer(new CommissionDetailPacket(commissionId, currentCommissionPage));
     }
 
     @Override

@@ -1,7 +1,5 @@
 package com.pointlessbuilding.journal;
 
-import java.util.ArrayList;
-
 import com.pointlessbuilding.journal.blocks.AnchorBlock;
 import com.pointlessbuilding.journal.blocks.BlueprintRack;
 import com.pointlessbuilding.journal.blocks.BlueprintRackEntity;
@@ -71,8 +69,9 @@ public class Registration {
             String title = data.readUtf();
             CommissionState state = data.readEnum(CommissionState.class);
             String conditionsJson = data.readUtf();
+            String unlocksJson = data.readUtf();
             int commissionPage = data.readInt();
-            return new CommissionContainer(windowId, inv.player, commissionId, title, state, conditionsJson, new ArrayList<>(), commissionPage);
+            return new CommissionContainer(windowId, inv.player, commissionId, title, state, conditionsJson, unlocksJson, commissionPage);
         })
     );
 

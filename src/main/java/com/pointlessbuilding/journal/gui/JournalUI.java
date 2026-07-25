@@ -70,6 +70,14 @@ public class JournalUI extends Screen {
         }
     }
 
+    public void refreshCards() {
+        allCardData = ClientCommonEvents.getCards();
+        allCards.clear();
+        buildAllCards();
+        flex();
+        updateButtonVisibility();
+    }
+
     private class BookmarkButton extends AbstractButton {
         
         private final int pageIndex;

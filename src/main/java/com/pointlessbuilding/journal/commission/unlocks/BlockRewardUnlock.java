@@ -4,6 +4,9 @@ import com.google.gson.JsonObject;
 import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.commission.CommissionUnlock;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -35,6 +38,27 @@ public class BlockRewardUnlock implements CommissionUnlock{
             return generatedTitle;
         }
         return title;
+    }
+
+    @Override
+    public void renderIcon(GuiGraphics guiGraphics, int x, int y, int size) {
+        float itemScale = size / 16f;
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(x, y, 0);
+        guiGraphics.pose().scale(itemScale, itemScale, 1f);
+        guiGraphics.renderItem(new ItemStack(ForgeRegistries.ITEMS.getValue(blockId)), 0, 0);
+        guiGraphics.pose().popPose();
+
+        Font font = Minecraft.getInstance().font;
+        String blockText = String.valueOf(blockCount);
+        float textScale = Math.max(size / 32f, 0.5f);
+        int textWidth = Math.round(font.width(blockText) * textScale);
+
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(x + size - textWidth, y + size - Math.round(font.lineHeight * textScale), 200);
+        guiGraphics.pose().scale(textScale, textScale, 1f);
+        guiGraphics.drawString(font, blockText, 0, 0, 0xFFFFFF, true);
+        guiGraphics.pose().popPose();
     }
 
     public static CommissionUnlock fromJson(JsonObject json) {

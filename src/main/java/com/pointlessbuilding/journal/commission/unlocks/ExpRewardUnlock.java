@@ -6,11 +6,16 @@ import com.google.gson.JsonObject;
 import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.commission.CommissionUnlock;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
-public class ExpRewardUnlock  implements CommissionUnlock{
+public class ExpRewardUnlock implements CommissionUnlock{
 
     public static enum ExpType { POINTS, LEVELS };
+    private static final ResourceLocation expIcon = new ResourceLocation(BuildingJournal.MODID, "textures/gui/unlocks/exp_unlock.png");
 
     private static Map<String, ExpType> expTypeMap = Map.of(
         "Points", ExpType.POINTS,
@@ -43,6 +48,23 @@ public class ExpRewardUnlock  implements CommissionUnlock{
             return generatedTitle;
         }
         return title;
+    }
+
+    @Override
+    public void renderIcon(GuiGraphics guiGraphics, int x, int y, int size) {
+        guiGraphics.blit(expIcon, x, y, size, size, 0, 0, 16, 16, 16, 16);
+
+        Font font = Minecraft.getInstance().font;
+        String expText = String.valueOf(expAmount);
+        if(expType == ExpType.LEVELS) expText += "L";
+        float textScale = Math.max(size / 32f, 0.5f);
+        int textWidth = Math.round(font.width(expText) * textScale);
+
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(x + size - textWidth, y + size - Math.round(font.lineHeight * textScale), 0);
+        guiGraphics.pose().scale(textScale, textScale, 1f);
+        guiGraphics.drawString(font, expText, 0, 0, 0xFFFFFF, true);
+        guiGraphics.pose().popPose();
     }
 
     public static CommissionUnlock fromJson(JsonObject json) {

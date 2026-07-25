@@ -4,7 +4,7 @@ Building Journal
 
 This is the Building Journal mod.
 
-**Current progress** -> Around 75% feature complete.
+**Current progress** -> 100% feature complete (I think!) Currently attending to various optimizations, bug fixes, re-arrangments.
 
 This mod is built for NeoForge for MC Version 1.20.1.
 
