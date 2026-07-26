@@ -220,6 +220,10 @@ public class CommissionLoader {
         return availableCommissions;
     }
 
+    public static List<Commission> getAllLoadedCommissions() {
+        return loadedCommissions;
+    }
+
     public static Optional<Commission> getById(String id) {
         return loadedCommissions.stream().filter(c -> c.id().equals(id)).findFirst();
     }

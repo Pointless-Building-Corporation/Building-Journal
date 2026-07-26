@@ -11,6 +11,7 @@ public interface ICommissionProgress {
     boolean isCompleted(String commissionId);
     void markCompleted(String commissionId);
     void markIncomplete(String commissionId);
+    void markAllIncomplete();
     Set<String> getCompletedCommissions();
 
     int getCompletionCount();

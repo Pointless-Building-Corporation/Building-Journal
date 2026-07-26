@@ -47,6 +47,11 @@ public class CommissionProgress implements ICommissionProgress, ICapabilityProvi
         completedCommissions.remove(commissionId);
     }
     @Override
+    public void markAllIncomplete() {
+        completedCommissions.clear();
+        completionCount = 0;
+    }
+    @Override
     public Set<String> getCompletedCommissions() {
         // Maybe unmodifiable, idk
         return completedCommissions;
