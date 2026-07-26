@@ -44,7 +44,7 @@ Checks how many of certain blocks have been added. This includes fluids but not 
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `blocks` | array of strings | No | Block IDs to check. If empty, checks for all added blocks in general. |
+| `blocks` | array of strings | No | Block IDs to check. If empty, checks for all added blocks in general. Can be searched by block name (`minecraft:red_wool`), block tag (`#minecraft:wool`) or regex (`regex:^.*woo.*`). |
 | `operator` | `<` \| `>` \| `==` | **Yes** | Comparison operator |
 | `threshold` | integer | **Yes** | Value to compare against |
 
@@ -54,7 +54,7 @@ Checks how many of certain blocks have been removed. This includes fluids but no
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `blocks` | array of strings | No | Block IDs to check. If empty, checks for all removed blocks in general. |
+| `blocks` | array of strings | No | Block IDs to check. If empty, checks for all removed blocks in general. Can be searched by block name (`minecraft:red_wool`), block tag (`#minecraft:wool`) or regex (`regex:^.*woo.*`). |
 | `operator` | `<` \| `>` \| `==` | **Yes** | Comparison operator |
 | `threshold` | integer | **Yes** | Value to compare against |
 
@@ -127,7 +127,7 @@ Checks the list of blocks given against the build and verifies if they are prese
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `blocks` | array of strings | **Yes** | Block ids to check. Unlike the other conditions this cannot be empty. |
+| `blocks` | array of strings | **Yes** | Block ids to check. Unlike the other conditions this cannot be empty. Can be searched by block name (`minecraft:red_wool`), block tag (`#minecraft:wool`) or regex (`regex:^.*woo.*`). |
 | `isBlacklist` | integer | No | Is this a blacklist? By default this is false. |
 
 #### `Biome`

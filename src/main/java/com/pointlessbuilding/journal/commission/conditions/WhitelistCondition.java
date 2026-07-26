@@ -2,6 +2,7 @@ package com.pointlessbuilding.journal.commission.conditions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -10,7 +11,11 @@ import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.commission.CommissionCondition;
 import com.pointlessbuilding.journal.commission.EvaluationResult;
 
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class WhitelistCondition implements CommissionCondition{
 
@@ -109,7 +114,32 @@ public class WhitelistCondition implements CommissionCondition{
                 return null;
             }
             for (JsonElement block : blockArray) {
-                jsonBlocks.add(ResourceLocation.tryParse(block.getAsString()));
+                String blockString = block.getAsString();
+                if(blockString.startsWith("#")) {   // Tag
+                    ResourceLocation tagId = ResourceLocation.tryParse(blockString.substring(1));
+                    if(tagId == null) {
+                        BuildingJournal.LOGGER.error("Invalid tag resource location in commission blocks list of {}", jsonTitle != null ? jsonTitle : "WhitelistCondition");
+                        continue;
+                    }
+                    TagKey<Block> tagKey = TagKey.create(Registries.BLOCK, tagId);
+                    ForgeRegistries.BLOCKS.tags().getTag(tagKey).forEach(b -> jsonBlocks.add(ForgeRegistries.BLOCKS.getKey(b)));
+                }
+                else if(blockString.startsWith("regex:")) { // Regex
+                    Pattern pattern = Pattern.compile(blockString.substring("regex:".length()));
+                    for (ResourceLocation blockId : ForgeRegistries.BLOCKS.getKeys()) {
+                        if(pattern.matcher(blockId.toString()).matches()) {
+                            jsonBlocks.add(blockId);
+                        }
+                    }
+                }
+                else {  // Block
+                    ResourceLocation parsed = ResourceLocation.tryParse(blockString);
+                    if(parsed == null) {
+                        BuildingJournal.LOGGER.error("Invalid block resource location in commission blocks list of {}", jsonTitle != null ? jsonTitle : "WhitelistCondition");
+                        continue;
+                    }
+                    jsonBlocks.add(parsed);
+                }
             }
         }
         else {
