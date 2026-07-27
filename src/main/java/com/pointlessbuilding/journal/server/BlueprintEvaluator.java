@@ -405,7 +405,7 @@ public class BlueprintEvaluator {
             LOGGER.warn("Expected 289 chunks, got {}. Skipping baseline region for {}.", regionChunks.size(), chunkPos);
             return proto;
         }
-        SandboxWorldGenRegion region = new SandboxWorldGenRegion(level, regionChunks, ChunkStatus.SURFACE, 0);
+        SandboxWorldGenRegion region = new SandboxWorldGenRegion(level, regionChunks, ChunkStatus.SURFACE, 0, chunkPos);
         //LOGGER.info("WorldGenRegion created.");
 
         if (gen instanceof NoiseBasedChunkGenerator noiseGen) {
