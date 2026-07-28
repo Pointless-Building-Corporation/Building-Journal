@@ -14,6 +14,7 @@ out-of-the-box as a standalone mod as well.
 
 **Assets used** (that is not my own):
 - Sound effects from "50 RPG Sound Effects" by Kenney.nl (https://opengameart.org/content/50-rpg-sound-effects)
+- The FakeDimension generation logic was basically stolen from Infiniverse (https://github.com/Commoble/infiniverse). Technically I'm not directly using their API but they deserve the credit
 
 Licensing
 =======
