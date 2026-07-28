@@ -7,10 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 
@@ -21,14 +17,10 @@ import com.pointlessbuilding.journal.items.Blueprint;
 import com.pointlessbuilding.journal.network.Network;
 import com.pointlessbuilding.journal.network.packets.BlueprintCompletePacket;
 import com.pointlessbuilding.journal.utility.BoundaryMath;
-import com.pointlessbuilding.journal.utility.SandboxWorldGenRegion;
 
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -45,33 +37,12 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.chunk.ProtoChunk;
-import net.minecraft.world.level.chunk.UpgradeData;
-import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.level.levelgen.LegacyRandomSource;
-import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
-import net.minecraft.world.level.levelgen.WorldGenerationContext;
-import net.minecraft.world.level.levelgen.WorldgenRandom;
-import net.minecraft.world.level.levelgen.blending.Blender;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class BlueprintEvaluator {
     
     private static final Logger LOGGER = LogUtils.getLogger();
-
-    // Baseline Cache - store individual chunks in cache and reaccess them on repeat calls
-    // private static final int MAX_CACHE_SIZE = 200;
-    // private static final Map<ChunkPos, ChunkAccess> BASELINE_CACHE = Collections.synchronizedMap(
-    //     new LinkedHashMap<>(MAX_CACHE_SIZE, 0.75f, true) {
-    //         @Override
-    //         protected boolean removeEldestEntry(Map.Entry<ChunkPos, ChunkAccess> eldest) {
-    //             return size() > MAX_CACHE_SIZE;
-    //         }
-    //     }
-    // );
 
     public static void evaluate(ServerPlayer player, BlockPos pos, String name) {
         LOGGER.debug("evaluate() called for {} at {}", name, pos);
@@ -98,14 +69,12 @@ public class BlueprintEvaluator {
         }
         //LOGGER.info("Boxes filtered: {} boxes", boxes.size());
 
-        // Get the set of chunks required to load (with a border of 8 because of seed generation) and the actual chunks to be diffed
         Set<ChunkPos> diffChunks = getRequiredChunks(boxes, 0);
-        Set<ChunkPos> loadChunks = getRequiredChunks(boxes, 8);
-        //LOGGER.info("diffChunks: {}, loadChunks: {}", diffChunks.size(), loadChunks.size());
 
+        // Force load these chunks in the real level
         Set<ChunkPos> forcedChunks = new HashSet<>();
         List<CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> futures = new ArrayList<>();
-        for(ChunkPos chunk : loadChunks) {
+        for(ChunkPos chunk : diffChunks) {
             if (!level.hasChunk(chunk.x, chunk.z)) {
                 forcedChunks.add(chunk);
                 level.setChunkForced(chunk.x, chunk.z, true);
@@ -113,13 +82,35 @@ public class BlueprintEvaluator {
             futures.add(level.getChunkSource().getChunkFuture(chunk.x, chunk.z, ChunkStatus.FULL, true));
         }
 
+        // Create the evil fake level of this and force load the chunks there too
+        ServerLevel fakeLevel = FakeDimension.getOrCreateFakeLevel(
+            level.getServer(),
+            FakeDimension.fakeKeyFor(level.dimension()),
+            FakeDimension.fakeFactoryFor(level)
+        );
+
+        Set<ChunkPos> forcedFakeChunks = new HashSet<>();
+        List<CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> fakeFutures = new ArrayList<>();
+        for (ChunkPos chunk : diffChunks) {
+            if (!fakeLevel.hasChunk(chunk.x, chunk.z)) {
+                forcedFakeChunks.add(chunk);
+                fakeLevel.setChunkForced(chunk.x, chunk.z, true);
+            }
+            fakeFutures.add(fakeLevel.getChunkSource().getChunkFuture(chunk.x, chunk.z, ChunkStatus.FULL, true));
+        }
+
+        // Combine both the futures
+        List<CompletableFuture<?>> allFutures = new ArrayList<>();
+        allFutures.addAll(futures);
+        allFutures.addAll(fakeFutures);
+
         // Background thread: compute the diff
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+        CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0]))
         .thenRunAsync(() -> {
             //LOGGER.info("Background thread started");
 
             Map<ChunkPos, ChunkAccess> chunkCache = new HashMap<>();
-            for (ChunkPos cp : loadChunks) {
+            for (ChunkPos cp : diffChunks) {
                 ChunkAccess chunk = level.getChunk(cp.x, cp.z, ChunkStatus.FULL, false);
                 if (chunk != null) chunkCache.put(cp, chunk);
             }
@@ -127,9 +118,12 @@ public class BlueprintEvaluator {
             DiffResult diffResult = null;
 
             try {
-                diffResult = computeDiff(level, boxes, diffChunks, chunkCache);
+                diffResult = computeDiff(level, fakeLevel, boxes, diffChunks, chunkCache);
             } finally {
-                level.getServer().execute(() -> unloadChunks(level, forcedChunks));
+                level.getServer().execute(() -> {
+                    unloadChunks(level, forcedChunks);
+                    unloadChunks(fakeLevel, forcedFakeChunks);
+                });
             }
             if (diffResult != null) {
                 final Map<String, long[]> finalCounts = diffResult.counts();
@@ -239,7 +233,7 @@ public class BlueprintEvaluator {
 
     private record DiffResult(Map<String, long[]> counts, List<int[]> boxMins, List<int[]> boxMaxs, long modifiedCount, Set<ResourceKey<Biome>> biomes) {}
 
-    private static DiffResult computeDiff(ServerLevel level, List<CompoundTag> boxes, Set<ChunkPos> diffChunks, Map<ChunkPos, ChunkAccess> chunkCache) {
+    private static DiffResult computeDiff(ServerLevel level, ServerLevel fakeLevel, List<CompoundTag> boxes, Set<ChunkPos> diffChunks, Map<ChunkPos, ChunkAccess> chunkCache) {
 
         List<int[]> mins = new ArrayList<>();
         List<int[]> maxs = new ArrayList<>();
@@ -263,33 +257,15 @@ public class BlueprintEvaluator {
 
         Map<String, long[]> counts = new HashMap<>();
 
-        ExecutorService chunkGenExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
-        List<Future<?>> generatedFutures = new ArrayList<>();
-        Map<ChunkPos, ChunkAccess> results = new ConcurrentHashMap<>();
-
-        for (ChunkPos chunk: diffChunks) {
-            generatedFutures.add(chunkGenExecutor.submit(() -> {
-                    ChunkAccess genChunk = generateBaselineChunk(level, chunk, level.getChunkSource().getGenerator(), chunkCache);
-                    results.put(chunk, genChunk);
-                }
-            ));
-        }
-
-        for (Future<?> f : generatedFutures) {
-           try {
-            f.get();
-           }
-            catch (Exception e) {
-                throw new RuntimeException("Chunk generation failed", e.getCause());
-            }
-        }
-
         for(ChunkPos chunk : diffChunks) {
 
             ChunkAccess liveChunk = chunkCache.get(chunk);
 
-            ChunkAccess baselineChunk = results.get(chunk);
+            ChunkAccess baselineChunk = fakeLevel.getChunk(chunk.x, chunk.z, ChunkStatus.FULL, false);
+            if (baselineChunk == null) {
+                LOGGER.warn("Fake evil chunk {} unexpectedly null after force-load completed, skipping in diff", chunk);
+                continue;
+            }
 
             MutableBlockPos bp = new BlockPos.MutableBlockPos();
 
@@ -369,9 +345,6 @@ public class BlueprintEvaluator {
             }
         }
 
-        chunkGenExecutor.shutdown();
-        //LOGGER.info("Active threads: {}", Thread.activeCount());
-
         List<int[]> resultMins = new ArrayList<>();
         List<int[]> resultMaxs = new ArrayList<>();
         for (int i = 0; i < diffMins.size(); i++) {
@@ -382,66 +355,6 @@ public class BlueprintEvaluator {
         }
 
         return new DiffResult(counts, resultMins, resultMaxs, modifiedCount, biomes);
-    }
-
-    private static ChunkAccess generateBaselineChunk(ServerLevel level, ChunkPos chunkPos, ChunkGenerator gen, Map<ChunkPos, ChunkAccess> chunkCache) {
-
-        ProtoChunk proto = new ProtoChunk(chunkPos, UpgradeData.EMPTY, level, level.registryAccess().registryOrThrow(Registries.BIOME), null);
-
-        gen.fillFromNoise(Util.backgroundExecutor(), Blender.empty(), level.getChunkSource().randomState(), level.structureManager(), proto).join();
-        //LOGGER.info("fillFromNoise complete");
-
-        List<ChunkAccess> regionChunks = new ArrayList<>();
-        for (int dx = -8; dx <= 8; dx++) {
-            for (int dz = -8; dz <= 8; dz++) {
-                if (dx == 0 && dz == 0) regionChunks.add(proto);
-                else {
-                    ChunkAccess neighbor = chunkCache.get(new ChunkPos(chunkPos.x + dx, chunkPos.z + dz));
-                    if (neighbor != null) regionChunks.add(neighbor);
-                }
-            }
-        }
-        if(regionChunks.size() != 17*17) {
-            LOGGER.warn("Expected 289 chunks, got {}. Skipping baseline region for {}.", regionChunks.size(), chunkPos);
-            return proto;
-        }
-        SandboxWorldGenRegion region = new SandboxWorldGenRegion(level, regionChunks, ChunkStatus.SURFACE, 0, chunkPos);
-        //LOGGER.info("WorldGenRegion created.");
-
-        if (gen instanceof NoiseBasedChunkGenerator noiseGen) {
-            //LOGGER.info("NoiseBasedChunkGenerator buildSurface called...");
-            WorldGenerationContext context = new WorldGenerationContext(noiseGen, region);
-            noiseGen.buildSurface(proto, context, level.getChunkSource().randomState(), 
-                level.structureManager(), level.getBiomeManager(), 
-                level.registryAccess().registryOrThrow(Registries.BIOME), Blender.empty());
-        } else {
-            gen.buildSurface(region, level.structureManager(), level.getChunkSource().randomState(), proto);
-        }
-        //LOGGER.info("buildSurface complete");
-
-        gen.applyCarvers(region, level.getSeed(), level.getChunkSource().randomState(), level.getBiomeManager(), level.structureManager(), proto, GenerationStep.Carving.AIR);
-        gen.applyCarvers(region, level.getSeed(), level.getChunkSource().randomState(), level.getBiomeManager(), level.structureManager(), proto, GenerationStep.Carving.LIQUID);
-        //LOGGER.info("applyCarvers complete");
-
-        gen.createStructures(level.registryAccess(), level.getChunkSource().getGeneratorState(), level.structureManager(), proto, level.getStructureManager());
-        //LOGGER.info("createStructures complete");
-
-        BoundingBox chunkBox = BoundingBox.fromCorners(
-            new Vec3i(chunkPos.getMinBlockX(), level.getMinBuildHeight(), chunkPos.getMinBlockZ()),
-            new Vec3i(chunkPos.getMaxBlockX(), level.getMaxBuildHeight(), chunkPos.getMaxBlockZ())
-        );
-
-        WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(level.getSeed() ^ chunkPos.toLong()));
-
-        SectionPos sectionPos = SectionPos.bottomOf(proto);
-        level.registryAccess().registryOrThrow(Registries.STRUCTURE).stream().forEach(structure -> {
-            level.structureManager().startsForStructure(sectionPos, structure).forEach(start -> {
-                start.placeInChunk(region, level.structureManager(), gen, random, chunkBox, chunkPos);
-            });
-        });
-        //LOGGER.info("Structure placeInChunk complete");
-        
-        return proto;
     }
 
 }
