@@ -37,6 +37,8 @@ public class JournalUI extends Screen {
     public static ResourceLocation JOURNAL_BOOKMARKS = new ResourceLocation("buildingjournal:textures/gui/journal_page_bookmarks.png");
     public static ResourceLocation TEST_COMM_IMAGE = new ResourceLocation("buildingjournal:textures/gui/test.png");
 
+    private static final String DAILY_PREFIX = "daily_";
+
     private static int ui_width = 800;
     private static int ui_height = 450;
     private int x_offset = (this.width - ui_width) / 2;
@@ -72,16 +74,31 @@ public class JournalUI extends Screen {
     );
 
     private void buildAllCards() {
-        List<CommissionCardData> sorted = allCardData.stream()
+        CommissionCardData dailyData = null;
+        List<CommissionCardData> regularData = new ArrayList<>();
+
+        for(CommissionCardData cardData : allCardData) {
+            if(cardData.id().startsWith(DAILY_PREFIX)) {
+                dailyData = cardData;
+            }
+            else regularData.add(cardData);
+        }
+
+        List<CommissionCardData> sorted = regularData.stream()
         .sorted(Comparator
             .comparingInt((CommissionCardData data) -> STATE_ORDER.get(data.state()))
             .thenComparing(CommissionCardData::id))
         .toList();
 
+         if (dailyData != null) {
+            ResourceLocation thumbnail = ClientCommonEvents.getCardThumbnail(dailyData.id());
+            allCards.add(new CommissionCard(dailyData.id(), Component.literal(dailyData.title()), thumbnail, dailyData.state(), currentCommissionPage, true));
+        }
+
         // Loop through allCardData and construct the cards
         for (CommissionCardData cardData : sorted) {
             ResourceLocation thumbnail = ClientCommonEvents.getCardThumbnail(cardData.id());
-            allCards.add(new CommissionCard(cardData.id(), Component.literal(cardData.title()), thumbnail, cardData.state(), currentCommissionPage));
+            allCards.add(new CommissionCard(cardData.id(), Component.literal(cardData.title()), thumbnail, cardData.state(), currentCommissionPage, false));
         }
     }
 

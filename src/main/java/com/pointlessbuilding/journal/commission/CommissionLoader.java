@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -279,7 +281,9 @@ public class CommissionLoader {
 
         }
 
-        Network.sendToClient(new SyncCardCommissionsPacket(cardCommissions), player);
+        long nextResetEpochMillis = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+
+        Network.sendToClient(new SyncCardCommissionsPacket(cardCommissions, nextResetEpochMillis), player);
 
     }
 

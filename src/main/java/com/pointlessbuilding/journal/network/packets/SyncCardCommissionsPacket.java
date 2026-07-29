@@ -16,9 +16,11 @@ import net.minecraftforge.network.NetworkEvent;
 public class SyncCardCommissionsPacket {
     
     private final List<CommissionCardData> cards;
+    private final long nextResetEpochMillis;
 
-    public SyncCardCommissionsPacket(List<CommissionCardData> cards) {
+    public SyncCardCommissionsPacket(List<CommissionCardData> cards, long nextResetEpochMillis) {
         this.cards = cards;
+        this.nextResetEpochMillis = nextResetEpochMillis;
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -29,6 +31,7 @@ public class SyncCardCommissionsPacket {
             buf.writeByteArray(card.thumbnailBytes());
             buf.writeEnum(card.state());
         }
+        buf.writeLong(nextResetEpochMillis);
     }
 
     public static SyncCardCommissionsPacket decode(FriendlyByteBuf buf) {
@@ -41,12 +44,14 @@ public class SyncCardCommissionsPacket {
             CommissionState state = buf.readEnum(CommissionState.class);
             cards.add(new CommissionCardData(id, title, thumbnailBytes, state));
         }
-        return new SyncCardCommissionsPacket(cards);
+        long nextResetEpochMillis = buf.readLong();
+        return new SyncCardCommissionsPacket(cards, nextResetEpochMillis);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ClientCommonEvents.updateCards(this.cards);
+            ClientCommonEvents.updateNextResetTime(this.nextResetEpochMillis);
 
             if(Minecraft.getInstance().screen instanceof JournalUI ui) {
                 ui.refreshCards();

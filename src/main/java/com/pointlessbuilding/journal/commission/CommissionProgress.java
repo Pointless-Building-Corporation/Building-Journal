@@ -78,17 +78,26 @@ public class CommissionProgress implements ICommissionProgress, ICapabilityProvi
     }
     @Override
     public void checkStreakExtension(long dayEpoch) {
-        // Based on server/client config check if streak is broken or not
+        if(dayEpoch - lastCompletionDay == 0) return;
+
         if (dayEpoch - lastCompletionDay > 1) {
             currentStreak = 1;
         }
         else {
             currentStreak++;
-            if(currentStreak > maxStreak) maxStreak = currentStreak;
         }
-
+        
+        if(currentStreak > maxStreak) maxStreak = currentStreak;
         lastCompletionDay = dayEpoch;
     }
+    
+    @Override
+    public void resetStreak(boolean isHardReset) {
+        currentStreak = 0;
+        if(isHardReset) maxStreak = 0;
+        lastCompletionDay = -1;
+    }
+
 
     // Capability Stuff
 

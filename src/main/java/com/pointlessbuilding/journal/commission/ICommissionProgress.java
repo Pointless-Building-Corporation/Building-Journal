@@ -22,6 +22,7 @@ public interface ICommissionProgress {
 
     long getLastCompletionDay();
     void checkStreakExtension(long dayEpoch);
+    void resetStreak(boolean isHardReset);
 
     CompoundTag serializeNBT();
     void deserializeNBT(CompoundTag tag);

@@ -8,6 +8,9 @@ This Schema describes a commission in the Building Journal.
 Current latest schema version: `1`. \
 All supported schema versions as of writing: `1`
 
+**IMPORTANT NOTE!!**\
+As of this version, note that blueprints used to evaluate commission conditions may not be perfect; Due to the nature of how identical seeds generate in Minecraft, identical chunks in worlds with identical seeds may still have minor changes between them. This will *very rarely* affect commission evaluation; but regardless ensure your conditions cannot be adversely affected by such anomalies, and test them as much as you can. 
+
 ---
 
 ## Top-Level Fields
@@ -16,7 +19,7 @@ All supported schema versions as of writing: `1`
 |---|---|---|---|
 | `$schema` | string | No | This current schema |
 | `schemaVersion` | enum | **Yes** | Schema version — must be one of the allowed schema versions. |
-| `id` | string | No | Unique identifier of the Commission |
+| `id` | string | No | Unique identifier of the Commission. Note that the 'daily_' prefix is reserved for daily commissions and cannot be used for regularly. |
 | `title` | string | **Yes** | Title of the Commission |
 | `thumbnailPath` | string | No | Path to the thumbnail of the Commission. For correct aspect ratio, attach images of aspect ratio equivalent to 122x75. |
 | `conditions` | array | **Yes** | Conditions required to satisfy the Commission |

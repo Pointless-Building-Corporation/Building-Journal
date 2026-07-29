@@ -24,6 +24,7 @@ public class ClientCommonEvents {
     
     private static List<CommissionCardData> commissionCardData;
     private static Map<String, ResourceLocation> commissionThumbnails = new HashMap<>();
+    private static long nextResetEpochMillis;
 
     public static void updateCards(List<CommissionCardData> cards) {
         commissionCardData = cards;
@@ -54,12 +55,20 @@ public class ClientCommonEvents {
 
     }
 
+    public static void updateNextResetTime(long EpochMillis) {
+        nextResetEpochMillis = EpochMillis;
+    }
+
     public static List<CommissionCardData> getCards() {
         return commissionCardData;
     }
 
     public static ResourceLocation getCardThumbnail(String commissionId) {
         return commissionThumbnails.get(commissionId);
+    }
+
+    public static long getNextRestMillis() {
+        return nextResetEpochMillis;
     }
 
     @SubscribeEvent

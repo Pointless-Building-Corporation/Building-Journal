@@ -1,5 +1,6 @@
 package com.pointlessbuilding.journal.network.packets;
 
+import java.time.LocalDate;
 import java.util.function.Supplier;
 
 import com.pointlessbuilding.journal.commission.CommissionProgress;
@@ -36,21 +37,25 @@ public class CommissionSubmitPacket {
             if(!container.getId().equals(commissionId)) return;
             if(!container.isSubmitActive()) return;
 
-             boolean alreadyCompleted = player.getCapability(CommissionProgress.COMMISSION_PROGRESS)
-                .map(progress -> progress.isCompleted(commissionId))
-                .orElse(false);
-            if (alreadyCompleted) return;
-            
-            for (CommissionUnlock unlock : container.getUnlocks()) {
-                unlock.apply(player);
-            }
+            boolean isDaily = commissionId.startsWith("daily_");
 
-            player.getCapability(CommissionProgress.COMMISSION_PROGRESS)
-                .ifPresent(progress -> progress.markCompleted(commissionId));
+            player.getCapability(CommissionProgress.COMMISSION_PROGRESS).ifPresent(progress -> {
+                if (isDaily) {
+                    long today = LocalDate.now().toEpochDay();
+                    if (progress.getLastCompletionDay() == today) return;
+                    progress.checkStreakExtension(today);
+                }
 
-            player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1f, 1f);
+                if (progress.isCompleted(commissionId)) return;
+                progress.markCompleted(commissionId);
 
-            player.closeContainer();
+                for (CommissionUnlock unlock : container.getUnlocks()) {
+                    unlock.apply(player);
+                }
+
+                player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1f, 1f);
+                player.closeContainer();
+            });
         });
         ctx.get().setPacketHandled(true);
     }
