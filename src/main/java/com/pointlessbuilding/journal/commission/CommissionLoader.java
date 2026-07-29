@@ -282,8 +282,15 @@ public class CommissionLoader {
         }
 
         long nextResetEpochMillis = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long epochDay = LocalDate.now().toEpochDay();
 
-        Network.sendToClient(new SyncCardCommissionsPacket(cardCommissions, nextResetEpochMillis), player);
+        int currentStreak = player.getCapability(CommissionProgress.COMMISSION_PROGRESS)
+            .map(progress -> progress.getCurrentStreak(epochDay))
+            .orElse(0);
+        int maxStreak = player.getCapability(CommissionProgress.COMMISSION_PROGRESS).map(ICommissionProgress::getMaxStreak).orElse(0);
+        int completionCount = player.getCapability(CommissionProgress.COMMISSION_PROGRESS).map(ICommissionProgress::getCompletionCount).orElse(0);
+
+        Network.sendToClient(new SyncCardCommissionsPacket(cardCommissions, nextResetEpochMillis, currentStreak, maxStreak, completionCount), player);
 
     }
 

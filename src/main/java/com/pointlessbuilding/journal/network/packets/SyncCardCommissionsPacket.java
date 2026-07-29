@@ -17,10 +17,16 @@ public class SyncCardCommissionsPacket {
     
     private final List<CommissionCardData> cards;
     private final long nextResetEpochMillis;
+    private int currentStreak;
+    private int maxStreak;
+    private int completionCount;
 
-    public SyncCardCommissionsPacket(List<CommissionCardData> cards, long nextResetEpochMillis) {
+    public SyncCardCommissionsPacket(List<CommissionCardData> cards, long nextResetEpochMillis, int currentStreak, int maxStreak, int completionCount) {
         this.cards = cards;
         this.nextResetEpochMillis = nextResetEpochMillis;
+        this.currentStreak = currentStreak;
+        this.maxStreak = maxStreak;
+        this.completionCount = completionCount;
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -32,6 +38,9 @@ public class SyncCardCommissionsPacket {
             buf.writeEnum(card.state());
         }
         buf.writeLong(nextResetEpochMillis);
+        buf.writeInt(currentStreak);
+        buf.writeInt(maxStreak);
+        buf.writeInt(completionCount);
     }
 
     public static SyncCardCommissionsPacket decode(FriendlyByteBuf buf) {
@@ -45,13 +54,17 @@ public class SyncCardCommissionsPacket {
             cards.add(new CommissionCardData(id, title, thumbnailBytes, state));
         }
         long nextResetEpochMillis = buf.readLong();
-        return new SyncCardCommissionsPacket(cards, nextResetEpochMillis);
+        int currentStreak = buf.readInt();
+        int maxStreak = buf.readInt();
+        int completionCount = buf.readInt();
+        return new SyncCardCommissionsPacket(cards, nextResetEpochMillis, currentStreak, maxStreak, completionCount);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ClientCommonEvents.updateCards(this.cards);
             ClientCommonEvents.updateNextResetTime(this.nextResetEpochMillis);
+            ClientCommonEvents.updateStats(currentStreak, maxStreak, completionCount);
 
             if(Minecraft.getInstance().screen instanceof JournalUI ui) {
                 ui.refreshCards();

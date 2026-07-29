@@ -16,7 +16,7 @@ public interface ICommissionProgress {
 
     int getCompletionCount();
 
-    int getCurrentStreak();
+    int getCurrentStreak(long day);
 
     int getMaxStreak();
 

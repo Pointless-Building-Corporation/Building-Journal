@@ -25,6 +25,9 @@ public class ClientCommonEvents {
     private static List<CommissionCardData> commissionCardData;
     private static Map<String, ResourceLocation> commissionThumbnails = new HashMap<>();
     private static long nextResetEpochMillis;
+    private static int currentStreak;
+    private static int maxStreak;
+    private static int completionCount;
 
     public static void updateCards(List<CommissionCardData> cards) {
         commissionCardData = cards;
@@ -58,6 +61,25 @@ public class ClientCommonEvents {
     public static void updateNextResetTime(long EpochMillis) {
         nextResetEpochMillis = EpochMillis;
     }
+
+    public static void updateStats(int curStk, int maxStk, int completion) {
+        currentStreak = curStk;
+        maxStreak = maxStk;
+        completionCount = completion;
+    }
+
+    public static int getCurrentStreak() {
+        return currentStreak;
+    }
+
+    public static int getMaxStreak() {
+        return maxStreak;
+    }
+
+    public static int getCompletionCount() {
+        return completionCount;
+    }
+
 
     public static List<CommissionCardData> getCards() {
         return commissionCardData;

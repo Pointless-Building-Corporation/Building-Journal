@@ -101,10 +101,11 @@ public class CommissionCommand {
     }
 
     private static int showStreakProgressCommand(CommandContext<CommandSourceStack> ctx, ServerPlayer player) throws CommandSyntaxException {
+        long today = LocalDate.now().toEpochDay();
         player.getCapability(CommissionProgress.COMMISSION_PROGRESS)
             .ifPresent(progress -> {
                 String formattedDay = progress.getLastCompletionDay() < 0 ? "Never" : LocalDate.ofEpochDay(progress.getLastCompletionDay()).format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
-                ctx.getSource().sendSuccess(() -> Component.literal("Current Streak: " + progress.getCurrentStreak() + "\nMax Streak: " + progress.getMaxStreak() + "\nLast Completion: " + formattedDay), true);
+                ctx.getSource().sendSuccess(() -> Component.literal("Current Streak: " + progress.getCurrentStreak(today) + "\nMax Streak: " + progress.getMaxStreak() + "\nLast Completion: " + formattedDay), true);
             });
         return 1;
     }

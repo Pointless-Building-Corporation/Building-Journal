@@ -63,7 +63,8 @@ public class CommissionProgress implements ICommissionProgress, ICapabilityProvi
     }
 
     @Override
-    public int getCurrentStreak() {
+    public int getCurrentStreak(long today) {
+        cleanDirtyStreak(today);
         return currentStreak;
     }
 
@@ -98,6 +99,11 @@ public class CommissionProgress implements ICommissionProgress, ICapabilityProvi
         lastCompletionDay = -1;
     }
 
+    private void cleanDirtyStreak(long today) {
+        if (today - lastCompletionDay > 1) {
+            currentStreak = 0;
+        }
+    }
 
     // Capability Stuff
 

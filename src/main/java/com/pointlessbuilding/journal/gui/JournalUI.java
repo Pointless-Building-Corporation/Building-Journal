@@ -16,6 +16,8 @@ import com.pointlessbuilding.journal.network.Network;
 import com.pointlessbuilding.journal.network.packets.RequestCardCommissionsPacket;
 
 import net.minecraft.client.GameNarrator;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
@@ -51,6 +53,11 @@ public class JournalUI extends Screen {
 
     // Tab buttons
     private int scaledTabOffset, scaledTabWidth, scaledTabHeight;
+
+    // Stats
+    private static int stats_x = 1920+960, stats_y = 1800, stats_spacing = 100;
+    private int scaledStatsX, scaledStatsY, scaledStatsLineSpacing;
+    private float scaledStatsTextScale;
 
     // Bookmark buttons
     private int bookmarkWidth = 96*8;
@@ -203,6 +210,7 @@ public class JournalUI extends Screen {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         guiGraphics.blit(JOURNAL_PAGES.get(currentPage), x_offset, y_offset, 0, 0, ui_width, ui_height, ui_width, ui_height);
+        if(currentPage == 0) renderStats(guiGraphics);
 
         for(Renderable renderable : this.renderables) {
             renderable.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -225,6 +233,30 @@ public class JournalUI extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    protected void renderStats(GuiGraphics guiGraphics) {
+        Font font = Minecraft.getInstance().font;
+
+        String[] labels = { "Current Streak: ", "Max Streak: ", "Completed: " };
+        long[] values = {
+            ClientCommonEvents.getCurrentStreak(),
+            ClientCommonEvents.getMaxStreak(),
+            ClientCommonEvents.getCompletionCount()
+        };
+
+        for (int i = 0; i < labels.length; i++) {
+            String full = labels[i] + values[i];
+            int lineY = scaledStatsY + i * scaledStatsLineSpacing;
+            int lineX = scaledStatsX - Math.round(font.width(full) * scaledStatsTextScale/ 2);
+
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(lineX, lineY, 0);
+            guiGraphics.pose().scale(scaledStatsTextScale, scaledStatsTextScale, 1f);
+            guiGraphics.drawString(font, labels[i], 0, 0, 0xFF808080, false);
+            guiGraphics.drawString(font, String.valueOf(values[i]), font.width(labels[i]), 0, 0xFF000000, false);
+            guiGraphics.pose().popPose();
+        }
     }
 
     protected void renderMenuButtons() {   
@@ -283,6 +315,12 @@ public class JournalUI extends Screen {
         scaledTabOffset = (int)(68 * ((double) ui_width / 3840));
         scaledTabWidth = (int)(118 * ((double) ui_width / 3840));
         scaledTabHeight = (int)(480 * ((double) ui_height / 2160));
+
+        scaledStatsX = x_offset + (int)(stats_x * ((double) ui_width / 3840));
+        scaledStatsY = y_offset + (int)(stats_y * ((double) ui_width / 3840));
+        int targetTextHeight = (int)(75 * ((double) ui_width / 3840));
+        scaledStatsTextScale = (float) targetTextHeight / font.lineHeight;
+        scaledStatsLineSpacing = (int)(stats_spacing * ((double) ui_width / 3840));
 
         scaledBookmarkOffset = (int)(bookmarkOffset * ((double) ui_width / 3840));
         scaledBookmarkWidth = (int)(bookmarkWidth * ((double) ui_width / 3840));
