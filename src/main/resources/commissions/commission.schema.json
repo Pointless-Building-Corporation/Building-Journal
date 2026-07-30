@@ -272,12 +272,16 @@
                         },
                         "then": {
                             "properties": {
-                                "biome" : {
-                                    "description": "Biome required",
-                                    "type": "string"
+                                "biomes" : {
+                                    "description": "Biomes required",
+                                    "type": "array",
+                                    "minItems": 1,
+                                    "items" : {
+                                        "type": "string"
+                                    }
                                 }
                             },
-                            "required": ["biome"]
+                            "required": ["biomes"]
                         }
                     }
                 ],

@@ -135,11 +135,11 @@ Checks the list of blocks given against the build and verifies if they are prese
 
 #### `Biome`
 
-Checks that the structure is within the given biome. Part of the build can be inside the biome to satisfy this. `{value}` is not relevant here and will not work.
+Checks that the structure is within one of the given biomes. Part of the build can be inside the biome to satisfy this. `{value}` is not relevant here and will not work.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `dimensions` | string | **Yes** | Biome required |
+| `biomes` | array of strings | **Yes** | List of biomes that are valid. Can be searched by biome name (`minecraft:forest`), biome tag (`#minecraft:is_mountain`) or regex (`regex:^.*for.*`) |
 
 ---
 
