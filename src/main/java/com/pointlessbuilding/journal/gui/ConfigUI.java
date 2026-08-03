@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -23,6 +24,9 @@ public class ConfigUI extends Screen{
 
     public static final String CONFIG_UI_USE_BLUEPRINT_SHADER = "screen.buildingjournal.use_blueprint_shader";
     public static final String CONFIG_UI_USE_BLUEPRINT_SHADER_DESC = "screen.buildingjournal.use_blueprint_shader_desc";
+
+    public static final String CONFIG_UI_SHADER_VARIANT = "screen.buildingjournal.shader_variant";
+    public static final String CONFIG_UI_SHADER_VARIANT_DESC = "screen.buildingjournal.shader_variant_desc";
     
 
     private class ConfigSlider extends AbstractSliderButton {
@@ -61,6 +65,9 @@ public class ConfigUI extends Screen{
     CycleButton<Boolean> useBlueprintShaderButton;
     Boolean useBlueprintShadervalue;
 
+    EditBox shaderVariantBox;
+    String shaderVariantValue;
+
     private Screen parentScreen;
 
     private int vertical_padding = 2;
@@ -89,6 +96,14 @@ public class ConfigUI extends Screen{
             this.useBlueprintShadervalue = value;
         });
         this.addRenderableWidget(useBlueprintShaderButton);
+
+        shaderVariantValue = BuildingJournalConfig.SHADER_VARIANT.get();
+        shaderVariantBox = new EditBox(this.font, (int)(width * 0.9) - 200, starting_y + 8*(20 + vertical_padding), 200, 20, Component.literal("Shader Variant"));
+        shaderVariantBox.setValue(shaderVariantValue);
+        shaderVariantBox.setMaxLength(256);
+        shaderVariantBox.setResponder(str -> shaderVariantValue = str);
+        this.addRenderableWidget(shaderVariantBox);
+
     }
 
     private int labelY(int row) {
@@ -117,6 +132,9 @@ public class ConfigUI extends Screen{
         // UseBlueprintShader
         guiGraphics.drawString(this.font, Component.translatable(CONFIG_UI_USE_BLUEPRINT_SHADER_DESC), (int)(width * 0.1), labelY(5), 0xAAAAAA);
         guiGraphics.drawString(this.font, Component.translatable(CONFIG_UI_USE_BLUEPRINT_SHADER), (int)(width * 0.1), labelY(6), 0xFFFFFF);
+        // ShaderVariant
+        guiGraphics.drawString(this.font, Component.translatable(CONFIG_UI_SHADER_VARIANT_DESC), (int)(width * 0.1), labelY(7), 0xAAAAAA);
+        guiGraphics.drawString(this.font, Component.translatable(CONFIG_UI_SHADER_VARIANT), (int)(width * 0.1), labelY(8), 0xFFFFFF);
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
@@ -127,6 +145,7 @@ public class ConfigUI extends Screen{
         maxBoxesSlider.setConfigValue();
         maxBoxSizeSlider.setConfigValue();
         BuildingJournalConfig.USE_BLUEPRINT_SHADER.set(useBlueprintShadervalue);
+        BuildingJournalConfig.SHADER_VARIANT.set(shaderVariantValue);
 
         BuildingJournalConfig.SPEC.save();
         Minecraft.getInstance().setScreen(parentScreen);

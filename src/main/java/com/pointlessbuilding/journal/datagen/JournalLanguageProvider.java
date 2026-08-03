@@ -28,6 +28,8 @@ public class JournalLanguageProvider extends LanguageProvider{
         add(ConfigUI.CONFIG_UI_MAX_BOX_SIZE_DESC, "Maximum boundary size in any direction");
         add(ConfigUI.CONFIG_UI_USE_BLUEPRINT_SHADER, "Use Blueprint Shader");
         add(ConfigUI.CONFIG_UI_USE_BLUEPRINT_SHADER_DESC, "Is the custom compass blueprint shader enabled?");
+        add(ConfigUI.CONFIG_UI_SHADER_VARIANT, "Blueprint Shader Variant");
+        add(ConfigUI.CONFIG_UI_SHADER_VARIANT_DESC, "Which shader to use as the blueprint shader");
         
         // Toasts
         add(JournalToastPacket.JOURNAL_TOAST_TITLE, "Try out the Journal!");

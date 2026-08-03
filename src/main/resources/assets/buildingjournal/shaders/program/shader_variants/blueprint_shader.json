@@ -5,7 +5,7 @@
         "dstrgb": "zero"
     },
     "vertex": "buildingjournal:blueprint_shader",
-    "fragment": "buildingjournal:blueprint_shader",
+    "fragment": "buildingjournal:shader_variants/blueprint_shader",
     "attributes": [ "Position" ],
     "samplers": [
         { "name": "DiffuseSampler" },

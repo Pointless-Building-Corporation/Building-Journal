@@ -11,6 +11,8 @@
   "screen.buildingjournal.max_box_size_desc": "Maximum boundary size in any direction",
   "screen.buildingjournal.max_boxes": "Maximum Boxes",
   "screen.buildingjournal.max_boxes_desc": "Maximum number of stored boundaries",
+  "screen.buildingjournal.shader_variant": "Blueprint Shader Variant",
+  "screen.buildingjournal.shader_variant_desc": "Which shader to use as the blueprint shader",
   "screen.buildingjournal.ui_title": "Building Journal Config",
   "screen.buildingjournal.use_blueprint_shader": "Use Blueprint Shader",
   "screen.buildingjournal.use_blueprint_shader_desc": "Is the custom compass blueprint shader enabled?",

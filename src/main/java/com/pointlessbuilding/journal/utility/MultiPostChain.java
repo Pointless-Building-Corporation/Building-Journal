@@ -1,5 +1,6 @@
 package com.pointlessbuilding.journal.utility;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +17,12 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.pointlessbuilding.journal.BuildingJournal;
+import com.pointlessbuilding.journal.BuildingJournalConfig;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.EffectInstance;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -46,7 +50,8 @@ public class MultiPostChain implements AutoCloseable{
         this.addTempTarget("swap", this.screenWidth, this.screenHeight);
         this.addTempTarget("mask", this.screenWidth, this.screenHeight);
         this.blitEffect = new EffectInstance(this.resourceManager, "blit");
-        this.addPass("buildingjournal:blueprint_shader");
+
+        this.addPass(BuildingJournalConfig.SHADER_VARIANT.get());
     }
 
     public RenderTarget getTempTarget(String attributeName) {
@@ -71,6 +76,18 @@ public class MultiPostChain implements AutoCloseable{
 }
 
     public void addPass(String programName) throws IOException {
+        programName = "buildingjournal:shader_variants/" + programName;
+        ResourceLocation candidate = new ResourceLocation(ResourceLocation.tryParse(programName).getNamespace(), "shaders/program/" + ResourceLocation.tryParse(programName).getPath() + ".json");
+
+        try {
+            resourceManager.getResourceOrThrow(candidate);
+        }
+        catch(FileNotFoundException e) {
+            BuildingJournal.LOGGER.warn("Shader variant '{}' not found, falling back to default", programName);
+            programName = "buildingjournal:shader_variants/blueprint_shader";
+        }
+
+        if(this.effect != null) this.effect.close();
         this.effect = new EffectInstance(this.resourceManager, programName);
     }
 

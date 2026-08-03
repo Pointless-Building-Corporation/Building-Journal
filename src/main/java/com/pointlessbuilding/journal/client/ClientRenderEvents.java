@@ -48,6 +48,7 @@ public class ClientRenderEvents {
     public static final Logger LOGGER = LogUtils.getLogger();
     private static ResourceLocation dummyLocation = new ResourceLocation(BuildingJournal.MODID,"textures/misc/dummy.png");
     private static MultiPostChain multiPostChain;
+    private static String currentShaderVariant = null;
 
     @SubscribeEvent
     public static void onRenderLevel(RenderLevelStageEvent event) {
@@ -177,6 +178,18 @@ public class ClientRenderEvents {
         }
 
         if(multiPostChain == null) return;
+
+        String shaderVariant = BuildingJournalConfig.SHADER_VARIANT.get();
+        if(!shaderVariant.equals(currentShaderVariant)) {
+            try {
+                multiPostChain.addPass(shaderVariant);
+                currentShaderVariant = shaderVariant;
+            }
+            catch (IOException e){
+                LOGGER.error("Failed to load shader variant {}", shaderVariant, e);
+                return;
+            }
+        }
 
         checkResizeEvent();
 
