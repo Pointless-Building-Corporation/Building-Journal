@@ -237,10 +237,6 @@ public class BoundaryRenderer {
         if(destination.z >= origin.z) destination.add(0,0,1);
         else origin.add(0,0,1);
 
-        double eps = 0.002;
-        origin.sub(eps, eps, eps);
-        destination.add(eps, eps, eps);
-
         Vector3d v0 = origin;
         Vector3d v1 = new Vector3d(destination.x(), origin.y(), origin.z());
         Vector3d v2 = new Vector3d(destination.x(), origin.y(), destination.z());

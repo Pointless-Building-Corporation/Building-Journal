@@ -3,11 +3,10 @@
     "schemaVersion": 1,
     "title": "Your First House",
     "conditions": [
-        {"title": "Add less than 100 blocks", "condition": "BlockAdded", "operator": "<", "threshold": 100},
-        {"condition": "BlockRemoved", "operator": ">", "threshold": 400},
-        {"condition": "Elevation", "operator": "<", "threshold": 64, "failureDescription": "Too high up! Is at {value}, must be at 64 or lower."}
-    ],
-    "unlocks": [
-        {"title": "Stone", "unlock": "BlockReward", "block": "minecraft:stone", "count": 32}
+        {"title": "Make a house at least 8 blocks tall!", "condition": "Tallness", "operator": ">", "threshold": 7},
+        {"title": "Don't make your house too small (500 blocks at least)", "condition": "TotalVolume", "operator": ">", "threshold": 500},
+        {"title": "Use at least 4 stacks of your own blocks to build it!", "condition": "BlockAdded", "operator": ">", "threshold": 255},
+        {"title": "Add a crafting table!", "condition": "BlockAdded", "blocks": ["minecraft:crafting_table"], "operator": ">", "threshold": 0},
+        {"title": "Add a bed!", "condition": "BlockAdded", "blocks": ["#minecraft:beds"], "operator": ">", "threshold": 0}
     ]
 }

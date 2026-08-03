@@ -1,0 +1,15 @@
+{
+    "$schema" : "commission.schema.json",
+    "schemaVersion": 1,
+    "title": "Farmland",
+    "conditions": [
+        {"title": "Have at least 100 farmland tiles!", "condition": "BlockAdded", "blocks": ["minecraft:farmland"], "operator": ">", "threshold": 99},
+        {"title": "Fence it up! Use a stack at least.",  "condition": "BlockAdded", "blocks": ["#minecraft:fences"], "operator": ">", "threshold": 63},
+        {"title": "Water is important..",  "condition": "BlockAdded", "blocks": ["minecraft:water"], "operator": ">", "threshold": 0},
+        {"title": "... and so is light!", "condition": "BlockAdded",
+        "blocks": ["minecraft:torch", "minecraft:wall_torch", "minecraft:redstone_torch", "minecraft:redstone_wall_torch",
+                   "minecraft:jack_o_lantern", "minecraft:sea_lantern", "minecraft:lantern", "minecraft:soul_lantern", "minecraft:redstone_lamp"],
+        "operator": ">", "threshold": 0},
+        {"title": "A composter is helpful!",  "condition": "BlockAdded", "blocks": ["minecraft:composter"], "operator": ">", "threshold": 0}
+    ]
+}

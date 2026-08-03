@@ -1,0 +1,18 @@
+{
+    "$schema" : "commission.schema.json",
+    "schemaVersion": 1,
+    "title": "Mineshaft Entrance",
+    "conditions": [
+        {"title": "Hollow out at least 500 blocks of space!", "condition": "BlockRemoved", "operator": ">", "threshold": 499},
+        {"title": "Wooden supports hold it up!",  "condition": "BlockAdded", "blocks": ["#minecraft:planks", "#minecraft:wooden_fences"],
+        "operator": ">", "threshold": 0, "failureDescription": "Missing wooden blocks!"},
+        {"title": "Light it up,", "condition": "BlockAdded",
+        "blocks": ["minecraft:torch", "minecraft:wall_torch", "minecraft:redstone_torch", "minecraft:redstone_wall_torch",
+                   "minecraft:jack_o_lantern", "minecraft:sea_lantern", "minecraft:lantern", "minecraft:soul_lantern", "minecraft:redstone_lamp"],
+        "operator": ">", "threshold": 0},
+        {"title": "Use chains to hang them up!", "condition": "BlockAdded", "blocks": ["minecraft:chain"], "operator": ">", "threshold": 0},
+        {"title": "Use minecart rails to travel around!",  "condition": "BlockAdded", "blocks": ["#minecraft:rails"], "operator": ">", "threshold": 0},
+        {"title": "Keep some furnaces for smelting ores down.",  "condition": "BlockAdded", "blocks": ["minecraft:furnace", "minecraft:blast_furnace"],
+        "operator": ">", "threshold": 0}
+    ]
+}

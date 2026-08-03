@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.joml.Vector3d;
 import org.joml.Vector4d;
+import org.lwjgl.opengl.GL30;
 import org.slf4j.Logger;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -188,8 +189,8 @@ public class ClientRenderEvents {
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.disableDepthTest();
-        RenderSystem.depthMask(false);
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(true);
 
         //Render loop
         PoseStack ms = new PoseStack();
@@ -244,12 +245,27 @@ public class ClientRenderEvents {
             }
         }
 
+        // Copy depth buffer from screen to mask
+        RenderTarget screenTarget = mc.getMainRenderTarget();
+        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, screenTarget.frameBufferId);
+        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, maskTarget.frameBufferId);
+        GL30.glBlitFramebuffer(
+            0,0, screenTarget.viewWidth, screenTarget.viewHeight,
+            0,0, maskTarget.width, maskTarget.height,
+            GL30.GL_DEPTH_BUFFER_BIT,
+            GL30.GL_NEAREST
+        );
+        maskTarget.bindWrite(false);
+
+        RenderSystem.polygonOffset(-1.0f, -1.0f);
+        RenderSystem.enablePolygonOffset();
+
         RenderSystem.disableCull();
         BufferUploader.drawWithShader(builder.end());
         RenderSystem.enableCull();
 
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthMask(true);
+        RenderSystem.disablePolygonOffset();
+
         maskTarget.unbindWrite();
         mc.getMainRenderTarget().bindWrite(false);
         multiPostChain.process();

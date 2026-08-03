@@ -20,7 +20,7 @@ void main(){
 
     //Standard luminence vec3 used here
     float tl = dot(texture(DiffuseSampler, texCoord + vec2(-texel.x, -texel.y)).rgb, vec3(0.299, 0.587, 0.114));
-    float t  = dot(texture(DiffuseSampler, texCoord + vec2(0.0,     -texel.y)).rgb, vec3(0.299, 0.587, 0.114));
+    float t  = dot(texture(DiffuseSampler, texCoord + vec2(0.0,      -texel.y)).rgb, vec3(0.299, 0.587, 0.114));
     float tr = dot(texture(DiffuseSampler, texCoord + vec2( texel.x, -texel.y)).rgb, vec3(0.299, 0.587, 0.114));
     float l  = dot(texture(DiffuseSampler, texCoord + vec2(-texel.x,  0.0    )).rgb, vec3(0.299, 0.587, 0.114));
     float r  = dot(texture(DiffuseSampler, texCoord + vec2( texel.x,  0.0    )).rgb, vec3(0.299, 0.587, 0.114));
