@@ -4,6 +4,8 @@ uniform sampler2D DiffuseSampler;
 uniform sampler2D MaskSampler;
 uniform vec2 OutSize;
 
+// Most of this shader's code is by hobbes from ShaderToy: https://www.shadertoy.com/view/ttlfzj
+
 in vec2 texCoord;
 out vec4 fragColor;
 
