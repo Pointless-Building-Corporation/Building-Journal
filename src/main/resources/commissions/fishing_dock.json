@@ -1,0 +1,13 @@
+{
+    "$schema" : "commission.schema.json",
+    "schemaVersion": 1,
+    "title": "Fishing Dock",
+    "thumbnailPath": "fishing_dock.png",
+    "prerequisites": ["your_first_house", "farmland", "mineshaft_entrance"],
+    "conditions": [
+        {"title": "Build your dock near a water body!", "condition": "Biome", "biomes": ["#minecraft:is_deep_ocean", "#minecraft:is_ocean", "#minecraft:is_beach", "#minecraft:is_river"], "failureDescription": "You've not built near a water body!"},
+        {"title": "Have the gangway be at least 10 blocks long.", "condition": "Length", "operator": ">", "threshold": 9, "failureDescription": "The dock is not long enough!"},
+        {"title": "Wood is the best material for docks!", "condition": "BlockAdded", "blocks": ["#minecraft:planks", "#minecraft:logs"], "operator": ">", "threshold": 0, "failureDescription": "No wood logs or planks found!"},
+        {"title": "Barrels help store fish!", "condition": "BlockAdded", "blocks": ["minecraft:barrel"], "operator": ">", "threshold": 0, "failureDescription": "No barrels found!"}
+    ]
+}

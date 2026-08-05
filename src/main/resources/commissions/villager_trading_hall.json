@@ -1,0 +1,16 @@
+{
+    "$schema" : "commission.schema.json",
+    "schemaVersion": 1,
+    "title": "Villager Trading Hall",
+    "thumbnailPath": "villager_trading_hall.png",
+    "prerequisites": ["smithy", "fishing_dock", "nether_portal"],
+    "conditions": [
+        {"title": "A trading hall needs to be big and spacious, at least 800 blocks in volume.", "condition": "TotalVolume", "operator": ">", "threshold": 800, "failureDescription": "The hall is only {value} blocks in volume!"},
+        {"title": "You need to have plenty of beds. Place at least 6.", "condition": "BlockAdded", "blocks": ["#minecraft:beds"], "operator": ">", "threshold": 5, "failureDescription": "Not enough beds!"},
+        {"title": "Each villager you're trading with needs a profession! Have at least 5.", "condition": "BlockAdded", "blocks": ["minecraft:barrel", "minecraft:blast_furnace", "minecraft:brewing_stand", "minecraft:cartography_table", "#minecraft:cauldrons", "minecraft:composter", "minecraft:grindstone", "minecraft:fletching_table", "minecraft:lectern", "minecraft:loom", "minecraft:smithing_table", "minecraft:smoker", "minecraft:stonecutter"],
+        "operator": ">", "threshold": 4, "failureDescription": "Not enough blocks that give villagers their profession!"},
+        {"title": "Have enough chests or barrels for storage!", "condition": "BlockAdded", "blocks": ["minecraft:chest", "minecraft:barrel"], "operator": ">", "threshold": 0, "failureDescription": "No chests found!"},
+        {"title": "Make an enchanting table here as well!", "condition": "Whitelist", "blocks": ["minecraft:enchanting_table"], "failureDescription": "No enchanting table found!"},
+        {"title": "An enchanting table needs bookshelves to work well! Have at least 10 around it, but the best enchants need 15.", "condition": "BlockAdded", "blocks": ["minecraft:bookshelf"], "operator": ">", "threshold": 9, "failureDescription": "Not enough bookshelves!"}
+    ]
+}

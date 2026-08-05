@@ -21,7 +21,7 @@ As of this version, note that blueprints used to evaluate commission conditions 
 | `schemaVersion` | enum | **Yes** | Schema version — must be one of the allowed schema versions. |
 | `id` | string | No | Unique identifier of the Commission. Note that the 'daily_' prefix is reserved for daily commissions and cannot be used for regularly. |
 | `title` | string | **Yes** | Title of the Commission |
-| `thumbnailPath` | string | No | Path to the thumbnail of the Commission. For correct aspect ratio, attach images of aspect ratio equivalent to 122x75. |
+| `thumbnailPath` | string | No | Path to the thumbnail of the Commission. For correct aspect ratio, attach images of aspect ratio equivalent to 1220x750. |
 | `conditions` | array | **Yes** | Conditions required to satisfy the Commission |
 | `unlocks` | array | No | What the Commission unlocks once completed |
 | `prerequisites` | array of strings | No | Commission IDs that must be completed to unlock this Commission |

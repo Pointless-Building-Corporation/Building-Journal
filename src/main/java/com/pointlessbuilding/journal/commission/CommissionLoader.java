@@ -31,6 +31,7 @@ import com.pointlessbuilding.journal.commission.conditions.BlockRemovedCondition
 import com.pointlessbuilding.journal.commission.conditions.DensityCondition;
 import com.pointlessbuilding.journal.commission.conditions.DimensionCondition;
 import com.pointlessbuilding.journal.commission.conditions.ElevationCondition;
+import com.pointlessbuilding.journal.commission.conditions.LengthCondition;
 import com.pointlessbuilding.journal.commission.conditions.TallnessCondition;
 import com.pointlessbuilding.journal.commission.conditions.TotalVolumeCondition;
 import com.pointlessbuilding.journal.commission.conditions.WhitelistCondition;
@@ -59,17 +60,18 @@ public class CommissionLoader {
         }
     }
 
-    public static final Map<String, Function<JsonObject, CommissionCondition>> CONDITION_PARSERS = Map.of(
-        "BlockAdded", BlockAddedCondition::fromJson,
-        "BlockRemoved", BlockRemovedCondition::fromJson,
-        "BlockModified", BlockModifiedCondition::fromJson,
-        "Density", DensityCondition::fromJson,
-        "Dimension", DimensionCondition::fromJson,
-        "Elevation", ElevationCondition::fromJson,
-        "Tallness", TallnessCondition::fromJson,
-        "TotalVolume", TotalVolumeCondition::fromJson,
-        "Whitelist", WhitelistCondition::fromJson,
-        "Biome", BiomeCondition::fromJson
+    public static final Map<String, Function<JsonObject, CommissionCondition>> CONDITION_PARSERS = Map.ofEntries(
+        Map.entry("BlockAdded", BlockAddedCondition::fromJson),
+        Map.entry("BlockRemoved", BlockRemovedCondition::fromJson),
+        Map.entry("BlockModified", BlockModifiedCondition::fromJson),
+        Map.entry("Density", DensityCondition::fromJson),
+        Map.entry("Dimension", DimensionCondition::fromJson),
+        Map.entry("Elevation", ElevationCondition::fromJson),
+        Map.entry("Tallness", TallnessCondition::fromJson),
+        Map.entry("Length", LengthCondition::fromJson),
+        Map.entry("TotalVolume", TotalVolumeCondition::fromJson),
+        Map.entry("Whitelist", WhitelistCondition::fromJson),
+        Map.entry("Biome", BiomeCondition::fromJson)
     );
 
     public static final Map<String, Function<JsonObject, CommissionUnlock>> UNLOCK_PARSERS = Map.of(
@@ -80,7 +82,15 @@ public class CommissionLoader {
 
     public static final Path commissionsFolder = FMLPaths.GAMEDIR.get().resolve("commissions");
     public static final String[] defaultCommissions = {
-        "your_first_house.json"
+        "your_first_house.json",
+        "farmland.json",
+        "mineshaft_entrance.json",
+        "smithy.json",
+        "fishing_dock.json",
+        "nether_portal.json",
+        "fortress_operating_base.json",
+        "villager_trading_hall.json",
+        "home_at_the_end.json"
     };
 
     private static List<Commission> loadedCommissions = new ArrayList<>();
@@ -106,6 +116,18 @@ public class CommissionLoader {
                 }
                 catch (IOException e) {
                     BuildingJournal.LOGGER.error("Failed to extract {}: Exception: {}", filename, e);
+                }
+
+                String thumbnail = filename.replace(".json", ".png");
+                try (InputStream in = BuildingJournal.class.getResourceAsStream("/commissions/" + thumbnail)) {
+                    if (in == null) {
+                        BuildingJournal.LOGGER.error("Missing thumbnail for file: {}", thumbnail);
+                        continue;
+                    }
+                    Files.copy(in, commissionsFolder.resolve(thumbnail));
+                }
+                catch (IOException e) {
+                    BuildingJournal.LOGGER.error("Failed to extract {}: Exception: {}", thumbnail, e);
                 }
             }
         }

@@ -1,0 +1,13 @@
+{
+    "$schema" : "commission.schema.json",
+    "schemaVersion": 1,
+    "title": "Nether Portal",
+    "thumbnailPath": "nether_portal.png",
+    "prerequisites": ["your_first_house", "farmland", "mineshaft_entrance"],
+    "conditions": [
+        {"title": "A nether portal needs at least 10 blocks of obsidian,", "condition": "BlockAdded", "blocks": ["minecraft:obsidian"], "operator": ">", "threshold": 9, "failureDescription": "Not enough obsidian for a portal!"},
+        {"title": "That is at least 5 blocks tall,", "condition": "Tallness", "operator": ">", "threshold": 4, "failureDescription": "The portal is not tall enough!"},
+        {"title": "And 4 blocks wide!", "condition": "Length", "operator": ">", "threshold": 3, "failureDescription": "The portal is not wide enough!"},
+        {"title": "But don't just make the frame; Decorate, add walls! At least 100 blocks' worth.", "condition": "BlockModified", "operator": ">", "threshold": 99,  "failureDescription": "You haven't decorated enough! Only {value} blocks have been modified."}
+    ]
+}

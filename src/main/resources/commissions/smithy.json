@@ -1,0 +1,17 @@
+{
+    "$schema" : "commission.schema.json",
+    "schemaVersion": 1,
+    "title": "Smithy",
+    "thumbnailPath": "smithy.png",
+    "prerequisites": ["your_first_house", "farmland", "mineshaft_entrance"],
+    "conditions": [
+        {"title": "A smithy needs lava!", "condition": "BlockAdded", "blocks": ["minecraft:lava", "minecraft:lava_cauldron"], "operator": ">", "threshold": 0, "failureDescription": "No lava found!"},
+        {"title": "A smithy needs to let out fumes high up!", "condition": "Tallness", "operator": ">", "threshold": 9, "failureDescription": "Your smithy is not tall enough! Make it at least 10 blocks high, not {value}."},
+        {"title": "Don't use cobblestone,",  "condition": "Whitelist", "blocks": ["minecraft:stone", "minecraft:cobblestone"], "isBlacklist": true, "failureDescription": "{value} is not allowed!"},
+        {"title": "Use deepslate instead! Use at least 100 full blocks.",  "condition": "BlockAdded", "blocks": ["minecraft:deepslate", "minecraft:cobbled_deepslate", "minecraft:polished_deepslate", "minecraft:deepslate_tiles", "minecraft:deepslate_bricks", "minecraft:chiseled_deepslate"], "operator": ">", "threshold": 99, "failureDescription": "{value} blocks is not enough deepslate!"},
+        {"title": "Bricks keep you safe from the lava.",  "condition": "BlockAdded", "blocks": ["minecraft:bricks"], "operator": ">", "threshold": 7, "failureDescription": "Make sure to have at least 8 bricks!"},
+        {"title": "Smithy need blast furnaces,", "condition": "BlockAdded", "blocks": ["minecraft:blast_furnace"], "operator": ">", "threshold": 0, "failureDescription": "No blast furnace found!"},
+        {"title": "Anvils,",  "condition": "BlockAdded", "blocks": ["#minecraft:anvil"], "operator": ">", "threshold": 0, "failureDescription": "No anvils found!"},
+        {"title": "And smithing tables to operate!",  "condition": "BlockAdded", "blocks": ["minecraft:smithing_table"], "operator": ">", "threshold": 0, "failureDescription": "No smithing table found!"}
+    ]
+}

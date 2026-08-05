@@ -1,0 +1,12 @@
+{
+    "$schema" : "commission.schema.json",
+    "schemaVersion": 1,
+    "title": "FOB (Fortress Operating Base)",
+    "thumbnailPath": "fortress_operating_base.png",
+    "prerequisites": ["smithy", "fishing_dock", "nether_portal"],
+    "conditions": [
+        {"title": "It goes without saying, build in the nether!", "condition": "Dimension", "dimensions": ["minecraft:the_nether"], "failureDescription": "Your base is not in the nether!"},
+        {"title": "Use nether bricks for the house! At least 200 blocks.", "condition": "BlockAdded", "blocks": ["minecraft:nether_bricks", "minecraft:nether_brick_fence", "minecraft:nether_brick_stairs"], "operator": ">", "threshold": 199, "failureDescription": "Only {value} nether bricks found!"},
+        {"title": "For wood, use the trees from the nether!", "condition": "BlockAdded", "blocks": ["#minecraft:warped_stems", "#minecraft:crimson_stems", "minecraft:crimson_planks", "minecraft:warped_planks"], "operator": ">", "threshold": 0, "failureDescription": "No nether tree-based blocks found!"}
+    ]
+}

@@ -5,12 +5,15 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.pointlessbuilding.journal.client.ClientCommonEvents;
 import com.pointlessbuilding.journal.client.ClientSetup;
 import com.pointlessbuilding.journal.client.ClientTickEvents;
 import com.pointlessbuilding.journal.commission.CommissionCardData;
+import com.pointlessbuilding.journal.commission.CommissionLoader;
 import com.pointlessbuilding.journal.commission.CommissionState;
 import com.pointlessbuilding.journal.network.Network;
 import com.pointlessbuilding.journal.network.packets.RequestCardCommissionsPacket;
@@ -80,9 +83,14 @@ public class JournalUI extends Screen {
         CommissionState.COMPLETED, 2
     );
 
+    private static final Map<String, Integer> DEFAULT_ORDER = IntStream.range(0, CommissionLoader.defaultCommissions.length)
+    .boxed()
+    .collect(Collectors.toMap(i -> CommissionLoader.defaultCommissions[i].replace(".json", ""), i -> i));
+
     private void buildAllCards() {
         CommissionCardData dailyData = null;
         List<CommissionCardData> regularData = new ArrayList<>();
+        if(allCardData == null) allCardData = new ArrayList<>();
 
         for(CommissionCardData cardData : allCardData) {
             if(cardData.id().startsWith(DAILY_PREFIX)) {
@@ -91,9 +99,10 @@ public class JournalUI extends Screen {
             else regularData.add(cardData);
         }
 
-        List<CommissionCardData> sorted = regularData.stream()
-        .sorted(Comparator
+        List<CommissionCardData> sorted = regularData.stream().sorted(Comparator
             .comparingInt((CommissionCardData data) -> STATE_ORDER.get(data.state()))
+            .thenComparing(data -> DEFAULT_ORDER.containsKey(data.id()))
+            .thenComparingInt(data -> DEFAULT_ORDER.getOrDefault(data.id(), Integer.MAX_VALUE))
             .thenComparing(CommissionCardData::id))
         .toList();
 
