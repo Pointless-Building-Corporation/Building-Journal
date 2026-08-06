@@ -8,7 +8,13 @@ This Schema describes a commission in the Building Journal.
 Current latest schema version: `1`. \
 All supported schema versions as of writing: `1`
 
-**IMPORTANT NOTE!!**\
+### Where to place Custom Commissions
+
+For _Singleplayer_ worlds: Add them to the commissions/ folder in your world's directory. You can find it by opening the Resource Pack folder from the game and going up one level.
+
+For _Multiplayer_ servers: Add them to the server's commissions/ folder in that world's directory. These commissions are shared amongst every player in the server.
+
+***NOTE***\
 As of this version, note that blueprints used to evaluate commission conditions may not be perfect; Due to the nature of how identical seeds generate in Minecraft, identical chunks in worlds with identical seeds may still have minor changes between them. This will *very rarely* affect commission evaluation; but regardless ensure your conditions cannot be adversely affected by such anomalies, and test them as much as you can. 
 
 ---
