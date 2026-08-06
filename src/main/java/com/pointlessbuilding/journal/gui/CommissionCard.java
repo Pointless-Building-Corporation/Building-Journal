@@ -20,7 +20,7 @@ import net.minecraft.resources.ResourceLocation;
 public class CommissionCard extends AbstractWidget{
 
     private final String commissionId;
-    private final ResourceLocation thumbnail;
+    private ResourceLocation thumbnail;
     private final CommissionState state;
     private final int currentCommissionPage;
     private final boolean isDaily;
@@ -150,6 +150,14 @@ public class CommissionCard extends AbstractWidget{
         String timeString =  String.format("%02d:%02d:%02d", hours, minutes, seconds);
 
         return state == CommissionState.COMPLETED ? "Next Commission in " + timeString : timeString + " remaining";
+    }
+
+    public String getId() {
+        return commissionId;
+    }
+
+    public void updateThumbnail(ResourceLocation thumbnail) {
+        this.thumbnail = thumbnail;
     }
 
     @Override

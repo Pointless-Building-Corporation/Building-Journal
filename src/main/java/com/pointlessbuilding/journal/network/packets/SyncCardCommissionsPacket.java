@@ -34,7 +34,6 @@ public class SyncCardCommissionsPacket {
         for(CommissionCardData card : cards) {
             buf.writeUtf(card.id());
             buf.writeUtf(card.title());
-            buf.writeByteArray(card.thumbnailBytes());
             buf.writeEnum(card.state());
         }
         buf.writeLong(nextResetEpochMillis);
@@ -49,9 +48,8 @@ public class SyncCardCommissionsPacket {
         for(int i = 0; i < count; i++) {
             String id = buf.readUtf();
             String title = buf.readUtf();
-            byte[] thumbnailBytes = buf.readByteArray();
             CommissionState state = buf.readEnum(CommissionState.class);
-            cards.add(new CommissionCardData(id, title, thumbnailBytes, state));
+            cards.add(new CommissionCardData(id, title, state));
         }
         long nextResetEpochMillis = buf.readLong();
         int currentStreak = buf.readInt();

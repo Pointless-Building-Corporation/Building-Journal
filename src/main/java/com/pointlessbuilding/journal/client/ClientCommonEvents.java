@@ -31,31 +31,32 @@ public class ClientCommonEvents {
 
     public static void updateCards(List<CommissionCardData> cards) {
         commissionCardData = cards;
+    }
 
-        for(CommissionCardData data : commissionCardData) {
-            if(data.thumbnailBytes().length == 0 || commissionThumbnails.containsKey(data.id())) {
-                continue;
-            }
-                        
-            try {
-                // If I call NativeImage.read(thumbnailBytes) directly it loops internally and closes the thread, stopping the loading of every other card.
-                // This has something to do with the malloc() call there, but unsure. God knows why this happens
-                ByteBuffer buffer = ByteBuffer.allocateDirect(data.thumbnailBytes().length);
-                buffer.put(data.thumbnailBytes());
-                buffer.flip();
-
-                NativeImage image = NativeImage.read(buffer);
-                DynamicTexture texture = new DynamicTexture(image);
-                ResourceLocation location = new ResourceLocation(BuildingJournal.MODID, "commission_thumb_" + data.id());
-                Minecraft.getInstance().getTextureManager().register(location, texture);
-                commissionThumbnails.put(data.id(), location);
-                image.close();
-            }
-            catch(Exception e) {
-                BuildingJournal.LOGGER.error("Failed to load thumbnail for commission {}: {}", data.id(), e);
-            }
+    public static void updateThumbnail(String commission_id, byte[] thumbnailBytes) {
+        if(thumbnailBytes.length == 0 || commissionThumbnails.containsKey(commission_id)) {
+            return;
         }
+                    
+        try {
+            // If I call NativeImage.read(thumbnailBytes) directly it loops internally and closes the thread, stopping the loading of every other card.
+            // This has something to do with the malloc() call there, but unsure. God knows why this happens
+            ByteBuffer buffer = ByteBuffer.allocateDirect(thumbnailBytes.length);
+            buffer.put(thumbnailBytes);
+            buffer.flip();
 
+            NativeImage image = NativeImage.read(buffer);
+            DynamicTexture texture = new DynamicTexture(image);
+            ResourceLocation location = new ResourceLocation(BuildingJournal.MODID, "commission_thumb_" + commission_id);
+            Minecraft.getInstance().getTextureManager().register(location, texture);
+            commissionThumbnails.put(commission_id, location);
+            image.close();
+
+            BuildingJournal.LOGGER.info("Recieved thumbnail for {}", commission_id);
+        }
+        catch(Exception e) {
+            BuildingJournal.LOGGER.error("Failed to load thumbnail for commission {}: {}", commission_id, e);
+        }
     }
 
     public static void updateNextResetTime(long EpochMillis) {

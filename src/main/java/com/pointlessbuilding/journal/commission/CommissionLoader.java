@@ -41,6 +41,7 @@ import com.pointlessbuilding.journal.commission.unlocks.ExpRewardUnlock;
 import com.pointlessbuilding.journal.menu.CommissionContainer;
 import com.pointlessbuilding.journal.network.Network;
 import com.pointlessbuilding.journal.network.packets.SyncCardCommissionsPacket;
+import com.pointlessbuilding.journal.network.packets.SyncCardThumbnailPacket;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -294,13 +295,9 @@ public class CommissionLoader {
         for (Commission c : availableCommissions) {
             String id = c.id();
             String title = c.title();
-
-            byte[] thumbnailBytes = fetchThumbnailBytes(c);
-
             CommissionState state = fetchCommissionState(completed, c);
 
-            cardCommissions.add(new CommissionCardData(id, title, thumbnailBytes, state));
-
+            cardCommissions.add(new CommissionCardData(id, title, state));
         }
 
         long nextResetEpochMillis = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
@@ -313,7 +310,12 @@ public class CommissionLoader {
         int completionCount = player.getCapability(CommissionProgress.COMMISSION_PROGRESS).map(ICommissionProgress::getCompletionCount).orElse(0);
 
         Network.sendToClient(new SyncCardCommissionsPacket(cardCommissions, nextResetEpochMillis, currentStreak, maxStreak, completionCount), player);
+    }
 
+    public static void sendCommissionThumbnail(ServerPlayer player, String id) {
+        for(Commission c : loadedCommissions) {
+            if(c.id().equals(id)) Network.sendToClient(new SyncCardThumbnailPacket(c.id(), fetchThumbnailBytes(c)), player);
+        }
     }
 
     public static void sendCommissionDetailData(ServerPlayer player, String commissionId, int commissionPage) {

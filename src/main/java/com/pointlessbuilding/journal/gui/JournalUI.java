@@ -17,6 +17,7 @@ import com.pointlessbuilding.journal.commission.CommissionLoader;
 import com.pointlessbuilding.journal.commission.CommissionState;
 import com.pointlessbuilding.journal.network.Network;
 import com.pointlessbuilding.journal.network.packets.RequestCardCommissionsPacket;
+import com.pointlessbuilding.journal.network.packets.RequestCardThumbnailPacket;
 
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
@@ -124,6 +125,12 @@ public class JournalUI extends Screen {
         buildAllCards();
         flex();
         updateButtonVisibility();
+    }
+
+    public void refreshCardThumbnail(String id) {
+        for(CommissionCard card : visibleCards) {
+            if(card.getId().equals(id)) card.updateThumbnail(ClientCommonEvents.getCardThumbnail(id));
+        }
     }
 
     private class BookmarkButton extends AbstractButton {
@@ -352,6 +359,8 @@ public class JournalUI extends Screen {
 
         for (int i = start; i < end; i++) {
             CommissionCard card = allCards.get(i);
+            Network.sendToServer(new RequestCardThumbnailPacket(card.getId()));
+
             int x = x_offset + ((i - start)/3 == 0 ? 0 : page_halfwidth) + scaled_anchor;
             int y = y_offset + scaled_y + ((i - start) % 3) * scaled_spacing;
             card.setX(x); card.setY(y);

@@ -7,7 +7,9 @@ import com.pointlessbuilding.journal.network.packets.CommissionSubmitPacket;
 import com.pointlessbuilding.journal.network.packets.ConfirmBlueprintPacket;
 import com.pointlessbuilding.journal.network.packets.JournalToastPacket;
 import com.pointlessbuilding.journal.network.packets.RequestCardCommissionsPacket;
+import com.pointlessbuilding.journal.network.packets.RequestCardThumbnailPacket;
 import com.pointlessbuilding.journal.network.packets.SyncCardCommissionsPacket;
+import com.pointlessbuilding.journal.network.packets.SyncCardThumbnailPacket;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,7 +33,9 @@ public class Network {
         CHANNEL.registerMessage(ID++, BlueprintCompletePacket.class, BlueprintCompletePacket::encode, BlueprintCompletePacket::decode, BlueprintCompletePacket::handle);
         CHANNEL.registerMessage(ID++, JournalToastPacket.class, JournalToastPacket::encode, JournalToastPacket::decode, JournalToastPacket::handle);
         CHANNEL.registerMessage(ID++, RequestCardCommissionsPacket.class, RequestCardCommissionsPacket::encode, RequestCardCommissionsPacket::decode, RequestCardCommissionsPacket::handle);
+        CHANNEL.registerMessage(ID++, RequestCardThumbnailPacket.class, RequestCardThumbnailPacket::encode, RequestCardThumbnailPacket::decode, RequestCardThumbnailPacket::handle);
         CHANNEL.registerMessage(ID++, SyncCardCommissionsPacket.class, SyncCardCommissionsPacket::encode, SyncCardCommissionsPacket::decode, SyncCardCommissionsPacket::handle);
+        CHANNEL.registerMessage(ID++, SyncCardThumbnailPacket.class, SyncCardThumbnailPacket::encode, SyncCardThumbnailPacket::decode, SyncCardThumbnailPacket::handle);
         CHANNEL.registerMessage(ID++, CommissionDetailPacket.class, CommissionDetailPacket::encode, CommissionDetailPacket::decode, CommissionDetailPacket::handle);
         CHANNEL.registerMessage(ID++, CommissionSubmitPacket.class, CommissionSubmitPacket::encode, CommissionSubmitPacket::decode, CommissionSubmitPacket::handle);
     }
