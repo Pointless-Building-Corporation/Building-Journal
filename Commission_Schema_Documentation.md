@@ -95,7 +95,7 @@ Checks that the structure is present at one of the given dimensions. `{value}` i
 
 #### `Elevation`
 
-Checks the elevation of the structure. This is maximal comparison i.e the entire structure must be lower or higher than the threshold.
+Checks the elevation of the structure. This is a maximal comparison i.e the entire structure must be lower or higher than the threshold.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
@@ -104,7 +104,7 @@ Checks the elevation of the structure. This is maximal comparison i.e the entire
 
 #### `Length`
 
-Checks the length of the structure. This is a conservative check; for example if the length cannot exceed 50 it is enough if one of the two lengths (Either X or Z coordinate length) is less than 50. Similarly if it has to be minimum of 50 or equal to 50 just one of the two needs to satisfy it.
+Checks the length of the structure. This is a conservative comparison; for example if the length cannot exceed 50 it is enough if one of the two lengths (Either X or Z coordinate length) is less than 50. Similarly if it has to be minimum of 50 or equal to 50 just one of the two needs to satisfy it.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
