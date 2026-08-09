@@ -32,6 +32,14 @@ public class WhitelistCondition implements CommissionCondition{
         this.isBlacklist = isBlacklist;
     }
 
+    public List<ResourceLocation> getBlocks() {
+        return blocks;
+    }
+
+    public Boolean getIsBlacklist() {
+        return isBlacklist;
+    }
+
     @Override
     public boolean test(EvaluationResult result) {
 

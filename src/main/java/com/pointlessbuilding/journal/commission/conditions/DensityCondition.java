@@ -30,6 +30,14 @@ public class DensityCondition implements CommissionCondition{
         this.operator = operator;
     }
 
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public float getThreshold() {
+        return threshold;
+    }
+
     @Override
     public boolean test(EvaluationResult result) {
         float density = result.modifiedCount() / result.unionVolume();
@@ -78,7 +86,7 @@ public class DensityCondition implements CommissionCondition{
         String jsonTitle = null;
         String jsonFailure = null;
         Operator jsonOperator;
-        long jsonThreshold;
+        float jsonThreshold;
 
         if(json.has("title")) {
             jsonTitle = json.get("title").getAsString();
@@ -97,7 +105,7 @@ public class DensityCondition implements CommissionCondition{
         }
         
         if(json.has("threshold")) {
-            jsonThreshold = json.get("threshold").getAsLong();
+            jsonThreshold = json.get("threshold").getAsFloat();
         }
         else {
             BuildingJournal.LOGGER.warn("Missing threshold field in condition {}", jsonTitle != null ? jsonTitle : "DensityCondition");

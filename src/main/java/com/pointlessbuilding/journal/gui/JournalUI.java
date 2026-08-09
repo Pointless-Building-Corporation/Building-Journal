@@ -42,6 +42,7 @@ public class JournalUI extends Screen {
     public static ResourceLocation JOURNAL_TABS = new ResourceLocation("buildingjournal:textures/gui/journal_page_tabs.png");
     public static ResourceLocation JOURNAL_BOOKMARKS = new ResourceLocation("buildingjournal:textures/gui/journal_page_bookmarks.png");
     public static ResourceLocation TEST_COMM_IMAGE = new ResourceLocation("buildingjournal:textures/gui/test.png");
+    public static ResourceLocation DAILY_COMM_THUMBNAIL = new ResourceLocation("buildingjournal:textures/gui/daily_commission_thumbnail.png");
 
     private static final String DAILY_PREFIX = "daily_";
 
@@ -107,8 +108,8 @@ public class JournalUI extends Screen {
             .thenComparing(CommissionCardData::id))
         .toList();
 
-         if (dailyData != null) {
-            ResourceLocation thumbnail = ClientCommonEvents.getCardThumbnail(dailyData.id());
+        if (dailyData != null) {
+            ResourceLocation thumbnail = DAILY_COMM_THUMBNAIL;
             allCards.add(new CommissionCard(dailyData.id(), Component.literal(dailyData.title()), thumbnail, dailyData.state(), currentCommissionPage, true));
         }
 

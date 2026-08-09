@@ -140,7 +140,7 @@ public class CommissionCard extends AbstractWidget{
     }
 
     protected String getDailyTimerText() {
-        long remainingMillis = ClientCommonEvents.getNextRestMillis() - System.currentTimeMillis();
+        long remainingMillis = ClientCommonEvents.getNextResetMillis() - System.currentTimeMillis();
         if(remainingMillis < 0) remainingMillis = 0;
 
         long totalSeconds = remainingMillis / 1000;

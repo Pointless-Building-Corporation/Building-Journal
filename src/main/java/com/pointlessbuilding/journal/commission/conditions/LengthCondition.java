@@ -29,6 +29,14 @@ public class LengthCondition implements CommissionCondition{
         this.operator = operator;
     }
 
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public long getThreshold() {
+        return threshold;
+    }
+
     @Override
     public boolean test(EvaluationResult result) {
         int minX = result.boxes().stream()

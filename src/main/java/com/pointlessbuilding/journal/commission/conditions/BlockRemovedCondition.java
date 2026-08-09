@@ -43,6 +43,18 @@ public class BlockRemovedCondition implements CommissionCondition{
         this.threshold = threshold;
     }
 
+    public List<ResourceLocation> getBlocks() {
+        return blocks;
+    }
+
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public long getThreshold() {
+        return threshold;
+    }
+
     @Override
     public boolean test(EvaluationResult result) {
         long total;

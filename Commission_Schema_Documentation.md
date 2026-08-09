@@ -104,7 +104,7 @@ Checks the elevation of the structure. This is maximal comparison i.e the entire
 
 #### `Length`
 
-Checks the length of the structure.
+Checks the length of the structure. This is a conservative check; for example if the length cannot exceed 50 it is enough if one of the two lengths (Either X or Z coordinate length) is less than 50. Similarly if it has to be minimum of 50 or equal to 50 just one of the two needs to satisfy it.
 
 | Field | Type | Required | Description |
 |---|---|---|---|

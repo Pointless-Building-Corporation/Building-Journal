@@ -90,7 +90,7 @@ public class ClientCommonEvents {
         return commissionThumbnails.get(commissionId);
     }
 
-    public static long getNextRestMillis() {
+    public static long getNextResetMillis() {
         return nextResetEpochMillis;
     }
 

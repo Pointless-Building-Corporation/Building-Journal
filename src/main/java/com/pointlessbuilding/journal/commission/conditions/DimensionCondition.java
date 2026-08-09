@@ -22,6 +22,10 @@ public class DimensionCondition implements CommissionCondition{
         this.dimensions = dimensions;
     }
 
+    public List<String> getDimensions() {
+        return dimensions;
+    }
+
     @Override
     public boolean test(EvaluationResult result) {
         return dimensions.contains(result.dimension());

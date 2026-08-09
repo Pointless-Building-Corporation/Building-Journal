@@ -94,6 +94,9 @@ public class CommissionLoader {
         "home_at_the_end.json"
     };
 
+    private static DailyCommission loadedDaily;
+    private static LocalDate loadedDailyDate = null;
+
     private static List<Commission> loadedCommissions = new ArrayList<>();
     private static Map<String, String> rawConditionsJson = new HashMap<>();
     private static Map<String, String> rawUnlocksJson = new HashMap<>();
@@ -254,16 +257,17 @@ public class CommissionLoader {
     }
 
     public static String getRawConditionsJson(String id) {
-        return rawConditionsJson.getOrDefault(id, "[]");
+        if(loadedDaily.getId().equals(id)) return loadedDaily.getConditionJson();
+        else return rawConditionsJson.getOrDefault(id, "[]");
     }
 
     public static String getRawUnlocksJson(String id) {
         return rawUnlocksJson.getOrDefault(id, "[]");
     }
 
-    public static CommissionState fetchCommissionState(Set<String> completed, Commission commission) {
-        if (completed.contains(commission.id())) return CommissionState.COMPLETED;
-        for (String prereq : commission.prerequisites()) {
+    public static CommissionState fetchCommissionState(Set<String> completed, String id, List<String> prerequisites) {
+        if (completed.contains(id)) return CommissionState.COMPLETED;
+        for (String prereq : prerequisites) {
             if(!completed.contains(prereq)) return CommissionState.UNAVAILABLE;
         }
 
@@ -277,14 +281,23 @@ public class CommissionLoader {
             return Files.readAllBytes(thumbnailPath);
         }
         catch(Exception e) {
-            BuildingJournal.LOGGER.error("Failed to read thumbnail for commission {} : {}", commission.id(), e);
+            BuildingJournal.LOGGER.error("Failed to read thumbnail for commission {} : ", commission.id(), e);
             return new byte[0];
+        }
+    }
+
+    public static void refreshDailyCommission(ServerPlayer player) {
+        if(loadedDaily == null || loadedDailyDate == null || !LocalDate.now().equals(loadedDailyDate)) {
+            loadedDaily = new DailyCommission(LocalDate.now(), player.getServer());
         }
     }
 
     public static void sendCommissionCardData(ServerPlayer player) {
 
         List<Commission> availableCommissions = loadCommissions();
+
+        refreshDailyCommission(player);
+
         Set<String> completed = player.getCapability(CommissionProgress.COMMISSION_PROGRESS)
             .resolve()
             .map(ICommissionProgress::getCompletedCommissions)
@@ -295,10 +308,13 @@ public class CommissionLoader {
         for (Commission c : availableCommissions) {
             String id = c.id();
             String title = c.title();
-            CommissionState state = fetchCommissionState(completed, c);
+            CommissionState state = fetchCommissionState(completed, c.id(), c.prerequisites());
 
             cardCommissions.add(new CommissionCardData(id, title, state));
         }
+
+        CommissionState dailyState = fetchCommissionState(completed, loadedDaily.getId(), new ArrayList<>());
+        cardCommissions.add(new CommissionCardData(loadedDaily.getId(), loadedDaily.getTitle(), dailyState));
 
         long nextResetEpochMillis = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
         long epochDay = LocalDate.now().toEpochDay();
@@ -321,8 +337,13 @@ public class CommissionLoader {
     public static void sendCommissionDetailData(ServerPlayer player, String commissionId, int commissionPage) {
         Commission commission = CommissionLoader.getById(commissionId).orElse(null);
         if (commission == null) {
-            BuildingJournal.LOGGER.error("Commission doesn't exist of the id {} inside CommissionLoader.", commissionId);
-            return;
+            if(!loadedDaily.getId().equals(commissionId)) {
+                BuildingJournal.LOGGER.error("Commission doesn't exist of the id {} inside CommissionLoader.", commissionId);
+                return;
+            }
+            else {
+                BuildingJournal.LOGGER.info("Daily comm {} found", commissionId);
+            }
         }
 
         Set<String> completed = player.getCapability(CommissionProgress.COMMISSION_PROGRESS)
@@ -330,16 +351,22 @@ public class CommissionLoader {
             .map(ICommissionProgress::getCompletedCommissions)
             .orElse(Collections.emptySet());
 
-        CommissionState state = fetchCommissionState(completed, commission);
+        CommissionState state;
+        if(loadedDaily.getId().equals(commissionId)) state = fetchCommissionState(completed, commissionId, new ArrayList<>());
+        else state = fetchCommissionState(completed, commissionId, commission.prerequisites());
+
+        String title;
+        if(loadedDaily.getId().equals(commissionId)) title = loadedDaily.getTitle();
+        else title = commission.title();
 
         String conditionsJson = CommissionLoader.getRawConditionsJson(commissionId);
         String unlocksJson = CommissionLoader.getRawUnlocksJson(commissionId);
 
         NetworkHooks.openScreen(player, new SimpleMenuProvider(
-            (windowId, inv, p) -> new CommissionContainer(windowId, inv.player, commissionId, commission.title(), state, conditionsJson, unlocksJson, commissionPage), Component.literal(commission.title())),
+            (windowId, inv, p) -> new CommissionContainer(windowId, inv.player, commissionId, title, state, conditionsJson, unlocksJson, commissionPage), Component.literal(title)),
             buf -> {
                 buf.writeUtf(commissionId);
-                buf.writeUtf(commission.title());
+                buf.writeUtf(title);
                 buf.writeEnum(state);
                 buf.writeUtf(conditionsJson);
                 buf.writeUtf(unlocksJson);

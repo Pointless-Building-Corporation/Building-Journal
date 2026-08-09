@@ -32,6 +32,10 @@ public class BiomeCondition implements CommissionCondition{
         this.biomes = biomes;
     }
 
+    public List<String> getBiomes() {
+        return biomes;
+    }
+
     @Override
     public boolean test(EvaluationResult result) {
         if (Minecraft.getInstance().level == null) {
