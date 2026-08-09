@@ -28,6 +28,8 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
     private final ResourceLocation InventoryGUI = new ResourceLocation(BuildingJournal.MODID, "textures/gui/commission_ui_inventory.png");
     private final ResourceLocation CheckboxGUI = new ResourceLocation(BuildingJournal.MODID, "textures/gui/checkbox.png");
     private final ResourceLocation UnlockIcon = new ResourceLocation(BuildingJournal.MODID, "textures/gui/unlock_icon.png");
+    private final ResourceLocation DAILY_COMM_THUMBNAIL = new ResourceLocation("buildingjournal:textures/gui/daily_commission_thumbnail.png");
+    private static final String DAILY_PREFIX = "daily_";
 
     private static final int inv_width = 188, inv_height = 110;
     private static final int ui_width = 256, ui_height = 170;
@@ -90,7 +92,8 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
     @Override
     protected void init() {
         super.init();
-        thumbnail = ClientCommonEvents.getCardThumbnail(this.getMenu().getId());
+        if(this.menu.getId().startsWith(DAILY_PREFIX)) thumbnail = DAILY_COMM_THUMBNAIL;
+        else thumbnail = ClientCommonEvents.getCardThumbnail(this.getMenu().getId());
         flex();
     }
 
