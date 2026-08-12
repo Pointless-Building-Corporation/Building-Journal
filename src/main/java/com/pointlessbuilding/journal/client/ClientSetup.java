@@ -6,14 +6,17 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.Registration;
 import com.pointlessbuilding.journal.gui.CommissionUI;
+import com.pointlessbuilding.journal.gui.ConfigUI;
 import com.pointlessbuilding.journal.gui.DraftingTableUI;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
@@ -31,6 +34,11 @@ public class ClientSetup {
         event.enqueueWork(() -> {
             MenuScreens.register(Registration.DRAFTING_TABLE_CONTAINER.get(), DraftingTableUI::new);
             MenuScreens.register(Registration.COMMISSION_CONTAINER.get(), CommissionUI::new);
+
+             ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,
+                () -> new ConfigScreenHandler.ConfigScreenFactory(
+                    (mc, screen) -> new ConfigUI(screen)
+                ));
         });
     }
 
