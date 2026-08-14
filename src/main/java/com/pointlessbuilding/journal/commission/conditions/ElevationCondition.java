@@ -40,10 +40,10 @@ public class ElevationCondition implements CommissionCondition{
     public boolean test(EvaluationResult result) {
         int minY = result.boxes().stream()
             .mapToInt(b -> Math.min(b.firstPos().getY(), b.secondPos().getY()))
-            .min().orElseThrow();
+            .min().orElse(Integer.MIN_VALUE);
         int maxY = result.boxes().stream()
             .mapToInt(b -> Math.max(b.firstPos().getY(), b.secondPos().getY()))
-            .max().orElseThrow();
+            .max().orElse(Integer.MAX_VALUE);
 
         return switch (operator) {
             case LESS_THAN -> maxY < threshold;
@@ -54,11 +54,14 @@ public class ElevationCondition implements CommissionCondition{
     @Override
     public String getTitle() {
         if(title == null) {
-            String generatedTitle = "Elevation of build ";
+            String generatedTitle = "Elevation of build (How high up is it?) ";
+            String eq = "";
             switch (operator) {
-                case LESS_THAN -> generatedTitle += " < ";
-                case GREATER_THAN -> generatedTitle += " > ";
+                case LESS_THAN -> eq += "must be less than ";
+                case GREATER_THAN -> eq += "must exceed ";
             };
+
+            generatedTitle += eq;
             generatedTitle += threshold;
             return generatedTitle;
         }
@@ -68,7 +71,7 @@ public class ElevationCondition implements CommissionCondition{
     @Override
     public String describeFailure(EvaluationResult result) {
         if(failureDescription == null) {
-            String generatedDesc = "Elevation not ";
+            String generatedDesc = "The elevation of the build is not ";
              switch (operator) {
                 case LESS_THAN -> generatedDesc += "less than ";
                 case GREATER_THAN -> generatedDesc += "greater than ";
@@ -80,10 +83,10 @@ public class ElevationCondition implements CommissionCondition{
             int elevation;
             if(operator == Operator.GREATER_THAN) elevation = result.boxes().stream()
                 .mapToInt(b -> Math.min(b.firstPos().getY(), b.secondPos().getY()))
-                .min().orElseThrow();
+                .min().orElse(Integer.MIN_VALUE);
             else elevation = result.boxes().stream()
                 .mapToInt(b -> Math.max(b.firstPos().getY(), b.secondPos().getY()))
-                .max().orElseThrow();
+                .max().orElse(Integer.MAX_VALUE);
             return failureDescription.replace("{value}", Integer.toString(elevation));
         }
     }

@@ -41,23 +41,23 @@ public class LengthCondition implements CommissionCondition{
     public boolean test(EvaluationResult result) {
         int minX = result.boxes().stream()
             .mapToInt(b -> Math.min(b.firstPos().getX(), b.secondPos().getX()))
-            .min().orElseThrow();
+            .min().orElse(0);
         int maxX = result.boxes().stream()
             .mapToInt(b -> Math.max(b.firstPos().getX(), b.secondPos().getX()))
-            .max().orElseThrow();
+            .max().orElse(0);
         int minZ = result.boxes().stream()
             .mapToInt(b -> Math.min(b.firstPos().getZ(), b.secondPos().getZ()))
-            .min().orElseThrow();
+            .min().orElse(0);
         int maxZ = result.boxes().stream()
             .mapToInt(b -> Math.max(b.firstPos().getZ(), b.secondPos().getZ()))
-            .max().orElseThrow();
+            .max().orElse(0);
 
-        long lengthX = maxX - minX + 1;
-        long lengthZ = maxZ - minZ + 1;
+        long lengthX = Math.abs(maxX - minX) + 1;
+        long lengthZ = Math.abs(maxZ - minZ) + 1;
 
         return switch (operator) {
-            case LESS_THAN -> Math.min(lengthX, lengthZ) > threshold;
-            case GREATER_THAN -> Math.max(lengthX, lengthZ) < threshold;
+            case LESS_THAN -> Math.min(lengthX, lengthZ) < threshold;
+            case GREATER_THAN -> Math.max(lengthX, lengthZ) > threshold;
             case EQUAL -> (lengthX == threshold) || (lengthZ == threshold);
         };
     }
@@ -65,12 +65,15 @@ public class LengthCondition implements CommissionCondition{
     @Override
     public String getTitle() {
         if(title == null) {
-            String generatedTitle = "Length (X/Z) of build ";
+            String generatedTitle = "One of the lengths (On the X or Z axis) of the build ";
+            String eq = "";
             switch (operator) {
-                case LESS_THAN -> generatedTitle += " < ";
-                case GREATER_THAN -> generatedTitle += " > ";
-                case EQUAL -> generatedTitle += " = ";
+                case LESS_THAN -> eq += "must be less than ";
+                case GREATER_THAN -> eq += "must exceed ";
+                case EQUAL -> eq += "must be equal to exactly ";
             };
+
+            generatedTitle += eq;
             generatedTitle += threshold;
             return generatedTitle;
         }
@@ -80,7 +83,7 @@ public class LengthCondition implements CommissionCondition{
     @Override
     public String describeFailure(EvaluationResult result) {
         if(failureDescription == null) {
-            String generatedDesc = "Length of build not ";
+            String generatedDesc = "The length of build is not ";
              switch (operator) {
                 case LESS_THAN -> generatedDesc += "less than ";
                 case GREATER_THAN -> generatedDesc += "greater than ";
@@ -92,19 +95,19 @@ public class LengthCondition implements CommissionCondition{
         else {
             int minX = result.boxes().stream()
             .mapToInt(b -> Math.min(b.firstPos().getX(), b.secondPos().getX()))
-            .min().orElseThrow();
+            .min().orElse(0);
             int maxX = result.boxes().stream()
                 .mapToInt(b -> Math.max(b.firstPos().getX(), b.secondPos().getX()))
-                .max().orElseThrow();
+                .max().orElse(0);
             int minZ = result.boxes().stream()
                 .mapToInt(b -> Math.min(b.firstPos().getZ(), b.secondPos().getZ()))
-                .min().orElseThrow();
+                .min().orElse(0);
             int maxZ = result.boxes().stream()
                 .mapToInt(b -> Math.max(b.firstPos().getZ(), b.secondPos().getZ()))
-                .max().orElseThrow();
+                .max().orElse(0);
 
-            long lengthX = maxX - minX + 1;
-            long lengthZ = maxZ - minZ + 1;
+            long lengthX = Math.abs(maxX - minX) + 1;
+            long lengthZ = Math.abs(maxZ - minZ) + 1;
             long length;
             if (operator == Operator.LESS_THAN) length = Math.min(lengthX, lengthZ);
             else length = Math.max(lengthX, lengthZ);

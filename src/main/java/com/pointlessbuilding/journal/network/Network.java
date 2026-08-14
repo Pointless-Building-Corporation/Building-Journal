@@ -17,6 +17,7 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
+@SuppressWarnings("removal")
 public class Network {
     private static SimpleChannel CHANNEL;
     private static int ID = 0;

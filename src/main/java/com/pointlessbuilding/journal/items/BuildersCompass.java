@@ -4,9 +4,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.slf4j.Logger;
-
-import com.mojang.logging.LogUtils;
 import com.pointlessbuilding.journal.BuildingJournalConfig;
 import com.pointlessbuilding.journal.Registration;
 
@@ -29,8 +26,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class BuildersCompass extends Item{
-
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final String BUILDERS_COMPASS_TOOLTIP_SELECT = "tooltip.buildingjournal.compass.select";
     public static final String BUILDERS_COMPASS_TOOLTIP_DESELECT = "tooltip.buildingjournal.compass.deselect";
@@ -101,7 +96,7 @@ public class BuildersCompass extends Item{
                 int clampedZ = first[2] + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), pos.getZ()-first[2]));
                 int[] second = new int[]{clampedX, clampedY, clampedZ};
 
-                LOGGER.info("Created Bounding Box! At (%s,%s,%s) and (%s,%s,%s)".formatted(first[0], first[1], first[2], second[0], second[1], second[2]));
+                // LOGGER.info("Created Bounding Box! At (%s,%s,%s) and (%s,%s,%s)".formatted(first[0], first[1], first[2], second[0], second[1], second[2]));
                 CompoundTag box = new CompoundTag();
                 box.putIntArray("FirstPos", first);
                 box.putIntArray("SecondPos", second);

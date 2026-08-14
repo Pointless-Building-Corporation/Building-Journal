@@ -51,12 +51,15 @@ public class TotalVolumeCondition implements CommissionCondition{
     @Override
     public String getTitle() {
         if(title == null) {
-            String generatedTitle = "Total volume of build ";
+            String generatedTitle = "The total volume of the build ";
+            String eq = "";
             switch (operator) {
-                case LESS_THAN -> generatedTitle += " < ";
-                case GREATER_THAN -> generatedTitle += " > ";
-                case EQUAL -> generatedTitle += " = ";
+                case LESS_THAN -> eq += "must be less than ";
+                case GREATER_THAN -> eq += "must exceed ";
+                case EQUAL -> eq += "must be equal to exactly ";
             };
+
+            generatedTitle += eq;
             generatedTitle += threshold;
             return generatedTitle;
         }
@@ -66,7 +69,7 @@ public class TotalVolumeCondition implements CommissionCondition{
     @Override
     public String describeFailure(EvaluationResult result) {
         if(failureDescription == null) {
-            String generatedDesc = "Total Volume not ";
+            String generatedDesc = "The total volume of the build is not ";
              switch (operator) {
                 case LESS_THAN -> generatedDesc += "less than ";
                 case GREATER_THAN -> generatedDesc += "greater than ";

@@ -41,11 +41,12 @@ public class TallnessCondition implements CommissionCondition{
     public boolean test(EvaluationResult result) {
         int minY = result.boxes().stream()
             .mapToInt(b -> Math.min(b.firstPos().getY(), b.secondPos().getY()))
-            .min().orElseThrow();
+            .min().orElse(-99);
         int maxY = result.boxes().stream()
             .mapToInt(b -> Math.max(b.firstPos().getY(), b.secondPos().getY()))
-            .max().orElseThrow();
-        long tallness = maxY - minY + 1;
+            .max().orElse(-99);
+
+        long tallness = Math.abs(maxY - minY) + 1;
 
         return switch (operator) {
             case LESS_THAN -> tallness < threshold;
@@ -57,12 +58,15 @@ public class TallnessCondition implements CommissionCondition{
     @Override
     public String getTitle() {
         if(title == null) {
-            String generatedTitle = "Tallness (Y) of build ";
+            String generatedTitle = "The Tallness (in the Y axis) of the build ";
+            String eq = "";
             switch (operator) {
-                case LESS_THAN -> generatedTitle += " < ";
-                case GREATER_THAN -> generatedTitle += " > ";
-                case EQUAL -> generatedTitle += " = ";
+                case LESS_THAN -> eq += "must be less than ";
+                case GREATER_THAN -> eq += "must exceed ";
+                case EQUAL -> eq += "must be equal to exactly ";
             };
+
+            generatedTitle += eq;
             generatedTitle += threshold;
             return generatedTitle;
         }
@@ -72,7 +76,7 @@ public class TallnessCondition implements CommissionCondition{
     @Override
     public String describeFailure(EvaluationResult result) {
         if(failureDescription == null) {
-            String generatedDesc = "Tallness of build not ";
+            String generatedDesc = "The tallness of the build is not ";
              switch (operator) {
                 case LESS_THAN -> generatedDesc += "less than ";
                 case GREATER_THAN -> generatedDesc += "greater than ";
@@ -84,11 +88,11 @@ public class TallnessCondition implements CommissionCondition{
         else {
             int minY = result.boxes().stream()
                 .mapToInt(b -> Math.min(b.firstPos().getY(), b.secondPos().getY()))
-                .min().orElseThrow();
+                .min().orElse(-99);
             int maxY = result.boxes().stream()
                 .mapToInt(b -> Math.max(b.firstPos().getY(), b.secondPos().getY()))
-                .max().orElseThrow();
-            long tallness = maxY - minY + 1;
+                .max().orElse(-99);
+            long tallness = Math.abs(maxY - minY) + 1;
             return failureDescription.replace("{value}", Long.toString(tallness));
         }
     }

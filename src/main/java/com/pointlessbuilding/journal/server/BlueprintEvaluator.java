@@ -52,7 +52,7 @@ public class BlueprintEvaluator {
             LOGGER.warn("Drafting Table Validation failed for " + name + "! at " + pos.toString());
             return;
         }
-        //LOGGER.info("Validation passed");
+        // LOGGER.info("Validation passed");
 
         // Filter the boxes in the compass NBT to the current dimension and get the valid chunks area
         ServerLevel level = player.serverLevel();
@@ -67,7 +67,7 @@ public class BlueprintEvaluator {
             Network.sendToClient(new BlueprintCompletePacket(pos), player);
             return;
         }
-        //LOGGER.info("Boxes filtered: {} boxes", boxes.size());
+        // LOGGER.info("Boxes filtered: {} boxes", boxes.size());
 
         Set<ChunkPos> diffChunks = getRequiredChunks(boxes, 0);
 
@@ -107,7 +107,7 @@ public class BlueprintEvaluator {
         // Background thread: compute the diff
         CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0]))
         .thenRunAsync(() -> {
-            //LOGGER.info("Background thread started");
+            // LOGGER.info("Background thread started");
 
             Map<ChunkPos, ChunkAccess> chunkCache = new HashMap<>();
             for (ChunkPos cp : diffChunks) {
@@ -132,7 +132,7 @@ public class BlueprintEvaluator {
                 final long finalModifiedCount = diffResult.modifiedCount();
                 List<String> finalBiomes = diffResult.biomes().stream().map(key -> key.location().toString()).toList();
                 level.getServer().execute(() -> {
-                    //LOGGER.info("Back on main thread, writing blueprint");
+                    // LOGGER.info("Back on main thread, writing blueprint");
 
                     // After diff calculation, take all the data and put it into the blueprint item
                     ListTag blockCounts = new ListTag();

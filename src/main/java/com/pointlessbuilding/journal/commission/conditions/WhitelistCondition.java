@@ -62,14 +62,15 @@ public class WhitelistCondition implements CommissionCondition{
     @Override
     public String getTitle() {
         if(title == null) {
-            String generatedTitle = "";
+            String generatedTitle = "The following blocks ";
+            if(isBlacklist) generatedTitle += " must not be included in the build: ";
+            else generatedTitle += " must be included in the build: ";
             List<String> blockStrings = new ArrayList<>();
             for(ResourceLocation block : blocks) {
                 blockStrings.add(block.toString());
             }
-            generatedTitle += blockStrings;
-            if(isBlacklist) generatedTitle += " must not be included";
-            else generatedTitle += " must be included";
+            generatedTitle += String.join(", ", blockStrings);
+            
             return generatedTitle;
         }
         return title;
@@ -78,7 +79,7 @@ public class WhitelistCondition implements CommissionCondition{
     @Override
     public String describeFailure(EvaluationResult result) {
         if(failureDescription == null) {
-            String generatedDesc = "Blocks in build does not follow the ";
+            String generatedDesc = "The blocks in the build do not follow the ";
             if(isBlacklist) generatedDesc += "blacklist!";
             else generatedDesc += "whitelist!";
             return generatedDesc;

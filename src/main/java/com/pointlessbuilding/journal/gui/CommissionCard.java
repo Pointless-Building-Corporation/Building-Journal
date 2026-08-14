@@ -17,6 +17,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
+@SuppressWarnings("removal")
 public class CommissionCard extends AbstractWidget{
 
     private final String commissionId;

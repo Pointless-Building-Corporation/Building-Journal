@@ -2,7 +2,6 @@ package com.pointlessbuilding.journal.network.packets;
 
 import java.util.function.Supplier;
 
-import com.pointlessbuilding.journal.blocks.DraftingTableEntity;
 import com.pointlessbuilding.journal.server.BlueprintEvaluator;
 
 import net.minecraft.core.BlockPos;
@@ -30,7 +29,7 @@ public class ConfirmBlueprintPacket{
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        DraftingTableEntity.LOGGER.info("ConfirmBlueprintPacket received");
+        // DraftingTableEntity.LOGGER.info("ConfirmBlueprintPacket received");
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             BlueprintEvaluator.evaluate(player, pos, name);

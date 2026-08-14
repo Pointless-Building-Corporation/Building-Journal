@@ -18,6 +18,7 @@ import java.util.List;
 import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
+@SuppressWarnings("removal")
 @Mod(BuildingJournal.MODID)
 public class BuildingJournal
 {

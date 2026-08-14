@@ -81,19 +81,29 @@ public class BlockRemovedCondition implements CommissionCondition{
     @Override
     public String getTitle() {
         if(title == null) {
-            String generatedTitle = "Removed ";
+            String generatedTitle = "The blocks removed from the build ";
+
+            String eq = "";
+            switch (operator) {
+                case LESS_THAN -> eq += "must be less than ";
+                case GREATER_THAN -> eq += "must exceed ";
+                case EQUAL -> eq += "must be equal to exactly ";
+            };
+
             List<String> blockStrings = new ArrayList<>();
             for(ResourceLocation block : blocks) {
                 blockStrings.add(block.toString());
             }
-            if(blockStrings.size() == 0) generatedTitle += "blocks";
-            else generatedTitle += blockStrings;
-            switch (operator) {
-                case LESS_THAN -> generatedTitle += " < ";
-                case GREATER_THAN -> generatedTitle += " > ";
-                case EQUAL -> generatedTitle += " = ";
-            };
+            if(blockStrings.size() == 0) {
+                generatedTitle += "";
+            }
+            else generatedTitle += "that match the following list ";
+            generatedTitle += eq;
             generatedTitle += threshold;
+
+            if(blockStrings.size() != 0) {
+                generatedTitle += ": " + String.join(", ", blockStrings);
+            }
             return generatedTitle;
         }
         return title;
@@ -102,11 +112,11 @@ public class BlockRemovedCondition implements CommissionCondition{
     @Override
     public String describeFailure(EvaluationResult result) {
         if(failureDescription == null) {
-            String generatedDesc = "Removed blocks not ";
+            String generatedDesc = "The number of removed blocks ";
              switch (operator) {
-                case LESS_THAN -> generatedDesc += "less than ";
-                case GREATER_THAN -> generatedDesc += "greater than ";
-                case EQUAL -> generatedDesc += "equal to ";
+                case LESS_THAN -> generatedDesc += "aren't less than ";
+                case GREATER_THAN -> generatedDesc += "don't exceed ";
+                case EQUAL -> generatedDesc += "aren't equal to ";
             };
             generatedDesc += threshold + "!";
             return generatedDesc;

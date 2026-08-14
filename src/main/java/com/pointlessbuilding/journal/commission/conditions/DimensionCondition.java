@@ -34,8 +34,8 @@ public class DimensionCondition implements CommissionCondition{
     @Override
     public String getTitle() {
         if(title == null) {
-            String generatedTitle = "Dimension is one of ";
-            generatedTitle += dimensions;
+            String generatedTitle = "The dimension the build is in needs to be one of the following: ";
+            generatedTitle += String.join(", ", dimensions);
             return generatedTitle;
         }
         return title;
@@ -44,7 +44,7 @@ public class DimensionCondition implements CommissionCondition{
     @Override
     public String describeFailure(EvaluationResult result) {
         if(failureDescription == null) {
-            String generatedDesc = "Build dimension not satisfied!";
+            String generatedDesc = "The build dimension is not satisfied!";
             return generatedDesc;
         }
         else {

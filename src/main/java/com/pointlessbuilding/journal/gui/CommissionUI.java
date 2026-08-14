@@ -22,6 +22,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
+@SuppressWarnings("removal")
 public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
 
     private final ResourceLocation GUI = new ResourceLocation(BuildingJournal.MODID, "textures/gui/commission_ui.png");
@@ -167,7 +168,7 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
                 int checkboxV = (i < results.size()) ? (results.get(i) ? 21 : 41) : 0;
                 guiGraphics.blit(CheckboxGUI, scaledConditionsX, checkboxY, scaledCheckboxSize, scaledCheckboxSize, 0, checkboxV, 20, 20, 64, 64);
 
-                int textX = scaledConditionsX + scaledCheckboxSize + 2;
+                int textX = scaledConditionsX + (2 * scaledCheckboxSize) + 2;
                 for (int line = 0; line < lines.size(); line++) {
                     int lineY = y + line * rowHeight + (rowHeight - Math.round(this.font.lineHeight * font_scale)) / 2;
 
@@ -347,11 +348,11 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
         scaledCtitleX = scaledConditionsX + scaledConditionsWidth / 2;
         scaledCtitleY = scaledConditionsY - Math.round(this.font.lineHeight * font_scale) - 2;
 
-        scaledCheckboxSize = Math.round(checkbox_size * scale * 0.5f);
+        scaledCheckboxSize = Math.round(checkbox_size * scale * 0.25f);
         int scaledFontLineHeight = Math.round(this.font.lineHeight * font_scale);
-        rowHeight = Math.max(scaledCheckboxSize, scaledFontLineHeight);
+        rowHeight = Math.max(2 * scaledCheckboxSize, scaledFontLineHeight);
 
-        int wrapWidthScreen = scaledConditionsWidth - scaledCheckboxSize - 2;
+        int wrapWidthScreen = scaledConditionsWidth - (2 * scaledCheckboxSize) - 2;
         int wrapWidthUnscaled = Math.round(wrapWidthScreen / font_scale);
 
         wrappedConditionLines.clear();

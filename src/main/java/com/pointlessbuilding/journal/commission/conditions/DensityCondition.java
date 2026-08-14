@@ -52,13 +52,18 @@ public class DensityCondition implements CommissionCondition{
     @Override
     public String getTitle() {
         if(title == null) {
-            String generatedTitle = "Density of build ";
+            String generatedTitle = "The density of the build (ratio of blocks to air) ";
+
+            String eq = "";
             switch (operator) {
-                case LESS_THAN -> generatedTitle += " < ";
-                case GREATER_THAN -> generatedTitle += " > ";
-                case EQUAL -> generatedTitle += " = ";
+                case LESS_THAN -> eq += "must be less than ";
+                case GREATER_THAN -> eq += "must exceed ";
+                case EQUAL -> eq += "must be equal to exactly ";
             };
+
+            generatedTitle += eq;
             generatedTitle += threshold;
+
             return generatedTitle;
         }
         return title;
@@ -67,7 +72,7 @@ public class DensityCondition implements CommissionCondition{
     @Override
     public String describeFailure(EvaluationResult result) {
         if(failureDescription == null) {
-            String generatedDesc = "Density not ";
+            String generatedDesc = "The density of the build is not ";
              switch (operator) {
                 case LESS_THAN -> generatedDesc += "less than ";
                 case GREATER_THAN -> generatedDesc += "greater than ";

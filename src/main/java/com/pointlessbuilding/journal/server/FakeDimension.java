@@ -40,7 +40,6 @@ public class FakeDimension {
         Map<ResourceKey<Level>, ServerLevel> map = server.forgeGetWorldMap();
         ServerLevel existingLevel = map.get(levelKey);
         if(existingLevel != null) {
-            //BuildingJournal.LOGGER.info("{} already exists. Returning that", levelKey.location().toString());
             return existingLevel;
         }
 
