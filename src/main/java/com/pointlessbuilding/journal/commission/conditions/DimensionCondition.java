@@ -32,8 +32,8 @@ public class DimensionCondition implements CommissionCondition{
     }
     
     @Override
-    public String getTitle() {
-        if(title == null) {
+    public String getTitle(boolean getDefault) {
+        if(title == null || getDefault) {
             String generatedTitle = "The dimension the build is in needs to be one of the following: ";
             generatedTitle += String.join(", ", dimensions);
             return generatedTitle;

@@ -68,8 +68,8 @@ public class BiomeCondition implements CommissionCondition{
     }
     
     @Override
-    public String getTitle() {
-        if(title == null) {
+    public String getTitle(boolean getDefault) {
+        if(title == null || getDefault) {
             String generatedTitle = "Must be built in one of the following biomes: ";
             generatedTitle += String.join(", ", biomes);
             return generatedTitle;

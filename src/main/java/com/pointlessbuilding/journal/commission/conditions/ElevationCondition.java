@@ -52,8 +52,8 @@ public class ElevationCondition implements CommissionCondition{
     }
 
     @Override
-    public String getTitle() {
-        if(title == null) {
+    public String getTitle(boolean getDefault) {
+        if(title == null || getDefault) {
             String generatedTitle = "Elevation of build (How high up is it?) ";
             String eq = "";
             switch (operator) {

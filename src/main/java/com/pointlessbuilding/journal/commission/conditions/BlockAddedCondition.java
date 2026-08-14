@@ -79,8 +79,8 @@ public class BlockAddedCondition implements CommissionCondition{
     }
 
     @Override
-    public String getTitle() {
-        if(title == null) {
+    public String getTitle(boolean getDefault) {
+        if(title == null || getDefault) {
             String generatedTitle = "The blocks added to the build ";
 
             String eq = "";

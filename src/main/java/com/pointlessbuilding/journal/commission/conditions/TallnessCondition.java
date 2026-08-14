@@ -56,8 +56,8 @@ public class TallnessCondition implements CommissionCondition{
     }
 
     @Override
-    public String getTitle() {
-        if(title == null) {
+    public String getTitle(boolean getDefault) {
+        if(title == null || getDefault) {
             String generatedTitle = "The Tallness (in the Y axis) of the build ";
             String eq = "";
             switch (operator) {

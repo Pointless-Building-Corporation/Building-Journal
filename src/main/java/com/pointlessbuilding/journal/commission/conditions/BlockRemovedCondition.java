@@ -79,8 +79,8 @@ public class BlockRemovedCondition implements CommissionCondition{
     }
     
     @Override
-    public String getTitle() {
-        if(title == null) {
+    public String getTitle(boolean getDefault) {
+        if(title == null || getDefault) {
             String generatedTitle = "The blocks removed from the build ";
 
             String eq = "";

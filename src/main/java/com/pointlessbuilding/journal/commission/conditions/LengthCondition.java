@@ -63,8 +63,8 @@ public class LengthCondition implements CommissionCondition{
     }
 
     @Override
-    public String getTitle() {
-        if(title == null) {
+    public String getTitle(boolean getDefault) {
+        if(title == null || getDefault) {
             String generatedTitle = "One of the lengths (On the X or Z axis) of the build ";
             String eq = "";
             switch (operator) {

@@ -50,8 +50,8 @@ public class DensityCondition implements CommissionCondition{
     }
 
     @Override
-    public String getTitle() {
-        if(title == null) {
+    public String getTitle(boolean getDefault) {
+        if(title == null || getDefault) {
             String generatedTitle = "The density of the build (ratio of blocks to air) ";
 
             String eq = "";

@@ -60,10 +60,10 @@ public class WhitelistCondition implements CommissionCondition{
     }
 
     @Override
-    public String getTitle() {
-        if(title == null) {
+    public String getTitle(boolean getDefault) {
+        if(title == null || getDefault) {
             String generatedTitle = "The following blocks ";
-            if(isBlacklist) generatedTitle += " must not be included in the build: ";
+            if(isBlacklist) generatedTitle += "must not be included in the build: ";
             else generatedTitle += " must be included in the build: ";
             List<String> blockStrings = new ArrayList<>();
             for(ResourceLocation block : blocks) {

@@ -156,6 +156,9 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
         int y = scaledConditionsY - scroll_offset + 1;
         List<Boolean> results = this.menu.getConditionResults();
         List<String> descriptions = this.menu.getFailureDescriptions();
+        // List<CommissionCondition> conditionList = this.menu.getConditions();
+        // List<String> hoveredTitles = new ArrayList<>();
+        // for(CommissionCondition condition : conditionList) hoveredTitles.add(condition.getTitle(true));
         String hoveredTooltip = null;
 
         for (int i = 0; i < conditionsSize; i++) {
@@ -181,7 +184,11 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
 
                 boolean hovered = mouseX >= scaledConditionsX && mouseX < scaledConditionsX + scaledConditionsWidth && mouseY >= y && mouseY < y+ thisRowHeight;
                 if(hovered) {
-                    if(results.isEmpty() && descriptions.size() != 0) {
+                    // If no blueprint in slot; maybe for later
+                    // if(results.isEmpty() && descriptions.size() == 0) {
+                    //     hoveredTooltip = hoveredTitles.get(i);
+                    // }
+                    else if(results.isEmpty() && descriptions.size() != 0) {
                         hoveredTooltip = descriptions.get(0);
                     }
                     else if (i < results.size() && !results.get(i) && i < descriptions.size()) {
@@ -358,7 +365,7 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
         wrappedConditionLines.clear();
         List<CommissionCondition> conditionList = this.menu.getConditions();
         for(CommissionCondition condition : conditionList) {
-            String titleText = condition.getTitle() == null ? "NULL" : condition.getTitle();
+            String titleText = condition.getTitle(false);
             wrappedConditionLines.add(this.font.split(Component.literal(titleText), wrapWidthUnscaled));
         }
         conditionsSize = conditionList.size();
