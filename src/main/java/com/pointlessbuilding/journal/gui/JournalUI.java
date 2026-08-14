@@ -319,6 +319,7 @@ public class JournalUI extends Screen {
 
         for (CommissionCard card: visibleCards) {
             card.visible = currentPage == 1;
+            card.updateCommissionPage(currentCommissionPage);
         }
     }
 

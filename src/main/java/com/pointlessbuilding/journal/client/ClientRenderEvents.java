@@ -150,7 +150,7 @@ public class ClientRenderEvents {
 
         bufferSource.endBatch(RenderType.lines());
 
-        // Render faces if shader is off
+        // Render faces if shader is off or incompatible
         if(renderFaces) {
             VertexConsumer faceConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(dummyLocation));
             if(held.hasTag()) {
@@ -175,6 +175,8 @@ public class ClientRenderEvents {
 
         boolean applyShaderEffects = BuildersCompass.currentHoldingCompass(mc.player);
 
+        // MultiPostChain call. Basically exactly the same as PostChain but hardcoded so it applies over existing post effects.
+        // This 100% becomes redundant in later mc versions
         if(applyShaderEffects && multiPostChain == null) {
             try {
             multiPostChain = new MultiPostChain(mc.getResourceManager(), mc.getMainRenderTarget());
@@ -285,6 +287,7 @@ public class ClientRenderEvents {
         RenderSystem.polygonOffset(-1.0f, -1.0f);
         RenderSystem.enablePolygonOffset();
 
+        // Actually draw the shader now that the mask has been fully built, see resources/assets/buildingjournal/shaders/program
         RenderSystem.disableCull();
         BufferUploader.drawWithShader(builder.end());
         RenderSystem.enableCull();

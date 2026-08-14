@@ -100,7 +100,7 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int titleX = (this.scaledUiX - this.leftPos) + this.scaledUiWidth / 2;
+        int titleX = (this.scaledThumbX - this.leftPos) + this.scaledThumbWidth / 2;
         int titleY = (this.scaledUiY - this.topPos) + title_padding;
         renderScaledText(guiGraphics, this.title, titleX, titleY, titleScale);
     }
@@ -178,7 +178,9 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
                     // this fool again?!
                     guiGraphics.pose().pushPose();
                     guiGraphics.pose().scale(font_scale, font_scale, 1f);
-                    guiGraphics.drawString(this.font, lines.get(line), (int)(textX / font_scale), (int)(lineY / font_scale), 0x808080, true);
+                    // Fake drop shadow because the text is black
+                    guiGraphics.drawString(this.font, lines.get(line), (int)(textX / font_scale) + 1, (int)(lineY / font_scale) + 1, 0xC7BB93, false);
+                    guiGraphics.drawString(this.font, lines.get(line), (int)(textX / font_scale), (int)(lineY / font_scale), 0x000000, false);
                     guiGraphics.pose().popPose();
                 }
 
@@ -290,6 +292,7 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(scale, scale, 1f);
         int adjustedX = x - (int)(this.font.width(text) * scale) / 2;
+        guiGraphics.drawString(this.font, text, (int)(adjustedX / scale) + 1, (int)(y / scale) + 1, 0xC7BB93, false);
         guiGraphics.drawString(this.font, text, (int)(adjustedX / scale), (int)(y / scale), 0x000000, false);
         guiGraphics.pose().popPose();
     }
