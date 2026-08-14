@@ -178,7 +178,7 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
                     // this fool again?!
                     guiGraphics.pose().pushPose();
                     guiGraphics.pose().scale(font_scale, font_scale, 1f);
-                    guiGraphics.drawString(this.font, lines.get(line), (int)(textX / font_scale), (int)(lineY / font_scale), 0x000000, false);
+                    guiGraphics.drawString(this.font, lines.get(line), (int)(textX / font_scale), (int)(lineY / font_scale), 0x808080, true);
                     guiGraphics.pose().popPose();
                 }
 
