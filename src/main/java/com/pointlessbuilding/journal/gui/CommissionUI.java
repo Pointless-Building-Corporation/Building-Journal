@@ -100,7 +100,7 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int titleX = (this.scaledThumbX - this.leftPos) + this.scaledThumbWidth / 2;
+        int titleX = (this.scaledUiX - this.leftPos) + this.scaledUiWidth / 2;
         int titleY = (this.scaledUiY - this.topPos) + title_padding;
         renderScaledText(guiGraphics, this.title, titleX, titleY, titleScale);
     }
