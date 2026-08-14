@@ -188,7 +188,7 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
                     // if(results.isEmpty() && descriptions.size() == 0) {
                     //     hoveredTooltip = hoveredTitles.get(i);
                     // }
-                    else if(results.isEmpty() && descriptions.size() != 0) {
+                    if(results.isEmpty() && descriptions.size() != 0) {
                         hoveredTooltip = descriptions.get(0);
                     }
                     else if (i < results.size() && !results.get(i) && i < descriptions.size()) {
