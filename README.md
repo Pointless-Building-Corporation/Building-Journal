@@ -1,6 +1,8 @@
 
 <p align="center"><img src="./assets/logo.png" alt="Logo" width="150"></p>
 <h1 style="text-align:center"> Building Journal </h1>
+<a href="https://discord.gg/u82PRGPMQD"><img src="https://img.shields.io/discord/1534938468520689725?style=flat-square&logo=discord&logoColor=%235865F2&label=Building%20Journal" alt="Discord"></a>
+
 
 This is Building Journal, a builder's sketchbook and progression guidance system. This is a mod that introduces a useful system for creating and trying out building quests, with verification and reward systems to encourage players to build, and build creatively within limits.
 
