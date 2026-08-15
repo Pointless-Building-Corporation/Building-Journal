@@ -1,0 +1,30 @@
+{
+	"display": {
+		"icon": {
+			"item": "buildingjournal:blueprint"
+		},
+		"title": {
+			"translate": "advancements.buildingjournal.end_commissions"
+		},
+		"description": {
+			"translate": "advancements.buildingjournal.end_commissions.desc"
+		},
+		"frame": "challenge"
+	},
+	"parent": "buildingjournal:adv_commissions",
+	"criteria": {
+		"complete_basics": {
+			"trigger": "buildingjournal:commission_completed",
+			"conditions": {
+				"ids": [
+					"fortress_operating_base",
+					"villager_trading_hall",
+					"home_at_the_end"
+				]
+			}
+		}
+	},
+	"rewards": {
+		"experience": 1000
+	}
+}

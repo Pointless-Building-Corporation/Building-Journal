@@ -12,5 +12,8 @@
         {"title": "Have enough chests or barrels for storage!", "condition": "BlockAdded", "blocks": ["minecraft:chest", "minecraft:barrel"], "operator": ">", "threshold": 0, "failureDescription": "No chests found!"},
         {"title": "Make an enchanting table here as well!", "condition": "Whitelist", "blocks": ["minecraft:enchanting_table"], "failureDescription": "No enchanting table found!"},
         {"title": "An enchanting table needs bookshelves to work well! Have at least 10 around it, but the best enchants need 15.", "condition": "BlockAdded", "blocks": ["minecraft:bookshelf"], "operator": ">", "threshold": 9, "failureDescription": "Not enough bookshelves!"}
+    ],
+    "unlocks": [
+        {"unlock": "ExpReward", "expType": "Levels", "expAmount": 10}
     ]
 }

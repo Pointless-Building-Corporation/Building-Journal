@@ -22,6 +22,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
+@SuppressWarnings("removal")
 public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
 
     private final ResourceLocation GUI = new ResourceLocation(BuildingJournal.MODID, "textures/gui/commission_ui.png");
@@ -155,6 +156,9 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
         int y = scaledConditionsY - scroll_offset + 1;
         List<Boolean> results = this.menu.getConditionResults();
         List<String> descriptions = this.menu.getFailureDescriptions();
+        // List<CommissionCondition> conditionList = this.menu.getConditions();
+        // List<String> hoveredTitles = new ArrayList<>();
+        // for(CommissionCondition condition : conditionList) hoveredTitles.add(condition.getTitle(true));
         String hoveredTooltip = null;
 
         for (int i = 0; i < conditionsSize; i++) {
@@ -167,19 +171,25 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
                 int checkboxV = (i < results.size()) ? (results.get(i) ? 21 : 41) : 0;
                 guiGraphics.blit(CheckboxGUI, scaledConditionsX, checkboxY, scaledCheckboxSize, scaledCheckboxSize, 0, checkboxV, 20, 20, 64, 64);
 
-                int textX = scaledConditionsX + scaledCheckboxSize + 2;
+                int textX = scaledConditionsX + (2 * scaledCheckboxSize) + 2;
                 for (int line = 0; line < lines.size(); line++) {
                     int lineY = y + line * rowHeight + (rowHeight - Math.round(this.font.lineHeight * font_scale)) / 2;
 
                     // this fool again?!
                     guiGraphics.pose().pushPose();
                     guiGraphics.pose().scale(font_scale, font_scale, 1f);
+                    // Fake drop shadow because the text is black
+                    guiGraphics.drawString(this.font, lines.get(line), (int)(textX / font_scale) + 1, (int)(lineY / font_scale) + 1, 0xC7BB93, false);
                     guiGraphics.drawString(this.font, lines.get(line), (int)(textX / font_scale), (int)(lineY / font_scale), 0x000000, false);
                     guiGraphics.pose().popPose();
                 }
 
                 boolean hovered = mouseX >= scaledConditionsX && mouseX < scaledConditionsX + scaledConditionsWidth && mouseY >= y && mouseY < y+ thisRowHeight;
                 if(hovered) {
+                    // If no blueprint in slot; maybe for later
+                    // if(results.isEmpty() && descriptions.size() == 0) {
+                    //     hoveredTooltip = hoveredTitles.get(i);
+                    // }
                     if(results.isEmpty() && descriptions.size() != 0) {
                         hoveredTooltip = descriptions.get(0);
                     }
@@ -282,6 +292,7 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(scale, scale, 1f);
         int adjustedX = x - (int)(this.font.width(text) * scale) / 2;
+        guiGraphics.drawString(this.font, text, (int)(adjustedX / scale) + 1, (int)(y / scale) + 1, 0xC7BB93, false);
         guiGraphics.drawString(this.font, text, (int)(adjustedX / scale), (int)(y / scale), 0x000000, false);
         guiGraphics.pose().popPose();
     }
@@ -347,17 +358,17 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
         scaledCtitleX = scaledConditionsX + scaledConditionsWidth / 2;
         scaledCtitleY = scaledConditionsY - Math.round(this.font.lineHeight * font_scale) - 2;
 
-        scaledCheckboxSize = Math.round(checkbox_size * scale * 0.5f);
+        scaledCheckboxSize = Math.round(checkbox_size * scale * 0.25f);
         int scaledFontLineHeight = Math.round(this.font.lineHeight * font_scale);
-        rowHeight = Math.max(scaledCheckboxSize, scaledFontLineHeight);
+        rowHeight = Math.max(2 * scaledCheckboxSize, scaledFontLineHeight);
 
-        int wrapWidthScreen = scaledConditionsWidth - scaledCheckboxSize - 2;
+        int wrapWidthScreen = scaledConditionsWidth - (2 * scaledCheckboxSize) - 2;
         int wrapWidthUnscaled = Math.round(wrapWidthScreen / font_scale);
 
         wrappedConditionLines.clear();
         List<CommissionCondition> conditionList = this.menu.getConditions();
         for(CommissionCondition condition : conditionList) {
-            String titleText = condition.getTitle() == null ? "NULL" : condition.getTitle();
+            String titleText = condition.getTitle(false);
             wrappedConditionLines.add(this.font.split(Component.literal(titleText), wrapWidthUnscaled));
         }
         conditionsSize = conditionList.size();

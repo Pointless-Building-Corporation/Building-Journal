@@ -2,7 +2,6 @@ package com.pointlessbuilding.journal.network.packets;
 
 import java.util.function.Supplier;
 
-import com.pointlessbuilding.journal.blocks.DraftingTableEntity;
 import com.pointlessbuilding.journal.gui.DraftingTableUI;
 
 import net.minecraft.client.Minecraft;
@@ -27,7 +26,7 @@ public class BlueprintCompletePacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        DraftingTableEntity.LOGGER.info("BluePrintCompletePacket received");
+        // DraftingTableEntity.LOGGER.info("BluePrintCompletePacket received");
         ctx.get().enqueueWork(() -> {
             Minecraft mc = Minecraft.getInstance();
             if (mc.screen instanceof DraftingTableUI ui) {

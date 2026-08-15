@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
+@SuppressWarnings("removal")
 public class CommissionRewardUnlock implements CommissionUnlock{
 
     private final String title;

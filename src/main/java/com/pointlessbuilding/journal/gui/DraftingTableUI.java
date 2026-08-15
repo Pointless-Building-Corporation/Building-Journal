@@ -22,6 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
+@SuppressWarnings("removal")
 public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContainer>{
 
     private final ResourceLocation GUI = new ResourceLocation(BuildingJournal.MODID, "textures/gui/drafting_table.png");
@@ -130,7 +131,7 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
     }
 
     public void onBlueprintComplete() {
-        //BuildingJournal.LOGGER.info("Inside onBlueprintComplete");
+        // BuildingJournal.LOGGER.info("Inside onBlueprintComplete");
         processingBlueprint = false;
     }
 

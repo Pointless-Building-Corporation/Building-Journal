@@ -2,10 +2,12 @@ package com.pointlessbuilding.journal;
 
 import com.mojang.logging.LogUtils;
 import com.pointlessbuilding.journal.commission.Commission;
+import com.pointlessbuilding.journal.commission.CommissionCompleteTrigger;
 import com.pointlessbuilding.journal.commission.CommissionLoader;
 import com.pointlessbuilding.journal.datagen.DataGeneration;
 import com.pointlessbuilding.journal.network.Network;
 
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -18,6 +20,7 @@ import java.util.List;
 import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
+@SuppressWarnings("removal")
 @Mod(BuildingJournal.MODID)
 public class BuildingJournal
 {
@@ -40,6 +43,11 @@ public class BuildingJournal
     private void commonSetup(final FMLCommonSetupEvent event)
     {
         Network.init();
+
+        event.enqueueWork(() ->  {
+            CriteriaTriggers.register(CommissionCompleteTrigger.INSTANCE);
+        });
+
         CommissionLoader.setup();
         List<Commission> loaded = CommissionLoader.loadCommissions();
         LOGGER.info("Loaded {} commissions", loaded.size());

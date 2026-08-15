@@ -13,5 +13,8 @@
         {"title": "Smithy need blast furnaces,", "condition": "BlockAdded", "blocks": ["minecraft:blast_furnace"], "operator": ">", "threshold": 0, "failureDescription": "No blast furnace found!"},
         {"title": "Anvils,",  "condition": "BlockAdded", "blocks": ["#minecraft:anvil"], "operator": ">", "threshold": 0, "failureDescription": "No anvils found!"},
         {"title": "And smithing tables to operate!",  "condition": "BlockAdded", "blocks": ["minecraft:smithing_table"], "operator": ">", "threshold": 0, "failureDescription": "No smithing table found!"}
+    ],
+    "unlocks": [
+        {"unlock": "ExpReward", "expType": "Levels", "expAmount": 5}
     ]
 }
