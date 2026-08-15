@@ -23,6 +23,7 @@ import com.pointlessbuilding.journal.items.BuildersCompass;
 import com.pointlessbuilding.journal.utility.BoundaryRenderer;
 import com.pointlessbuilding.journal.utility.MultiPostChain;
 
+import net.irisshaders.iris.api.v0.IrisApi;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -40,8 +41,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 
+@SuppressWarnings("removal")
 @Mod.EventBusSubscriber(modid = BuildingJournal.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientRenderEvents {
     
@@ -55,12 +58,21 @@ public class ClientRenderEvents {
 
         checkResizeEvent();
 
-        if(event.getStage() == RenderLevelStageEvent.Stage.AFTER_TRIPWIRE_BLOCKS)
-            renderCompassBoundaries(event);
-        else if(event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER)
-            if(BuildingJournalConfig.USE_BLUEPRINT_SHADER.get()) renderPostShaderEffects();
-        else
-            return;
+        // If a shader loader is present and a shader is on render compass boundaries only
+
+        if((ModList.get().isLoaded("oculus") || ModList.get().isLoaded("iris")) && IrisApi.getInstance().isShaderPackInUse()) {
+            if(event.getStage() == RenderLevelStageEvent.Stage.AFTER_TRIPWIRE_BLOCKS)
+                renderCompassBoundaries(event, true);
+            else return;
+        }
+        else {
+            if(event.getStage() == RenderLevelStageEvent.Stage.AFTER_TRIPWIRE_BLOCKS)
+                renderCompassBoundaries(event, !BuildingJournalConfig.USE_BLUEPRINT_SHADER.get());
+            else if(event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER)
+                if(BuildingJournalConfig.USE_BLUEPRINT_SHADER.get()) renderPostShaderEffects();
+            else
+                return;
+        }
     }
 
     @SubscribeEvent
@@ -79,7 +91,7 @@ public class ClientRenderEvents {
         }
     }
 
-    protected static void renderCompassBoundaries(RenderLevelStageEvent event) {
+    protected static void renderCompassBoundaries(RenderLevelStageEvent event, boolean renderFaces) {
         Player player = Minecraft.getInstance().player;
         if(player == null) return;
 
@@ -138,8 +150,8 @@ public class ClientRenderEvents {
 
         bufferSource.endBatch(RenderType.lines());
 
-        // Render faces if shader is off
-        if(!BuildingJournalConfig.USE_BLUEPRINT_SHADER.get()) {
+        // Render faces if shader is off or incompatible
+        if(renderFaces) {
             VertexConsumer faceConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(dummyLocation));
             if(held.hasTag()) {
                 ListTag boxes = held.getTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
@@ -163,6 +175,8 @@ public class ClientRenderEvents {
 
         boolean applyShaderEffects = BuildersCompass.currentHoldingCompass(mc.player);
 
+        // MultiPostChain call. Basically exactly the same as PostChain but hardcoded so it applies over existing post effects.
+        // This 100% becomes redundant in later mc versions
         if(applyShaderEffects && multiPostChain == null) {
             try {
             multiPostChain = new MultiPostChain(mc.getResourceManager(), mc.getMainRenderTarget());
@@ -273,6 +287,7 @@ public class ClientRenderEvents {
         RenderSystem.polygonOffset(-1.0f, -1.0f);
         RenderSystem.enablePolygonOffset();
 
+        // Actually draw the shader now that the mask has been fully built, see resources/assets/buildingjournal/shaders/program
         RenderSystem.disableCull();
         BufferUploader.drawWithShader(builder.end());
         RenderSystem.enableCull();

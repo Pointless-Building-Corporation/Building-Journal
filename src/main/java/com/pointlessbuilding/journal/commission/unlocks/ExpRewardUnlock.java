@@ -12,6 +12,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
+@SuppressWarnings("removal")
 public class ExpRewardUnlock implements CommissionUnlock{
 
     public static enum ExpType { POINTS, LEVELS };

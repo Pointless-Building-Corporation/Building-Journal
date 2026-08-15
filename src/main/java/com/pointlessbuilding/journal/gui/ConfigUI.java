@@ -1,5 +1,8 @@
 package com.pointlessbuilding.journal.gui;
 
+import java.util.Collection;
+import java.util.List;
+
 import com.pointlessbuilding.journal.BuildingJournalConfig;
 
 import net.minecraft.client.Minecraft;
@@ -7,9 +10,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public class ConfigUI extends Screen{
@@ -65,7 +69,7 @@ public class ConfigUI extends Screen{
     CycleButton<Boolean> useBlueprintShaderButton;
     Boolean useBlueprintShadervalue;
 
-    EditBox shaderVariantBox;
+    CycleButton<String> shaderVariantButton;
     String shaderVariantValue;
 
     private Screen parentScreen;
@@ -98,16 +102,25 @@ public class ConfigUI extends Screen{
         this.addRenderableWidget(useBlueprintShaderButton);
 
         shaderVariantValue = BuildingJournalConfig.SHADER_VARIANT.get();
-        shaderVariantBox = new EditBox(this.font, (int)(width * 0.9) - 200, starting_y + 8*(20 + vertical_padding), 200, 20, Component.literal("Shader Variant"));
-        shaderVariantBox.setValue(shaderVariantValue);
-        shaderVariantBox.setMaxLength(256);
-        shaderVariantBox.setResponder(str -> shaderVariantValue = str);
-        this.addRenderableWidget(shaderVariantBox);
-
+        shaderVariantButton = CycleButton.builder(Component::literal).withValues(getAvailableShaderVariants()).withInitialValue(shaderVariantValue)
+        .create((int)(width * 0.9) - 200, starting_y + 8*(20 + vertical_padding), 200, 20, Component.literal("Shader Variant"), (button, value) -> {
+            shaderVariantValue = value;
+        });
+        this.addRenderableWidget(shaderVariantButton);
     }
 
     private int labelY(int row) {
         return starting_y + row*(20 + vertical_padding) + (20 - this.font.lineHeight) / 2;
+    }
+
+    public static List<String> getAvailableShaderVariants() {
+        ResourceManager rm = Minecraft.getInstance().getResourceManager();
+        Collection<ResourceLocation> found = rm.listResources("shaders/program/shader_variants", name -> name.getPath().endsWith(".json")).keySet();
+        return found.stream().map(rl -> {
+            String path = rl.getPath();
+            String fileName = path.substring(path.lastIndexOf('/') + 1);
+            return fileName.substring(0, fileName.length() - ".json".length());
+        }).sorted().toList();
     }
 
     @Override

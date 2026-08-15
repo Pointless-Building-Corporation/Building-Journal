@@ -3,6 +3,7 @@ package com.pointlessbuilding.journal.network.packets;
 import java.time.LocalDate;
 import java.util.function.Supplier;
 
+import com.pointlessbuilding.journal.commission.CommissionCompleteTrigger;
 import com.pointlessbuilding.journal.commission.CommissionProgress;
 import com.pointlessbuilding.journal.commission.CommissionUnlock;
 import com.pointlessbuilding.journal.menu.CommissionContainer;
@@ -48,6 +49,8 @@ public class CommissionSubmitPacket {
 
                 if (progress.isCompleted(commissionId)) return;
                 progress.markCompleted(commissionId);
+
+                CommissionCompleteTrigger.INSTANCE.trigger(player);
 
                 for (CommissionUnlock unlock : container.getUnlocks()) {
                     unlock.apply(player);

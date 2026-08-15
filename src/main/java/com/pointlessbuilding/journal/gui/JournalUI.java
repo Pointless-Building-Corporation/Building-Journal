@@ -32,7 +32,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-
+@SuppressWarnings("removal")
 public class JournalUI extends Screen {
 
     public static List<ResourceLocation> JOURNAL_PAGES = Arrays.asList(
@@ -319,6 +319,7 @@ public class JournalUI extends Screen {
 
         for (CommissionCard card: visibleCards) {
             card.visible = currentPage == 1;
+            card.updateCommissionPage(currentCommissionPage);
         }
     }
 

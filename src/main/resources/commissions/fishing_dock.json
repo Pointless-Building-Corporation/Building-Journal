@@ -9,5 +9,8 @@
         {"title": "Have the gangway be at least 10 blocks long.", "condition": "Length", "operator": ">", "threshold": 9, "failureDescription": "The dock is not long enough!"},
         {"title": "Wood is the best material for docks!", "condition": "BlockAdded", "blocks": ["#minecraft:planks", "#minecraft:logs"], "operator": ">", "threshold": 0, "failureDescription": "No wood logs or planks found!"},
         {"title": "Barrels help store fish!", "condition": "BlockAdded", "blocks": ["minecraft:barrel"], "operator": ">", "threshold": 0, "failureDescription": "No barrels found!"}
+    ],
+    "unlocks": [
+        {"unlock": "ExpReward", "expType": "Levels", "expAmount": 5}
     ]
 }

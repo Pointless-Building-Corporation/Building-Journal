@@ -27,6 +27,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+@SuppressWarnings("removal")
 @OnlyIn(Dist.CLIENT)
 public class MultiPostChain implements AutoCloseable{
 

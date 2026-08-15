@@ -1,0 +1,34 @@
+{
+	"display": {
+		"icon": {
+			"item": "buildingjournal:builders_compass"
+		},
+		"title": {
+			"translate": "advancements.buildingjournal.root"
+		},
+		"description": {
+			"translate": "advancements.buildingjournal.root.desc"
+		},
+		"background": "minecraft:textures/gui/advancements/backgrounds/adventure.png"
+	},
+	"criteria": {
+		"make_compass": {
+			"trigger": "minecraft:recipe_crafted",
+			"conditions": {
+				"recipe_id": "buildingjournal:builders_compass",
+				"ingredients": [
+					{
+						"items": [
+							"minecraft:stick",
+							"minecraft:stick",
+							"minecraft:iron_ingot"
+						]
+					}
+				]
+			}
+		}
+	},
+	"rewards": {
+		"experience": 10
+	}
+}

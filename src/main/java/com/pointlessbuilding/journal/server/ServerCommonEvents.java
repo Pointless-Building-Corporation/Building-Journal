@@ -22,6 +22,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+@SuppressWarnings("removal")
 @Mod.EventBusSubscriber(modid = BuildingJournal.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ServerCommonEvents {
     
@@ -30,7 +31,7 @@ public class ServerCommonEvents {
     @SubscribeEvent
     public static void onAdvancementEarned(AdvancementEvent.AdvancementEarnEvent event) {
         // Check if compass is unlocked
-        ResourceLocation compass_recipe = new ResourceLocation("buildingjournal:recipes/tools/builders_compass");
+        ResourceLocation compass_recipe = new ResourceLocation(BuildingJournal.MODID, "recipes/tools/builders_compass");
 
         if (event.getAdvancement().getId().equals(compass_recipe)) {
             Network.sendToClient(new JournalToastPacket(), (ServerPlayer) event.getEntity());

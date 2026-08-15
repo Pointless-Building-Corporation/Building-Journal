@@ -17,12 +17,13 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
+@SuppressWarnings("removal")
 public class CommissionCard extends AbstractWidget{
 
     private final String commissionId;
     private ResourceLocation thumbnail;
     private final CommissionState state;
-    private final int currentCommissionPage;
+    private int currentCommissionPage;
     private final boolean isDaily;
 
     private static final int frame_width = 128, frame_height = 88;
@@ -160,10 +161,16 @@ public class CommissionCard extends AbstractWidget{
         this.thumbnail = thumbnail;
     }
 
+    public void updateCommissionPage(int currentPage) {
+        this.currentCommissionPage = currentPage;
+    }
+
     @Override
     public void onClick(double mouseX, double mouseY) {
         super.onClick(mouseX, mouseY);
-        if(this.state != CommissionState.UNAVAILABLE) Network.sendToServer(new CommissionDetailPacket(commissionId, currentCommissionPage));
+        if(this.state != CommissionState.UNAVAILABLE) {
+            Network.sendToServer(new CommissionDetailPacket(commissionId, currentCommissionPage));
+        }
     }
 
     @Override

@@ -68,9 +68,10 @@ public class BiomeCondition implements CommissionCondition{
     }
     
     @Override
-    public String getTitle() {
-        if(title == null) {
-            String generatedTitle = "Must be built in one of " + biomes;
+    public String getTitle(boolean getDefault) {
+        if(title == null || getDefault) {
+            String generatedTitle = "Must be built in one of the following biomes: ";
+            generatedTitle += String.join(", ", biomes);
             return generatedTitle;
         }
         return title;
@@ -79,7 +80,7 @@ public class BiomeCondition implements CommissionCondition{
     @Override
     public String describeFailure(EvaluationResult result) {
         if(failureDescription == null) {
-            String generatedDesc = "Biome not present in build!";
+            String generatedDesc = "None of the biomes given are present in the build!";
             return generatedDesc;
         }
         else {
