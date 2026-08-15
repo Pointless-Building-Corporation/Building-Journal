@@ -9,5 +9,8 @@
         {"title": "Use the end stone everywhere to make bricks for the house! Use at least 100.", "condition": "BlockAdded", "blocks": ["minecraft:end_stone_bricks", "minecraft:end_stone_brick_stairs", "minecraft:end_stone_brick_slab", "minecraft:end_stone_brick_wall"], "operator": ">", "threshold": 99, "failureDescription": "Not enough end stone bricks used! Only {value} has been added."},
         {"title": "The chorus fruits give you purpur blocks! Add a 100 of those too.", "condition": "BlockAdded", "blocks": ["minecraft:purpur_block", "minecraft:purpur_pillar", "minecraft:purpur_slab", "minecraft:purpur_stairs"], "operator": ">", "threshold": 99, "failureDescription": "Not enough purpur blocks used! Only {value} has been added."},
         {"title": "Make some end rods for light!", "condition": "Whitelist", "blocks": ["minecraft:end_rod"], "failureDescription": "No end rods found!"}
+    ],
+    "unlocks": [
+        {"unlock": "ExpReward", "expType": "Levels", "expAmount": 10}
     ]
 }

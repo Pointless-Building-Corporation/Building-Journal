@@ -31,6 +31,16 @@ public class JournalLanguageProvider extends LanguageProvider{
         add(ConfigUI.CONFIG_UI_SHADER_VARIANT, "Blueprint Shader Variant");
         add(ConfigUI.CONFIG_UI_SHADER_VARIANT_DESC, "Which shader to use as the blueprint shader");
         
+        // Advancements
+        add("advancements.buildingjournal.root", "Building Journal");
+        add("advancements.buildingjournal.root.desc", "Crafting a compass. Not that kind of compass");
+        add("advancements.buildingjournal.basic_commissions", "Settle Down");
+        add("advancements.buildingjournal.basic_commissions.desc", "Complete the first three basic commissions");
+        add("advancements.buildingjournal.adv_commissions", "Ready to get Serious");
+        add("advancements.buildingjournal.adv_commissions.desc", "Complete the next three advanced commissions");
+        add("advancements.buildingjournal.end_commissions", "Building at the Last Respite");
+        add("advancements.buildingjournal.end_commissions.desc", "Complete the final commissions");
+
         // Toasts
         add(JournalToastPacket.JOURNAL_TOAST_TITLE, "Try out the Journal!");
         add(JournalToastPacket.JOURNAL_TOAST_DESC, "Open with %s");

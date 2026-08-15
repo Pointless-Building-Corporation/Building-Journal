@@ -1,0 +1,29 @@
+{
+	"display": {
+		"icon": {
+			"item": "buildingjournal:blueprint"
+		},
+		"title": {
+			"translate": "advancements.buildingjournal.basic_commissions"
+		},
+		"description": {
+			"translate": "advancements.buildingjournal.basic_commissions.desc"
+		}
+	},
+	"parent": "buildingjournal:root",
+	"criteria": {
+		"complete_basics": {
+			"trigger": "buildingjournal:commission_completed",
+			"conditions": {
+				"ids": [
+					"your_first_house",
+					"farmland",
+					"mineshaft_entrance"
+				]
+			}
+		}
+	},
+	"rewards": {
+		"experience": 100
+	}
+}

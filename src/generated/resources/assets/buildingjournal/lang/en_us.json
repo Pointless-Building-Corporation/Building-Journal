@@ -1,4 +1,12 @@
 {
+  "advancements.buildingjournal.adv_commissions": "Ready to get Serious",
+  "advancements.buildingjournal.adv_commissions.desc": "Complete the next three advanced commissions",
+  "advancements.buildingjournal.basic_commissions": "Settle Down",
+  "advancements.buildingjournal.basic_commissions.desc": "Complete the first three basic commissions",
+  "advancements.buildingjournal.end_commissions": "Building at the Last Respite",
+  "advancements.buildingjournal.end_commissions.desc": "Complete the final commissions",
+  "advancements.buildingjournal.root": "Building Journal",
+  "advancements.buildingjournal.root.desc": "Crafting a compass. Not that kind of compass",
   "block.buildingjournal.drafting_table": "Drafting Table",
   "item.buildingjournal.blueprint": "Blueprint",
   "item.buildingjournal.builders_compass": "Builder's Compass",

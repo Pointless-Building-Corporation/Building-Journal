@@ -15,5 +15,8 @@
         {"title": "Use minecart rails to travel around!",  "condition": "BlockAdded", "blocks": ["#minecraft:rails"], "operator": ">", "threshold": 0, "failureDescription": "No minecart tracks found!"},
         {"title": "Keep some furnaces for smelting ores down.",  "condition": "BlockAdded", "blocks": ["minecraft:furnace", "minecraft:blast_furnace"],
         "operator": ">", "threshold": 0, "failureDescription": "Place some furnaces down!"}
+    ],
+    "unlocks": [
+        {"unlock": "ExpReward", "expType": "Levels", "expAmount": 1}
     ]
 }

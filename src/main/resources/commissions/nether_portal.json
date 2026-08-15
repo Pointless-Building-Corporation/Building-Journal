@@ -9,5 +9,8 @@
         {"title": "That is at least 5 blocks tall,", "condition": "Tallness", "operator": ">", "threshold": 4, "failureDescription": "The portal is not tall enough!"},
         {"title": "And 4 blocks wide!", "condition": "Length", "operator": ">", "threshold": 3, "failureDescription": "The portal is not wide enough!"},
         {"title": "But don't just make the frame; Decorate, add walls! At least 100 blocks' worth.", "condition": "BlockModified", "operator": ">", "threshold": 99,  "failureDescription": "You haven't decorated enough! Only {value} blocks have been modified."}
+    ],
+    "unlocks": [
+        {"unlock": "ExpReward", "expType": "Levels", "expAmount": 5}
     ]
 }

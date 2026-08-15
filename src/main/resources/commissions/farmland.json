@@ -12,5 +12,8 @@
                    "minecraft:jack_o_lantern", "minecraft:sea_lantern", "minecraft:lantern", "minecraft:soul_lantern", "minecraft:redstone_lamp"],
         "operator": ">", "threshold": 0, "failureDescription": "Light up the farm!"},
         {"title": "A composter is helpful!",  "condition": "BlockAdded", "blocks": ["minecraft:composter"], "operator": ">", "threshold": 0, "failureDescription": "You need to place down a composter!"}
+    ],
+    "unlocks": [
+        {"unlock": "ExpReward", "expType": "Levels", "expAmount": 1}
     ]
 }

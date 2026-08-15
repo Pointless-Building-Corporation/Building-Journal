@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -61,6 +62,8 @@ public class CommissionLoader {
         }
     }
 
+    public static final String CURRENT_DEFAULT_COMMISSION_VERSION = "1";
+
     public static final Map<String, Function<JsonObject, CommissionCondition>> CONDITION_PARSERS = Map.ofEntries(
         Map.entry("BlockAdded", BlockAddedCondition::fromJson),
         Map.entry("BlockRemoved", BlockRemovedCondition::fromJson),
@@ -102,38 +105,51 @@ public class CommissionLoader {
     private static Map<String, String> rawUnlocksJson = new HashMap<>();
 
     public static void setup() {
-        if (!Files.exists(commissionsFolder)) {
-            try {
-                Files.createDirectories(commissionsFolder); 
-            }
-            catch(Exception e) {
-                BuildingJournal.LOGGER.error("Exception caught at commonSetup: {}", e);
-            }
-            
-            for (String filename: defaultCommissions) {
-                try (InputStream in = BuildingJournal.class.getResourceAsStream("/commissions/" + filename)) {
-                    if (in == null) {
-                        BuildingJournal.LOGGER.error("Missing file: {}", filename);
-                        continue;
-                    }
-                    Files.copy(in, commissionsFolder.resolve(filename));
-                }
-                catch (IOException e) {
-                    BuildingJournal.LOGGER.error("Failed to extract {}: Exception: {}", filename, e);
-                }
+        try {
+            Files.createDirectories(commissionsFolder); 
+        }
+        catch(Exception e) {
+            BuildingJournal.LOGGER.error("Exception caught at commonSetup: {}", e);
+            return;
+        }
 
-                String thumbnail = filename.replace(".json", ".png");
-                try (InputStream in = BuildingJournal.class.getResourceAsStream("/commissions/" + thumbnail)) {
-                    if (in == null) {
-                        BuildingJournal.LOGGER.error("Missing thumbnail for file: {}", thumbnail);
-                        continue;
-                    }
-                    Files.copy(in, commissionsFolder.resolve(thumbnail));
-                }
-                catch (IOException e) {
-                    BuildingJournal.LOGGER.error("Failed to extract {}: Exception: {}", thumbnail, e);
-                }
+        Path versionMarker = commissionsFolder.resolve(".bundled_version");
+        String installedVersion = null;
+        if(Files.exists(versionMarker)) {
+            try {
+                installedVersion = Files.readString(versionMarker).trim();
             }
+            catch(IOException e) {
+                BuildingJournal.LOGGER.error("Failed to read commission version marker: {}", e);
+            }
+        }
+
+        if(CURRENT_DEFAULT_COMMISSION_VERSION.equals(installedVersion)) return;
+        
+        for (String filename: defaultCommissions) {
+            extractThing("/commissions/" + filename, commissionsFolder.resolve(filename));
+            String thumbnail = filename.replace(".json", ".png");
+            extractThing("/commissions/" + thumbnail, commissionsFolder.resolve(thumbnail));
+        }
+
+        try {
+            Files.writeString(versionMarker, CURRENT_DEFAULT_COMMISSION_VERSION);
+        }
+        catch (IOException e) {
+            BuildingJournal.LOGGER.error("Failed to write commission version marker: {}", e);
+        }
+    }
+
+    private static void extractThing(String thingPath, Path target) {
+        try (InputStream in = BuildingJournal.class.getResourceAsStream(thingPath)) {
+            if (in == null) {
+                BuildingJournal.LOGGER.error("Missing file: {}", thingPath);
+                return;
+            }
+            Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+        }
+        catch (IOException e) {
+            BuildingJournal.LOGGER.error("Failed to extract {}: Exception: {}", thingPath, e);
         }
     }
 

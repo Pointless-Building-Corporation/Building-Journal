@@ -2,7 +2,6 @@ package com.pointlessbuilding.journal.gui;
 
 import javax.annotation.Nullable;
 
-import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.client.ClientCommonEvents;
 import com.pointlessbuilding.journal.commission.CommissionState;
 import com.pointlessbuilding.journal.network.Network;

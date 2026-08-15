@@ -9,5 +9,8 @@
         {"title": "Use at least 4 stacks of your own blocks to build it!", "condition": "BlockAdded", "operator": ">", "threshold": 255, "failureDescription": "You haven't added enough blocks, only added {value}!"},
         {"title": "Add a crafting table!", "condition": "BlockAdded", "blocks": ["minecraft:crafting_table"], "operator": ">", "threshold": 0, "failureDescription": "Missing a crafting table!"},
         {"title": "Add a bed!", "condition": "BlockAdded", "blocks": ["#minecraft:beds"], "operator": ">", "threshold": 0, "failureDescription": "No beds found!"}
+    ],
+    "unlocks": [
+        {"unlock": "ExpReward", "expType": "Levels", "expAmount": 1}
     ]
 }

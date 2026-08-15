@@ -1,0 +1,29 @@
+{
+	"display": {
+		"icon": {
+			"item": "buildingjournal:blueprint"
+		},
+		"title": {
+			"translate": "advancements.buildingjournal.adv_commissions"
+		},
+		"description": {
+			"translate": "advancements.buildingjournal.adv_commissions.desc"
+		}
+	},
+	"parent": "buildingjournal:basic_commissions",
+	"criteria": {
+		"complete_basics": {
+			"trigger": "buildingjournal:commission_completed",
+			"conditions": {
+				"ids": [
+					"smithy",
+					"fishing_dock",
+					"nether_portal"
+				]
+			}
+		}
+	},
+	"rewards": {
+		"experience": 500
+	}
+}
