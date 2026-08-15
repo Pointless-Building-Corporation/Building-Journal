@@ -25,6 +25,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.pointlessbuilding.journal.BuildingJournal;
+import com.pointlessbuilding.journal.api.BuildingJournalAPI;
 import com.pointlessbuilding.journal.commission.conditions.BiomeCondition;
 import com.pointlessbuilding.journal.commission.conditions.BlockAddedCondition;
 import com.pointlessbuilding.journal.commission.conditions.BlockModifiedCondition;
@@ -304,7 +305,7 @@ public class CommissionLoader {
 
     public static void refreshDailyCommission(ServerPlayer player) {
         if(loadedDaily == null || loadedDailyDate == null || !LocalDate.now().equals(loadedDailyDate)) {
-            loadedDaily = new DailyCommission(LocalDate.now(), player.getServer());
+            loadedDaily = BuildingJournalAPI.createDailyCommission(LocalDate.now(), player.getServer());
         }
     }
 
