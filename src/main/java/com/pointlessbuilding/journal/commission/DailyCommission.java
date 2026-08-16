@@ -245,6 +245,17 @@ public class DailyCommission {
         set.add("minecraft:big_dripleaf_stem");
         set.add("minecraft:small_dripleaf");
         
+        // Dead Coral fans for some reason are not in the corals block tag
+        set.add("minecraft:dead_tube_coral_fan");
+        set.add("minecraft:dead_brain_coral_fan");
+        set.add("minecraft:dead_bubble_coral_fan");
+        set.add("minecraft:dead_fire_coral_fan");
+        set.add("minecraft:dead_horn_coral_fan");
+        set.add("minecraft:dead_tube_coral_wall_fan");
+        set.add("minecraft:dead_brain_coral_wall_fan");
+        set.add("minecraft:dead_bubble_coral_wall_fan");
+        set.add("minecraft:dead_fire_coral_wall_fan");
+        set.add("minecraft:dead_horn_coral_wall_fan");
 
         // Some redstone functional blocks and rails
         set.add("minecraft:dispenser");
@@ -427,7 +438,7 @@ public class DailyCommission {
     private String genBlockAdded(String dimension, String biome) {
         boolean useBlocks = random.nextDouble() < 0.75;
         List<String> blocks = useBlocks ? pickBlocks(biome, 1 + random.nextInt(3), true) : new ArrayList<>();
-        String operator = random.nextBoolean() ? ">" : "<";
+        String operator = random.nextDouble() < 0.75 ? ">" : "<";
         long threshold = 20 + random.nextInt(181);
 
         String json = "{\"condition\":\"BlockAdded\",\"blocks\":[";

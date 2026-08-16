@@ -8,7 +8,10 @@ import com.pointlessbuilding.journal.commission.CommissionProgress;
 import com.pointlessbuilding.journal.commission.CommissionUnlock;
 import com.pointlessbuilding.journal.menu.CommissionContainer;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -57,6 +60,7 @@ public class CommissionSubmitPacket {
                 }
 
                 player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1f, 1f);
+                player.connection.send(new ClientboundSetTitleTextPacket(Component.literal("Commission Completed!").withStyle(ChatFormatting.GREEN)));
                 player.closeContainer();
             });
         });
