@@ -61,7 +61,6 @@ public class CommissionCompleteTrigger extends SimpleCriterionTrigger<Commission
 
             for(String id : ids) {
                 if(!completedComms.contains(id)) {
-                    BuildingJournal.LOGGER.info("{} not completed yet. False", id);
                     return false;
                 }
             }

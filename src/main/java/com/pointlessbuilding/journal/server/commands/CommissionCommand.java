@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -78,11 +77,14 @@ public class CommissionCommand {
             )
         );
 
+        /*
+        Command made for debug purposes
         commission.then(Commands.literal("dailyCommission")
             .then(Commands.argument("offset", IntegerArgumentType.integer())
                 .executes(ctx -> generateDailyCommissionCommand(ctx, IntegerArgumentType.getInteger(ctx, "offset"), ctx.getSource().getPlayerOrException()))
             )
         );
+        */
 
         return commission;
     }
@@ -127,6 +129,7 @@ public class CommissionCommand {
         return 1;
     }
 
+    @SuppressWarnings("unused")
     private static int generateDailyCommissionCommand(CommandContext<CommandSourceStack> ctx, int offset, ServerPlayer player) throws CommandSyntaxException {
         DailyCommission test = new DailyCommission(LocalDate.now().plusDays(offset), player.getServer());
 
