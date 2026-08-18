@@ -115,6 +115,8 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 // "optional", meaning it will not be pulled by dependents of this mod.
 configurations {
     runtimeClasspath.extendsFrom localRuntime
+    oculusCompile
+    compileOnly.extendsFrom oculusCompile
 }
 obfuscation {
     createRemappingConfiguration(configurations.localRuntime)
@@ -122,7 +124,7 @@ obfuscation {
 
 dependencies {
     compileOnly "org.jetbrains:annotations:24.0.0"
-    compileOnly "maven.modrinth:GchcoXML:iQ1SwGc3"
+    oculusCompile "maven.modrinth:GchcoXML:iQ1SwGc3"
 }
 
 // Uncomment the lines below if you wish to configure mixin. The mixin file should be named modid.mixins.json.

@@ -709,11 +709,16 @@ public class DailyCommission {
             && bounds.get("BlockModified")[0] > bounds.get("TotalVolume")[1])
             return true;
 
-        // Density and BlockModified/Volume must be congruent.
+        // Density and BlockModified/Volume must be congruent. Same with BlockAdded.
         if (bounds.containsKey("Density") && bounds.containsKey("BlockModified") && bounds.containsKey("TotalVolume"))
         {
             if(bounds.get("Density")[0] <= bounds.get("BlockModified")[0] / bounds.get("TotalVolume")[1]) return true;
             if(bounds.get("Density")[1] >= bounds.get("BlockModified")[1] / bounds.get("TotalVolume")[0]) return true;
+        }
+        if (bounds.containsKey("Density") && bounds.containsKey("BlockAdded") && bounds.containsKey("TotalVolume"))
+        {
+            if(bounds.get("Density")[0] <= bounds.get("BlockAdded")[0] / bounds.get("TotalVolume")[1]) return true;
+            if(bounds.get("Density")[1] >= bounds.get("BlockAdded")[1] / bounds.get("TotalVolume")[0]) return true;
         }
 
         // Tallness, Length and Volume must be congruent.

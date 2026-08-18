@@ -122,7 +122,8 @@ Checks the height of the structure.
 
 #### `TotalVolume`
 
-Checks the total volume of the structure.
+Checks the total volume of the structure. This calculated at the smallest cuboids within each marked boundary that encloses the modified blocks in the structure.
+Note that this means two different boundary markings of the same structure might change the total volume count of that structure.
 
 | Field | Type | Required | Description |
 |---|---|---|---|

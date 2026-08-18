@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import com.pointlessbuilding.journal.commission.CommissionCompleteTrigger;
 import com.pointlessbuilding.journal.commission.CommissionProgress;
 import com.pointlessbuilding.journal.commission.CommissionUnlock;
+import com.pointlessbuilding.journal.event.CommissionCompletedEvent;
 import com.pointlessbuilding.journal.menu.CommissionContainer;
 
 import net.minecraft.ChatFormatting;
@@ -15,6 +16,7 @@ import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkEvent;
 
 public class CommissionSubmitPacket {
@@ -61,6 +63,8 @@ public class CommissionSubmitPacket {
 
                 player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1f, 1f);
                 player.connection.send(new ClientboundSetTitleTextPacket(Component.literal("Commission Completed!").withStyle(ChatFormatting.GREEN)));
+                MinecraftForge.EVENT_BUS.post(new CommissionCompletedEvent(player, commissionId));
+
                 player.closeContainer();
             });
         });
