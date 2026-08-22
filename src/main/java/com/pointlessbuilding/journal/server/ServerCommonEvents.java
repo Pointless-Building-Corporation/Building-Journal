@@ -10,7 +10,6 @@ import com.pointlessbuilding.journal.network.packets.JournalToastPacket;
 import com.pointlessbuilding.journal.server.commands.BlueprintCommand;
 import com.pointlessbuilding.journal.server.commands.CommissionCommand;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -47,13 +46,17 @@ public class ServerCommonEvents {
     }
 
     @SubscribeEvent
-    public static void OnPlayerClone(PlayerEvent.Clone event) {
-        event.getOriginal().getCapability(CommissionProgress.COMMISSION_PROGRESS).ifPresent(oldCap -> {
-            CompoundTag tag = oldCap.serializeNBT();
+    public static void onPlayerClone(PlayerEvent.Clone event) {
+        ServerPlayer oldPlayer = (ServerPlayer) event.getOriginal();
+        oldPlayer.reviveCaps();
+
+        oldPlayer.getCapability(CommissionProgress.COMMISSION_PROGRESS).ifPresent(oldCap -> {
             event.getEntity().getCapability(CommissionProgress.COMMISSION_PROGRESS).ifPresent(newCap -> {
-                newCap.deserializeNBT(tag);
+                newCap.deserializeNBT(oldCap.serializeNBT());
             });
         });
+
+        oldPlayer.invalidateCaps();
     }
 
     @SubscribeEvent
