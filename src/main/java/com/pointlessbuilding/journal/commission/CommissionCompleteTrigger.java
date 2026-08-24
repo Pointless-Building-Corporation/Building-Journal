@@ -23,7 +23,7 @@ import net.minecraft.advancements.critereon.SerializationContext;
 @SuppressWarnings("removal")
 public class CommissionCompleteTrigger extends SimpleCriterionTrigger<CommissionCompleteTrigger.CommissionTriggerInstance>{
     public static final CommissionCompleteTrigger INSTANCE = new CommissionCompleteTrigger();
-    static final ResourceLocation ID = new ResourceLocation("buildingjournal:commission_completed");
+    static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "commission_completed");
 
     public CommissionCompleteTrigger() {
     }

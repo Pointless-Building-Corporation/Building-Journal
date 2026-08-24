@@ -25,11 +25,11 @@ import net.minecraft.world.entity.player.Inventory;
 @SuppressWarnings("removal")
 public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
 
-    private final ResourceLocation GUI = new ResourceLocation(BuildingJournal.MODID, "textures/gui/commission_ui.png");
-    private final ResourceLocation InventoryGUI = new ResourceLocation(BuildingJournal.MODID, "textures/gui/commission_ui_inventory.png");
-    private final ResourceLocation CheckboxGUI = new ResourceLocation(BuildingJournal.MODID, "textures/gui/checkbox.png");
-    private final ResourceLocation UnlockIcon = new ResourceLocation(BuildingJournal.MODID, "textures/gui/unlock_icon.png");
-    private final ResourceLocation DAILY_COMM_THUMBNAIL = new ResourceLocation("buildingjournal:textures/gui/daily_commission_thumbnail.png");
+    private final ResourceLocation GUI = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/commission_ui.png");
+    private final ResourceLocation InventoryGUI = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/commission_ui_inventory.png");
+    private final ResourceLocation CheckboxGUI = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/checkbox.png");
+    private final ResourceLocation UnlockIcon = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/unlock_icon.png");
+    private final ResourceLocation DAILY_COMM_THUMBNAIL = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/daily_commission_thumbnail.png");
     private static final String DAILY_PREFIX = "daily_";
 
     private static final int inv_width = 188, inv_height = 110;

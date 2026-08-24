@@ -21,6 +21,7 @@ import com.pointlessbuilding.journal.utility.BoundaryMath;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -38,7 +39,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class BlueprintEvaluator {
     
@@ -295,18 +295,18 @@ public class BlueprintEvaluator {
 
                             if(!liveAir && baseAir) {   // Added block
                                 isModified = true;
-                                String key = ForgeRegistries.BLOCKS.getKey(live.getBlock()).toString();
+                                String key = BuiltInRegistries.BLOCK.getKey(live.getBlock()).toString();
                                 counts.computeIfAbsent(key, k -> new long[2])[0]++;
                             }
                             else if(liveAir && !baseAir) {  //Removed block
                                 isModified = true;
-                                String key = ForgeRegistries.BLOCKS.getKey(baseline.getBlock()).toString();
+                                String key = BuiltInRegistries.BLOCK.getKey(baseline.getBlock()).toString();
                                 counts.computeIfAbsent(key, k -> new long[2])[1]++;
                             }
                             else if(!liveAir && !baseAir && live.getBlock() != baseline.getBlock()) {   //Replaced block
                                 isModified = true;
-                                String liveKey = ForgeRegistries.BLOCKS.getKey(live.getBlock()).toString();
-                                String baseKey = ForgeRegistries.BLOCKS.getKey(baseline.getBlock()).toString();
+                                String liveKey = BuiltInRegistries.BLOCK.getKey(live.getBlock()).toString();
+                                String baseKey = BuiltInRegistries.BLOCK.getKey(baseline.getBlock()).toString();
                                 counts.computeIfAbsent(liveKey, k -> new long[2])[0]++;
                                 counts.computeIfAbsent(baseKey, k -> new long[2])[1]++;
                             }

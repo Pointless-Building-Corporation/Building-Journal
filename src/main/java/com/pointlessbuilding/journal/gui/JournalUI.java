@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.client.ClientCommonEvents;
 import com.pointlessbuilding.journal.client.ClientSetup;
 import com.pointlessbuilding.journal.client.ClientTickEvents;
@@ -36,13 +37,13 @@ import net.minecraft.resources.ResourceLocation;
 public class JournalUI extends Screen {
 
     public static List<ResourceLocation> JOURNAL_PAGES = Arrays.asList(
-        new ResourceLocation("buildingjournal:textures/gui/journal_ui_guidebook.png"),
-        new ResourceLocation("buildingjournal:textures/gui/journal_ui_commscreen.png")
+        ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/journal_ui_guidebook.png"),
+        ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/journal_ui_commscreen.png")
     );
-    public static ResourceLocation JOURNAL_TABS = new ResourceLocation("buildingjournal:textures/gui/journal_page_tabs.png");
-    public static ResourceLocation JOURNAL_BOOKMARKS = new ResourceLocation("buildingjournal:textures/gui/journal_page_bookmarks.png");
-    public static ResourceLocation TEST_COMM_IMAGE = new ResourceLocation("buildingjournal:textures/gui/test.png");
-    public static ResourceLocation DAILY_COMM_THUMBNAIL = new ResourceLocation("buildingjournal:textures/gui/daily_commission_thumbnail.png");
+    public static ResourceLocation JOURNAL_TABS = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/journal_page_tabs.png");
+    public static ResourceLocation JOURNAL_BOOKMARKS = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/journal_page_bookmarks.png");
+    public static ResourceLocation TEST_COMM_IMAGE = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/test.png");
+    public static ResourceLocation DAILY_COMM_THUMBNAIL = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/daily_commission_thumbnail.png");
 
     private static final String DAILY_PREFIX = "daily_";
 

@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -33,7 +34,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
 
 @SuppressWarnings("removal")
 public class DailyCommission {
@@ -318,8 +318,8 @@ public class DailyCommission {
     private static final List<String> ALL_BLOCKS_ALLOWED;
     static {
         List<String> list = new ArrayList<>();
-        for (Block block : ForgeRegistries.BLOCKS.getValues()) {
-            String id = ForgeRegistries.BLOCKS.getKey(block).toString();
+        for (Block block : BuiltInRegistries.BLOCK) {
+            String id = BuiltInRegistries.BLOCK.getKey(block).toString();
             if (!BLOCK_BANLIST.contains(id)) {
                 list.add(id);
             }
@@ -401,8 +401,8 @@ public class DailyCommission {
 
     private static Set<String> resolveBlockTag(TagKey<Block> tag) {
         Set<String> result = new HashSet<>();
-        ForgeRegistries.BLOCKS.tags().getTag(tag).forEach(block ->
-            result.add(ForgeRegistries.BLOCKS.getKey(block).toString())
+        BuiltInRegistries.BLOCK.getOrCreateTag(tag).forEach(block ->
+            result.add(BuiltInRegistries.BLOCK.getKey(block.value()).toString())
         );
         return result;
     }
@@ -515,7 +515,7 @@ public class DailyCommission {
     }
 
     private String genElevation(String dimension, String biome) {
-        ResourceKey<Level> dimensionKey = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(dimension));
+        ResourceKey<Level> dimensionKey = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(dimension));
         int[] range = elevationRangeFor(dimensionKey);
         int lo = range[0] + 30;
         int hi = range[1] - 30;
@@ -734,7 +734,7 @@ public class DailyCommission {
 
         // Elevation and tallness must be congruent with the build heights.
         if (bounds.containsKey("Elevation") && bounds.containsKey("Tallness")) {
-            ResourceKey<Level> dimensionKey = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(dimension));
+            ResourceKey<Level> dimensionKey = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(dimension));
             int[] range = elevationRangeFor(dimensionKey);
             if(bounds.get("Elevation")[0] + bounds.get("Tallness")[0] < range[1]) return true;
             if(bounds.get("Elevation")[1] - bounds.get("Tallness")[0] < range[0]) return true;
@@ -747,7 +747,7 @@ public class DailyCommission {
     private void generate() {
         // Roll dimension
         String dimensionId = weightedChoice(DIMENSION_WEIGHTS);
-        ResourceKey<Level> dimensionKey = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(dimensionId));
+        ResourceKey<Level> dimensionKey = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(dimensionId));
 
         // Roll biome
         List<ResourceKey<Biome>> biomes = getBiomesForDimension(dimensionKey);

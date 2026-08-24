@@ -77,8 +77,7 @@ public class MultiPostChain implements AutoCloseable{
 }
 
     public void addPass(String programName) throws IOException {
-        programName = "buildingjournal:shader_variants/" + programName;
-        ResourceLocation candidate = new ResourceLocation(ResourceLocation.tryParse(programName).getNamespace(), "shaders/program/" + ResourceLocation.tryParse(programName).getPath() + ".json");
+        ResourceLocation candidate = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "shaders/program/shader_variants/" + programName + ".json");
 
         try {
             resourceManager.getResourceOrThrow(candidate);

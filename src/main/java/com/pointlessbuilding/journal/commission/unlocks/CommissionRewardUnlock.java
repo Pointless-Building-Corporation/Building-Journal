@@ -13,7 +13,7 @@ public class CommissionRewardUnlock implements CommissionUnlock{
 
     private final String title;
     private final String commissionId;
-    private static final ResourceLocation commissionIcon = new ResourceLocation(BuildingJournal.MODID, "textures/gui/unlocks/commission_unlock.png");
+    private static final ResourceLocation commissionIcon = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/unlocks/commission_unlock.png");
 
     public CommissionRewardUnlock(String title, String commissionId) {
         this.title = title;

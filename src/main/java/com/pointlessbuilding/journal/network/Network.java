@@ -24,7 +24,7 @@ public class Network {
 
     public static void init() {
         CHANNEL = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation(BuildingJournal.MODID, "main"),
+            ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "main"),
             () -> BuildingJournal.VERSION,
             BuildingJournal.VERSION::equals,
             BuildingJournal.VERSION::equals

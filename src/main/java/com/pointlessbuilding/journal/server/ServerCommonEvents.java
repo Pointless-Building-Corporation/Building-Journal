@@ -30,7 +30,7 @@ public class ServerCommonEvents {
     @SubscribeEvent
     public static void onAdvancementEarned(AdvancementEvent.AdvancementEarnEvent event) {
         // Check if compass is unlocked
-        ResourceLocation compass_recipe = new ResourceLocation(BuildingJournal.MODID, "recipes/tools/builders_compass");
+        ResourceLocation compass_recipe = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "recipes/tools/builders_compass");
 
         if (event.getAdvancement().getId().equals(compass_recipe)) {
             Network.sendToClient(new JournalToastPacket(), (ServerPlayer) event.getEntity());
@@ -41,7 +41,7 @@ public class ServerCommonEvents {
     @SubscribeEvent
     public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof Player) {
-            event.addCapability(new ResourceLocation(BuildingJournal.MODID, "commission_progress"), new CommissionProgress());
+            event.addCapability(ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "commission_progress"), new CommissionProgress());
         }
     }
 

@@ -25,7 +25,7 @@ import net.minecraft.world.item.ItemStack;
 @SuppressWarnings("removal")
 public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContainer>{
 
-    private final ResourceLocation GUI = new ResourceLocation(BuildingJournal.MODID, "textures/gui/drafting_table.png");
+    private final ResourceLocation GUI = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/drafting_table.png");
 
     public static final String DRAFTING_TABLE_NO_BOUNDARIES_LOADED = "screen.buildingjournal.drafting_table.no_boundaries";
     public static final String DRAFTING_TABLE_BOUNDARIES_COUNT = "screen.buildingjournal.drafting_table.boundaries_count";

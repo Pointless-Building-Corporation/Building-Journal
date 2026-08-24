@@ -48,7 +48,7 @@ public class ClientCommonEvents {
 
             NativeImage image = NativeImage.read(buffer);
             DynamicTexture texture = new DynamicTexture(image);
-            ResourceLocation location = new ResourceLocation(BuildingJournal.MODID, "commission_thumb_" + commission_id);
+            ResourceLocation location = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "commission_thumb_" + commission_id);
             Minecraft.getInstance().getTextureManager().register(location, texture);
             commissionThumbnails.put(commission_id, location);
             image.close();
