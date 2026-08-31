@@ -35,7 +35,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 
-@SuppressWarnings("removal")
 public class DailyCommission {
     
     private final LocalDate date;

@@ -10,10 +10,12 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 
-import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
+import com.pointlessbuilding.journal.Registration;
 import com.pointlessbuilding.journal.blocks.DraftingTableEntity;
 import com.pointlessbuilding.journal.items.Blueprint;
+import com.pointlessbuilding.journal.items.BoundaryData;
+import com.pointlessbuilding.journal.items.BoxData;
 import com.pointlessbuilding.journal.network.Network;
 import com.pointlessbuilding.journal.network.packets.BlueprintCompletePacket;
 import com.pointlessbuilding.journal.utility.BoundaryMath;
@@ -21,14 +23,11 @@ import com.pointlessbuilding.journal.utility.BoundaryMath;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ChunkResult;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -38,7 +37,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 
 public class BlueprintEvaluator {
     
@@ -61,7 +60,7 @@ public class BlueprintEvaluator {
         ItemStack compass = tableEntity.getItems().getStackInSlot(DraftingTableEntity.COMPASS_SLOT);
         tableEntity.setProcessing(true);
 
-        List<CompoundTag> boxes = filterBoxes(compass, dimension);
+        List<BoundaryData> boxes = filterBoxes(compass, dimension);
         if(boxes.isEmpty()) {
             LOGGER.warn("No boxes found for dimension " + dimension);
             Network.sendToClient(new BlueprintCompletePacket(pos), player);
@@ -73,7 +72,7 @@ public class BlueprintEvaluator {
 
         // Force load these chunks in the real level
         Set<ChunkPos> forcedChunks = new HashSet<>();
-        List<CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> futures = new ArrayList<>();
+        List<CompletableFuture<ChunkResult<ChunkAccess>>> futures = new ArrayList<>();
         for(ChunkPos chunk : diffChunks) {
             if (!level.hasChunk(chunk.x, chunk.z)) {
                 forcedChunks.add(chunk);
@@ -90,7 +89,7 @@ public class BlueprintEvaluator {
         );
 
         Set<ChunkPos> forcedFakeChunks = new HashSet<>();
-        List<CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> fakeFutures = new ArrayList<>();
+        List<CompletableFuture<ChunkResult<ChunkAccess>>> fakeFutures = new ArrayList<>();
         for (ChunkPos chunk : diffChunks) {
             if (!fakeLevel.hasChunk(chunk.x, chunk.z)) {
                 forcedFakeChunks.add(chunk);
@@ -135,34 +134,18 @@ public class BlueprintEvaluator {
                     // LOGGER.info("Back on main thread, writing blueprint");
 
                     // After diff calculation, take all the data and put it into the blueprint item
-                    ListTag blockCounts = new ListTag();
-                    for (Map.Entry<String, long[]> entry : finalCounts.entrySet()) {
-                        CompoundTag entryTag = new CompoundTag();
-                        entryTag.putString(Blueprint.TAG_BLOCK, entry.getKey());
-                        entryTag.putLong(Blueprint.TAG_ADDED, entry.getValue()[0]);
-                        entryTag.putLong(Blueprint.TAG_REMOVED, entry.getValue()[1]);
-                        blockCounts.add(entryTag);
-                    }
-
-                    ListTag boxesTag = new ListTag();
+                    List<BoxData> finalBoxes = new ArrayList<>();
                     for(int i = 0; i < finalBoxMins.size(); i++) {
                         int[] min = finalBoxMins.get(i);
                         int[] max = finalBoxMaxs.get(i);
-                        CompoundTag boxTag = new CompoundTag();
-                        boxTag.putIntArray("FirstPos", new int[]{min[0], min[1], min[2]});
-                        boxTag.putIntArray("SecondPos", new int[]{max[0], max[1], max[2]});
-                        boxesTag.add(boxTag);
-                    }
-
-                    ListTag biomesTag = new ListTag();
-                    for(String biome : finalBiomes) {
-                        biomesTag.add(StringTag.valueOf(biome));
+                        BoxData box = new BoxData(min, max);
+                        finalBoxes.add(box);
                     }
 
                     long unionVolume = BoundaryMath.unionVolume(finalBoxMins, finalBoxMaxs);
 
-                    ItemStack blueprintStack = Blueprint.create(name, dimension, biomesTag, boxesTag, blockCounts, finalModifiedCount, unionVolume);
-                    if(!(name.equals("Blueprint"))) blueprintStack.setHoverName(Component.literal(name));
+                    ItemStack blueprintStack = Blueprint.create(name, dimension, finalBiomes, finalBoxes, finalCounts, finalModifiedCount, unionVolume);
+                    if(!(name.equals("Blueprint"))) blueprintStack.set(DataComponents.CUSTOM_NAME, Component.literal(name));
 
                     if(!(level.getBlockEntity(pos) instanceof DraftingTableEntity table)) {
                         LOGGER.warn("DraftingTableEntity no longer exists at " + pos);
@@ -192,28 +175,27 @@ public class BlueprintEvaluator {
         return true;
     }
 
-    private static List<CompoundTag> filterBoxes(ItemStack compass, String dimension) {
-        ListTag boxes = compass.getOrCreateTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
-        List<CompoundTag> filtered = new ArrayList<>();
+    private static List<BoundaryData> filterBoxes(ItemStack compass, String dimension) {
+        List<BoundaryData> boxes = compass.get(Registration.COMPASS_DATA.get()).storedBoxes();
+        List<BoundaryData> filtered = new ArrayList<>();
         for(int i = 0; i < boxes.size(); i++) {
-            CompoundTag box = boxes.getCompound(i);
-            if(box.getString("Dimension").equals(dimension)) filtered.add(box);
+            if(boxes.get(i).dimension().equals(dimension)) filtered.add(boxes.get(i));
         }
         return filtered;
     }
 
-    private static Set<ChunkPos> getRequiredChunks(List<CompoundTag> boxes, int border) {
+    private static Set<ChunkPos> getRequiredChunks(List<BoundaryData> boxes, int border) {
         Set<ChunkPos> loaded = new HashSet<>();
         
-        for(CompoundTag box : boxes) {
-            int[] first = box.getIntArray("FirstPos");
-            int[] second = box.getIntArray("SecondPos");
+        for(BoundaryData box : boxes) {
+            BlockPos first = box.firstPos();
+            BlockPos second = box.secondPos();
 
             // Get chunk coord
-            int minX = (Math.min(first[0], second[0]) >> 4) - border;
-            int minZ = (Math.min(first[2], second[2]) >> 4) - border;
-            int maxX = (Math.max(first[0], second[0]) >> 4) + border;
-            int maxZ = (Math.max(first[2], second[2]) >> 4) + border;
+            int minX = (Math.min(first.getX(), second.getX()) >> 4) - border;
+            int minZ = (Math.min(first.getZ(), second.getZ()) >> 4) - border;
+            int maxX = (Math.max(first.getX(), second.getX()) >> 4) + border;
+            int maxZ = (Math.max(first.getZ(), second.getZ()) >> 4) + border;
             
             for(int cx = minX; cx <= maxX; cx++) {
                 for(int cz = minZ; cz <= maxZ; cz++) {
@@ -233,7 +215,7 @@ public class BlueprintEvaluator {
 
     private record DiffResult(Map<String, long[]> counts, List<int[]> boxMins, List<int[]> boxMaxs, long modifiedCount, Set<ResourceKey<Biome>> biomes) {}
 
-    private static DiffResult computeDiff(ServerLevel level, ServerLevel fakeLevel, List<CompoundTag> boxes, Set<ChunkPos> diffChunks, Map<ChunkPos, ChunkAccess> chunkCache) {
+    private static DiffResult computeDiff(ServerLevel level, ServerLevel fakeLevel, List<BoundaryData> boxes, Set<ChunkPos> diffChunks, Map<ChunkPos, ChunkAccess> chunkCache) {
 
         List<int[]> mins = new ArrayList<>();
         List<int[]> maxs = new ArrayList<>();
@@ -245,11 +227,11 @@ public class BlueprintEvaluator {
 
         long modifiedCount = 0;
 
-        for(CompoundTag box : boxes) {
-            int[] first = box.getIntArray("FirstPos");
-            int[] second = box.getIntArray("SecondPos");
-            mins.add(new int[]{Math.min(first[0],second[0]), Math.min(first[1],second[1]), Math.min(first[2],second[2])});
-            maxs.add(new int[]{Math.max(first[0],second[0]), Math.max(first[1],second[1]), Math.max(first[2],second[2])});
+        for(BoundaryData box : boxes) {
+            BlockPos first = box.firstPos();
+            BlockPos second = box.secondPos();
+            mins.add(new int[]{Math.min(first.getX(),second.getX()), Math.min(first.getY(),second.getY()), Math.min(first.getZ(),second.getZ())});
+            maxs.add(new int[]{Math.max(first.getX(),second.getX()), Math.max(first.getY(),second.getY()), Math.max(first.getZ(),second.getZ())});
 
             diffMins.add(null);
             diffMaxs.add(null);

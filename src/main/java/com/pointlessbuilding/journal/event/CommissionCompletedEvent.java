@@ -1,7 +1,7 @@
 package com.pointlessbuilding.journal.event;
 
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 
 public class CommissionCompletedEvent extends Event{
     

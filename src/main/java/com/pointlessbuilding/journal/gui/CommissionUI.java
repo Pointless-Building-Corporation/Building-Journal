@@ -22,7 +22,6 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
-@SuppressWarnings("removal")
 public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
 
     private final ResourceLocation GUI = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/commission_ui.png");
@@ -108,7 +107,7 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         flex();
-        renderBackground(guiGraphics);
+        //renderBackground(guiGraphics, mouseX, mouseY, partialTick);
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -269,22 +268,22 @@ public class CommissionUI extends AbstractContainerScreen<CommissionContainer>{
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         // Conditions
         if (mouseX >= scaledConditionsX && mouseX < scaledConditionsX + scaledConditionsWidth && 
             mouseY >= scaledConditionsY && mouseY < scaledConditionsY + scaledConditionsHeight) {
-            scroll_offset = Mth.clamp(scroll_offset - (int) delta * scroll_speed, 0, maxScroll);
+            scroll_offset = Mth.clamp(scroll_offset - (int) scrollY * scroll_speed, 0, maxScroll);
             return true;
         }
 
         // Unlocks
         if (mouseX >= scaledUnlocksX && mouseX < scaledUnlocksX + scaledUnlocksWidth && 
             mouseY >= scaledUnlocksY && mouseY < scaledUnlocksY + scaledUnlocksHeight) {
-            unlock_scroll_offset = Mth.clamp(unlock_scroll_offset - (int)(delta * unlock_scroll_speed), 0, unlockMaxScroll);
+            unlock_scroll_offset = Mth.clamp(unlock_scroll_offset - (int)(scrollY * unlock_scroll_speed), 0, unlockMaxScroll);
             return true;
         }
 
-        return super.mouseScrolled(mouseX, mouseY, delta);
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     protected void renderScaledText(GuiGraphics guiGraphics, Component text, int x, int y, float scale) {

@@ -33,7 +33,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-@SuppressWarnings("removal")
 public class JournalUI extends Screen {
 
     public static List<ResourceLocation> JOURNAL_PAGES = Arrays.asList(
@@ -209,7 +208,7 @@ public class JournalUI extends Screen {
 
     @Override
     protected void init() {
-        Network.sendToServer(new RequestCardCommissionsPacket());
+        Network.sendToServer(RequestCardCommissionsPacket.INSTANCE);
         allCardData = ClientCommonEvents.getCards();
 
         flex();
@@ -224,7 +223,7 @@ public class JournalUI extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
+        //this.renderMenuBackground(guiGraphics);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         guiGraphics.blit(JOURNAL_PAGES.get(currentPage), x_offset, y_offset, 0, 0, ui_width, ui_height, ui_width, ui_height);

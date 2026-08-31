@@ -1,16 +1,16 @@
 package com.pointlessbuilding.journal;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class BuildingJournalConfig {
 
-    public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec SPEC;
+    public static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+    public static final ModConfigSpec SPEC;
 
-    public static final ForgeConfigSpec.IntValue MAX_BOXES;
-    public static final ForgeConfigSpec.IntValue MAX_BOX_SIZE;
-    public static final ForgeConfigSpec.BooleanValue USE_BLUEPRINT_SHADER;
-    public static final ForgeConfigSpec.ConfigValue<String> SHADER_VARIANT;
+    public static final ModConfigSpec.IntValue MAX_BOXES;
+    public static final ModConfigSpec.IntValue MAX_BOX_SIZE;
+    public static final ModConfigSpec.BooleanValue USE_BLUEPRINT_SHADER;
+    public static final ModConfigSpec.ConfigValue<String> SHADER_VARIANT;
     
     static {
         BUILDER.comment("Builder's Compass Settings");

@@ -1,9 +1,11 @@
 package com.pointlessbuilding.journal.client;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.joml.Vector3d;
 import org.joml.Vector4d;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL30;
 import org.slf4j.Logger;
 
@@ -19,7 +21,10 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.logging.LogUtils;
 import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.BuildingJournalConfig;
+import com.pointlessbuilding.journal.Registration;
+import com.pointlessbuilding.journal.items.BoundaryData;
 import com.pointlessbuilding.journal.items.BuildersCompass;
+import com.pointlessbuilding.journal.items.CompassData;
 import com.pointlessbuilding.journal.utility.BoundaryRenderer;
 import com.pointlessbuilding.journal.utility.MultiPostChain;
 
@@ -29,9 +34,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -42,10 +44,9 @@ import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 
-@SuppressWarnings("removal")
-@Mod.EventBusSubscriber(modid = BuildingJournal.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+@EventBusSubscriber(modid = BuildingJournal.MODID, value = Dist.CLIENT)
 public class ClientRenderEvents {
     
     public static final Logger LOGGER = LogUtils.getLogger();
@@ -106,25 +107,25 @@ public class ClientRenderEvents {
         Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
 
         // Start of draw logic
-        Vector3d firstPos = null;
-        Vector3d secondPos = null;
-        int[] first, second;
-        if(held.hasTag() && held.getTag().getBoolean("Active")){
-            first = held.getTag().getIntArray("FirstPos");
-            firstPos = new Vector3d(first[0], first[1], first[2]);
+        CompassData data = held.getOrDefault(Registration.COMPASS_DATA.get(), CompassData.EMPTY);
+        Vector3f firstPos = null;
+        Vector3f secondPos = null;
+        BlockPos first, second;
+        if(data.active()){
+            first = data.firstPos();
+            firstPos = new Vector3f(first.getX(), first.getY(), first.getZ());
         }
         else if(Minecraft.getInstance().hitResult instanceof BlockHitResult result) {
-            BlockPos p = result.getBlockPos();
-            first = new int[]{p.getX(), p.getY(), p.getZ()};
-            firstPos = new Vector3d(first[0], first[1], first[2]);
+            first = result.getBlockPos();
+            firstPos = new Vector3f(first.getX(), first.getY(), first.getZ());
         }
         
-        if(Minecraft.getInstance().hitResult instanceof BlockHitResult blockHit && held.hasTag() && held.getTag().getBoolean("Active")) {
-            secondPos = new Vector3d(blockHit.getBlockPos().getX(), blockHit.getBlockPos().getY(), blockHit.getBlockPos().getZ());
-            double clampedX = firstPos.x + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.x - firstPos.x));
-            double clampedY = firstPos.y + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.y - firstPos.y));
-            double clampedZ = firstPos.z + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.z - firstPos.z));
-            secondPos = new Vector3d(clampedX, clampedY, clampedZ);
+        if(Minecraft.getInstance().hitResult instanceof BlockHitResult blockHit && data.active()) {
+            secondPos = new Vector3f(blockHit.getBlockPos().getX(), blockHit.getBlockPos().getY(), blockHit.getBlockPos().getZ());
+            float clampedX = firstPos.x + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.x - firstPos.x));
+            float clampedY = firstPos.y + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.y - firstPos.y));
+            float clampedZ = firstPos.z + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.z - firstPos.z));
+            secondPos = new Vector3f(clampedX, clampedY, clampedZ);
         }
         else {
             secondPos = firstPos;
@@ -135,17 +136,14 @@ public class ClientRenderEvents {
             BoundaryRenderer.renderCuboid(ms, lineConsumer, camera, firstPos, secondPos, new Vector4d(17,131,165,255));
         }
 
-        if(held.hasTag()) {
-            ListTag boxes = held.getTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
-            for(int i = 0; i < boxes.size(); i++) {
-                CompoundTag box = boxes.getCompound(i);
-                if(!box.getString("Dimension").equals(Minecraft.getInstance().level.dimension().location().toString())) continue;
-                first = box.getIntArray("FirstPos");
-                second = box.getIntArray("SecondPos");
-                firstPos = new Vector3d(first[0], first[1], first[2]);
-                secondPos = new Vector3d(second[0], second[1], second[2]);
-                BoundaryRenderer.renderCuboid(ms, lineConsumer, camera, firstPos, secondPos, new Vector4d(17,131,165,255));
-            }
+        List<BoundaryData> boxes = new ArrayList<>(data.storedBoxes());
+        for(int i = 0; i < boxes.size(); i++) {
+            if(!boxes.get(i).dimension().equals(Minecraft.getInstance().level.dimension().location().toString())) continue;
+            first = boxes.get(i).firstPos();
+            second = boxes.get(i).secondPos();
+            firstPos = new Vector3f(first.getX(), first.getY(), first.getZ());
+            secondPos = new Vector3f(second.getX(), second.getY(), second.getZ());
+            BoundaryRenderer.renderCuboid(ms, lineConsumer, camera, firstPos, secondPos, new Vector4d(17,131,165,255));
         }
 
         bufferSource.endBatch(RenderType.lines());
@@ -153,17 +151,14 @@ public class ClientRenderEvents {
         // Render faces if shader is off or incompatible
         if(renderFaces) {
             VertexConsumer faceConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(dummyLocation));
-            if(held.hasTag()) {
-                ListTag boxes = held.getTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
-                for(int i = 0; i < boxes.size(); i++) {
-                    CompoundTag box = boxes.getCompound(i);
-                    if(!box.getString("Dimension").equals(Minecraft.getInstance().level.dimension().location().toString())) continue;
-                    first = box.getIntArray("FirstPos");
-                    second = box.getIntArray("SecondPos");
-                    firstPos = new Vector3d(first[0], first[1], first[2]);
-                    secondPos = new Vector3d(second[0], second[1], second[2]);
-                    BoundaryRenderer.renderCuboidFaces(ms, faceConsumer, camera, firstPos, secondPos, new Vector4d(93,215,251,128), true);
-                }
+            boxes = new ArrayList<>(data.storedBoxes());
+            for(int i = 0; i < boxes.size(); i++) {
+                if(!boxes.get(i).dimension().equals(Minecraft.getInstance().level.dimension().location().toString())) continue;
+                first = boxes.get(i).firstPos();
+                second = boxes.get(i).secondPos();
+                firstPos = new Vector3f(first.getX(), first.getY(), first.getZ());
+                secondPos = new Vector3f(second.getX(), second.getY(), second.getZ());
+                BoundaryRenderer.renderCuboidFaces(ms, faceConsumer, camera, firstPos, secondPos, new Vector4d(93,215,251,128), true);
             }
             bufferSource.endBatch(RenderType.entityTranslucent(dummyLocation));
         }
@@ -227,49 +222,45 @@ public class ClientRenderEvents {
         if(!(held.getItem() instanceof BuildersCompass)) held = mc.player.getOffhandItem();
 
         // Start of draw logic
-        Vector3d firstPos = null;
-        Vector3d secondPos = null;
-        int[] first, second;
-        if(held.hasTag() && held.getTag().getBoolean("Active")){
-            first = held.getTag().getIntArray("FirstPos");
-            firstPos = new Vector3d(first[0], first[1], first[2]);
+        CompassData data = held.getOrDefault(Registration.COMPASS_DATA.get(), CompassData.EMPTY);
+        Vector3f firstPos = null;
+        Vector3f secondPos = null;
+        BlockPos first, second;
+        if(data.active()){
+            first = data.firstPos();
+            firstPos = new Vector3f(first.getX(), first.getY(), first.getZ());
         }
         else if(Minecraft.getInstance().hitResult instanceof BlockHitResult result) {
-            BlockPos p = result.getBlockPos();
-            first = new int[]{p.getX(), p.getY(), p.getZ()};
-            firstPos = new Vector3d(first[0], first[1], first[2]);
+            first = result.getBlockPos();
+            firstPos = new Vector3f(first.getX(), first.getY(), first.getZ());
         }
         
-        if(Minecraft.getInstance().hitResult instanceof BlockHitResult blockHit && held.hasTag() && held.getTag().getBoolean("Active")) {
-            secondPos = new Vector3d(blockHit.getBlockPos().getX(), blockHit.getBlockPos().getY(), blockHit.getBlockPos().getZ());
-            double clampedX = firstPos.x + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.x - firstPos.x));
-            double clampedY = firstPos.y + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.y - firstPos.y));
-            double clampedZ = firstPos.z + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.z - firstPos.z));
-            secondPos = new Vector3d(clampedX, clampedY, clampedZ);
+        if(Minecraft.getInstance().hitResult instanceof BlockHitResult blockHit && data.active()) {
+            secondPos = new Vector3f(blockHit.getBlockPos().getX(), blockHit.getBlockPos().getY(), blockHit.getBlockPos().getZ());
+            float clampedX = firstPos.x + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.x - firstPos.x));
+            float clampedY = firstPos.y + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.y - firstPos.y));
+            float clampedZ = firstPos.z + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), secondPos.z - firstPos.z));
+            secondPos = new Vector3f(clampedX, clampedY, clampedZ);
         }
         else {
             secondPos = firstPos;
         }
 
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         if(firstPos != null) {
             BoundaryRenderer.renderCuboidFaces(ms, builder, camera, firstPos, secondPos, new Vector4d(255,255,255,255), false);
         }
 
         //Render existing boundaries
-        if(held.hasTag()) {
-            ListTag boxes = held.getTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
-            for(int i = 0; i < boxes.size(); i++) {
-                CompoundTag box = boxes.getCompound(i);
-                if(!box.getString("Dimension").equals(mc.level.dimension().location().toString())) continue;
-                first = box.getIntArray("FirstPos");
-                second = box.getIntArray("SecondPos");
-                firstPos = new Vector3d(first[0], first[1], first[2]);
-                secondPos = new Vector3d(second[0], second[1], second[2]);
-                BoundaryRenderer.renderCuboidFaces(ms, builder, camera, firstPos, secondPos, new Vector4d(255,255,255,255), false);
-            }
+        List<BoundaryData> boxes = new ArrayList<>(data.storedBoxes());
+        for(int i = 0; i < boxes.size(); i++) {
+            if(!boxes.get(i).dimension().equals(Minecraft.getInstance().level.dimension().location().toString())) continue;
+            first = boxes.get(i).firstPos();
+            second = boxes.get(i).secondPos();
+            firstPos = new Vector3f(first.getX(), first.getY(), first.getZ());
+            secondPos = new Vector3f(second.getX(), second.getY(), second.getZ());
+            BoundaryRenderer.renderCuboidFaces(ms, builder, camera, firstPos, secondPos, new Vector4d(255,255,255,255), false);
         }
 
         // Copy depth buffer from screen to mask
@@ -289,7 +280,7 @@ public class ClientRenderEvents {
 
         // Actually draw the shader now that the mask has been fully built, see resources/assets/buildingjournal/shaders/program
         RenderSystem.disableCull();
-        BufferUploader.drawWithShader(builder.end());
+        BufferUploader.drawWithShader(builder.buildOrThrow());
         RenderSystem.enableCull();
 
         RenderSystem.disablePolygonOffset();

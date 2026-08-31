@@ -9,7 +9,7 @@ import com.pointlessbuilding.journal.Registration;
 import com.pointlessbuilding.journal.items.BuildersCompass;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -18,11 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 public class DraftingTableEntity extends BlockEntity {
 
@@ -34,7 +30,6 @@ public class DraftingTableEntity extends BlockEntity {
     public static final int BLUEPRINT_SLOT = 1;
 
     private final ItemStackHandler items = createItemHandler();
-    private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> items);
     private boolean processing = false;
 
     public DraftingTableEntity(BlockPos pos, BlockState state) { 
@@ -42,45 +37,39 @@ public class DraftingTableEntity extends BlockEntity {
     }
 
     @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        itemHandler.invalidate();
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        saveClientData(tag, registries);
+    }
+
+    private void saveClientData(CompoundTag tag, HolderLookup.Provider registries) {
+        tag.put(ITEMS_TAG, items.serializeNBT(registries));
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        saveClientData(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        loadClientData(tag, registries);
     }
 
-    private void saveClientData(CompoundTag tag) {
-        tag.put(ITEMS_TAG, items.serializeNBT());
-    }
-
-    @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
-        loadClientData(tag);
-    }
-
-    private void loadClientData(CompoundTag tag) {
+    private void loadClientData(CompoundTag tag, HolderLookup.Provider registries) {
         if(tag.contains(ITEMS_TAG)) {
-            items.deserializeNBT(tag.getCompound(ITEMS_TAG));
+            items.deserializeNBT(registries, tag.getCompound(ITEMS_TAG));
         }
     }
 
     // These two overrides happen when chunk is loaded for the first time
 
     @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = super.getUpdateTag();
-        saveClientData(tag);
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag, registries);
         return tag;
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag) {
-        if(tag != null) loadClientData(tag);
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+        super.handleUpdateTag(tag, registries);
     }
 
     // These two overrides are called whenever block needs updating
@@ -92,9 +81,8 @@ public class DraftingTableEntity extends BlockEntity {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
-        CompoundTag tag = packet.getTag();
-        if(tag != null) loadClientData(tag);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
+        super.onDataPacket(net, packet, registries);
     }
 
     @Nonnull
@@ -142,18 +130,6 @@ public class DraftingTableEntity extends BlockEntity {
 
     public void setProcessing(boolean value) {
         processing = value;
-    }
-
-    // This is the Capability for this block.
-    @NotNull
-    @Override
-    public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return itemHandler.cast();
-        }
-        else {
-            return super.getCapability(cap, side);
-        }
     }
 
 }

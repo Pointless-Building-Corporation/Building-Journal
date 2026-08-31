@@ -24,10 +24,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.EffectInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
-@SuppressWarnings("removal")
 @OnlyIn(Dist.CLIENT)
 public class MultiPostChain implements AutoCloseable{
 
@@ -77,15 +76,18 @@ public class MultiPostChain implements AutoCloseable{
 }
 
     public void addPass(String programName) throws IOException {
-        ResourceLocation candidate = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "shaders/program/shader_variants/" + programName + ".json");
+        programName = "shader_variants/" + programName;
+        ResourceLocation candidate = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "shaders/program/" + programName + ".json");
 
         try {
             resourceManager.getResourceOrThrow(candidate);
         }
         catch(FileNotFoundException e) {
             BuildingJournal.LOGGER.warn("Shader variant '{}' not found, falling back to default", programName);
-            programName = "buildingjournal:shader_variants/blueprint_shader";
+            programName = "shader_variants/blueprint_shader";
         }
+
+        programName = "buildingjournal:" + programName;
 
         if(this.effect != null) this.effect.close();
         this.effect = new EffectInstance(this.resourceManager, programName);
@@ -126,13 +128,12 @@ public class MultiPostChain implements AutoCloseable{
         swapTarget.clear(Minecraft.ON_OSX);
         swapTarget.bindWrite(false);
         RenderSystem.depthFunc(519);
-        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-        bufferbuilder.vertex(0.0D, 0.0D, 500.0D).endVertex();
-        bufferbuilder.vertex((double)w, 0.0D, 500.0D).endVertex();
-        bufferbuilder.vertex((double)w, (double)h, 500.0D).endVertex();
-        bufferbuilder.vertex(0.0D, (double)h, 500.0D).endVertex();
-        BufferUploader.draw(bufferbuilder.end());
+        BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+        bufferbuilder.addVertex(0.0f, 0.0f, 500.0f);
+        bufferbuilder.addVertex(w, 0.0f, 500.0f);
+        bufferbuilder.addVertex(w, h, 500.0f);
+        bufferbuilder.addVertex(0.0f, h, 500.0f);
+        BufferUploader.draw(bufferbuilder.buildOrThrow());
         RenderSystem.depthFunc(515);
         this.effect.clear();
         swapTarget.unbindWrite();
@@ -153,12 +154,12 @@ public class MultiPostChain implements AutoCloseable{
 
         this.screenTarget.bindWrite(false);
         RenderSystem.depthFunc(519);
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-        bufferbuilder.vertex(0.0D, 0.0D, 500.0D).endVertex();
-        bufferbuilder.vertex((double)w2, 0.0D, 500.0D).endVertex();
-        bufferbuilder.vertex((double)w2, (double)h2, 500.0D).endVertex();
-        bufferbuilder.vertex(0.0D, (double)h2, 500.0D).endVertex();
-        BufferUploader.draw(bufferbuilder.end());
+        bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+        bufferbuilder.addVertex(0.0f, 0.0f, 500.0f);
+        bufferbuilder.addVertex(w2, 0.0f, 500.0f);
+        bufferbuilder.addVertex(w2, h2, 500.0f);
+        bufferbuilder.addVertex(0.0f, h2, 500.0f);
+        BufferUploader.draw(bufferbuilder.buildOrThrow());
         RenderSystem.depthFunc(515);
         this.blitEffect.clear();
         //this.screenTarget.unbindWrite();

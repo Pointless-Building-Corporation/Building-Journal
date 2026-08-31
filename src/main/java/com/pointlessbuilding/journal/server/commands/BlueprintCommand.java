@@ -1,16 +1,16 @@
 package com.pointlessbuilding.journal.server.commands;
 
+import java.util.List;
 import java.util.Map;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.pointlessbuilding.journal.items.Blueprint;
+import com.pointlessbuilding.journal.items.BoxData;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,23 +29,22 @@ public class BlueprintCommand {
         return blueprint;
     }
 
-    private static String formatBiomeList(ListTag list) {
+    private static String formatBiomeList(List<String> list) {
         if (list.isEmpty()) return "[]";
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
             if (i > 0) sb.append(", ");
-            sb.append(list.get(i).getAsString());
+            sb.append(list.get(i));
         }
         return sb.toString();
     }
 
-    private static String formatBoxesList(ListTag boxes) {
+    private static String formatBoxesList(List<BoxData> boxes) {
         if (boxes.isEmpty()) return "[]";
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < boxes.size(); i++) {
-            CompoundTag box = boxes.getCompound(i);
-            int[] first = box.getIntArray("FirstPos");
-            int[] second = box.getIntArray("SecondPos");
+            int[] first = boxes.get(i).firstPos();
+            int[] second = boxes.get(i).secondPos();
             if (i > 0) sb.append(",\n");
             sb.append("(").append(first[0]).append(", ").append(first[1]).append(", ").append(first[2]).append(")")
             .append(" -> ")

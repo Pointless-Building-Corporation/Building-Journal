@@ -5,9 +5,8 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
-import com.mojang.serialization.Lifecycle;
-
 import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.RegistrationInfo;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -49,7 +48,7 @@ public class FakeDimension {
         Registry<LevelStem> dimensionRegistry = server.registryAccess().registryOrThrow(Registries.LEVEL_STEM);
         if (dimensionRegistry instanceof MappedRegistry<LevelStem> writableRegistry) {
             writableRegistry.unfreeze();
-            writableRegistry.register(dimensionKey, dimension, Lifecycle.stable());
+            writableRegistry.register(dimensionKey, dimension, RegistrationInfo.BUILT_IN);
         } else {
             throw new IllegalStateException("Unable to register fake dimension " + dimensionKey.location() + ", registry not writable");
         }

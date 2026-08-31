@@ -1,12 +1,13 @@
 package com.pointlessbuilding.journal.datagen;
 
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 import com.pointlessbuilding.journal.Registration;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.ItemTags;
@@ -14,12 +15,12 @@ import net.minecraft.world.item.Items;
 
 public class JournalRecipes extends RecipeProvider{
 
-    public JournalRecipes(PackOutput output) {
-        super(output);
+    public JournalRecipes(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, lookupProvider);
     }
 
     @Override
-    protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
+    protected void buildRecipes(RecipeOutput output) {
         // The drafting table needs 4 planks, paper and a stick.
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, Registration.DRAFTING_TABLE.get())
             .pattern(" s ")
@@ -30,7 +31,7 @@ public class JournalRecipes extends RecipeProvider{
             .define('p', Items.PAPER)
             .unlockedBy("has_paper", InventoryChangeTrigger.TriggerInstance.hasItems(
                 ItemPredicate.Builder.item().of(Items.PAPER).build()))
-            .save(consumer);
+            .save(output);
 
         // The builder's compass needs 2 sticks and an iron ingot.
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Registration.BUILDERS_COMPASS.get())
@@ -41,7 +42,7 @@ public class JournalRecipes extends RecipeProvider{
             .define('i', Items.IRON_INGOT)
             .unlockedBy("has_iron", InventoryChangeTrigger.TriggerInstance.hasItems(
                 ItemPredicate.Builder.item().of(Items.IRON_INGOT).build()))
-            .save(consumer);
+            .save(output);
     }
     
 }

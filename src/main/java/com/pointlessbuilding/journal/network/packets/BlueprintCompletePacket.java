@@ -1,15 +1,17 @@
 package com.pointlessbuilding.journal.network.packets;
 
-import java.util.function.Supplier;
-
+import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.gui.DraftingTableUI;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public class BlueprintCompletePacket {
+public class BlueprintCompletePacket implements CustomPacketPayload{
 
     private final BlockPos pos;
 
@@ -17,22 +19,28 @@ public class BlueprintCompletePacket {
         this.pos = pos;
     }
 
-    public void encode(FriendlyByteBuf buf) {
-        buf.writeBlockPos(pos);
+    public static final Type<BlueprintCompletePacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "blueprint_complete_packet"));
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    public static BlueprintCompletePacket decode(FriendlyByteBuf buf) {
-        return new BlueprintCompletePacket(buf.readBlockPos());
+    public static final StreamCodec<RegistryFriendlyByteBuf, BlueprintCompletePacket> STREAM_CODEC = StreamCodec.composite(
+        BlockPos.STREAM_CODEC, BlueprintCompletePacket::getPos,
+        BlueprintCompletePacket::new
+    );
+
+    public BlockPos getPos() {
+        return pos;
     }
 
-    public void handle(Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(BlueprintCompletePacket packet, IPayloadContext ctx) {
         // DraftingTableEntity.LOGGER.info("BluePrintCompletePacket received");
-        ctx.get().enqueueWork(() -> {
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.screen instanceof DraftingTableUI ui) {
-                ui.onBlueprintComplete();
-            }
-        });
-        ctx.get().setPacketHandled(true);
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.screen instanceof DraftingTableUI ui) {
+            ui.onBlueprintComplete();
+        }
     }
+
 }

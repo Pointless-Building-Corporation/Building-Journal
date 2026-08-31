@@ -4,8 +4,8 @@ import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.Registration;
 
 import net.minecraft.data.PackOutput;
-import net.minecraftforge.client.model.generators.ItemModelProvider;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class JournalItemModels extends ItemModelProvider{
 
