@@ -14,13 +14,12 @@ import com.pointlessbuilding.journal.network.packets.RequestCardCommissionsPacke
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
-@SuppressWarnings("removal")
-@Mod.EventBusSubscriber(modid = BuildingJournal.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+@EventBusSubscriber(modid = BuildingJournal.MODID, value = Dist.CLIENT)
 public class ClientCommonEvents {
     
     private static List<CommissionCardData> commissionCardData;
@@ -48,7 +47,7 @@ public class ClientCommonEvents {
 
             NativeImage image = NativeImage.read(buffer);
             DynamicTexture texture = new DynamicTexture(image);
-            ResourceLocation location = new ResourceLocation(BuildingJournal.MODID, "commission_thumb_" + commission_id);
+            ResourceLocation location = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "commission_thumb_" + commission_id);
             Minecraft.getInstance().getTextureManager().register(location, texture);
             commissionThumbnails.put(commission_id, location);
             image.close();
@@ -97,7 +96,7 @@ public class ClientCommonEvents {
 
     @SubscribeEvent
     public static void onLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
-        Network.sendToServer(new RequestCardCommissionsPacket());
+        Network.sendToServer(RequestCardCommissionsPacket.INSTANCE);
         BuildingJournal.LOGGER.info("Updated Commission List.");
     }
 

@@ -9,7 +9,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -30,8 +29,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 public class DraftingTable extends Block implements EntityBlock {
     
@@ -90,7 +88,7 @@ public class DraftingTable extends Block implements EntityBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult trace) {
+    public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if(!level.isClientSide) {
             BlockEntity be = level.getBlockEntity(pos);
             if(be instanceof DraftingTableEntity) {
@@ -106,17 +104,17 @@ public class DraftingTable extends Block implements EntityBlock {
                         return Component.translatable(DRAFTING_TABLE_UI_TITLE);
                     }
                 };
-                NetworkHooks.openScreen((ServerPlayer) player, containerProvider, be.getBlockPos());
+                ServerPlayer serverPlayer = (ServerPlayer) player;
+                serverPlayer.openMenu(containerProvider, be.getBlockPos());
             }
             else {
                 throw new IllegalStateException("Drafting Table Container Entity missing!");
             }
         }
-        return InteractionResult.SUCCESS;
+        return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
     }
 
     // Apparently in this version even vanilla containers use this deprecated function. Keeping as is.
-    @SuppressWarnings("deprecation")
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if(!state.is(newState.getBlock())) {

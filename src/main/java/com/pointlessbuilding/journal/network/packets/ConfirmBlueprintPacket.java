@@ -1,15 +1,18 @@
 package com.pointlessbuilding.journal.network.packets;
 
-import java.util.function.Supplier;
-
+import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.server.BlueprintEvaluator;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public class ConfirmBlueprintPacket{
+public class ConfirmBlueprintPacket implements CustomPacketPayload{
     
     private final BlockPos pos;
     private final String name;
@@ -19,22 +22,31 @@ public class ConfirmBlueprintPacket{
         this.name = name;
     }
 
-    public void encode(FriendlyByteBuf buf) {
-        buf.writeBlockPos(pos);
-        buf.writeUtf(name);
+    public static final Type<ConfirmBlueprintPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "confirm_blueprint_packet"));
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    public static ConfirmBlueprintPacket decode(FriendlyByteBuf buf) {
-        return new ConfirmBlueprintPacket(buf.readBlockPos(), buf.readUtf());
+    public static final StreamCodec<RegistryFriendlyByteBuf, ConfirmBlueprintPacket> STREAM_CODEC = StreamCodec.composite(
+        BlockPos.STREAM_CODEC, ConfirmBlueprintPacket::getPos,
+        ByteBufCodecs.STRING_UTF8, ConfirmBlueprintPacket::getName,
+        ConfirmBlueprintPacket::new
+    );
+
+    public BlockPos getPos() {
+        return pos;
     }
 
-    public void handle(Supplier<NetworkEvent.Context> ctx) {
+    public String getName() {
+        return name;
+    }
+
+    public static void handle(ConfirmBlueprintPacket packet, IPayloadContext ctx) {
         // DraftingTableEntity.LOGGER.info("ConfirmBlueprintPacket received");
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer player = ctx.get().getSender();
-            BlueprintEvaluator.evaluate(player, pos, name);
-        });
-        ctx.get().setPacketHandled(true);
+        ServerPlayer player = (ServerPlayer) ctx.player();
+        BlueprintEvaluator.evaluate(player, packet.pos, packet.name);
     }
 
 }

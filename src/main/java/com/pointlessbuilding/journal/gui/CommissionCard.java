@@ -2,6 +2,7 @@ package com.pointlessbuilding.journal.gui;
 
 import javax.annotation.Nullable;
 
+import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.client.ClientCommonEvents;
 import com.pointlessbuilding.journal.commission.CommissionState;
 import com.pointlessbuilding.journal.network.Network;
@@ -17,7 +18,6 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-@SuppressWarnings("removal")
 public class CommissionCard extends AbstractWidget{
 
     private final String commissionId;
@@ -30,8 +30,8 @@ public class CommissionCard extends AbstractWidget{
     private static final int window_width = 122, window_height = 75;
     private static final int border_width = 3;
 
-    private static ResourceLocation COMMISSION_FRAME = new ResourceLocation("buildingjournal:textures/gui/commission_frame.png");
-    private static ResourceLocation COMMISSION_STATE_ICONS = new ResourceLocation("buildingjournal:textures/gui/commission_state_icons.png");
+    private static ResourceLocation COMMISSION_FRAME = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/commission_frame.png");
+    private static ResourceLocation COMMISSION_STATE_ICONS = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/commission_state_icons.png");
 
 
     public CommissionCard(String commissionId, Component title, @Nullable ResourceLocation thumbnail, CommissionState state, int currentCommissionPage, boolean isDaily) {
@@ -166,9 +166,9 @@ public class CommissionCard extends AbstractWidget{
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
-        super.onClick(mouseX, mouseY);
-        if(this.state != CommissionState.UNAVAILABLE) {
+    public void onClick(double mouseX, double mouseY, int button) {
+        super.onClick(mouseX, mouseY, button);
+        if(button == 0 && this.state != CommissionState.UNAVAILABLE) {
             Network.sendToServer(new CommissionDetailPacket(commissionId, currentCommissionPage));
         }
     }

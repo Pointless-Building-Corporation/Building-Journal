@@ -1,15 +1,11 @@
 package com.pointlessbuilding.journal.items;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import com.pointlessbuilding.journal.Registration;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -33,67 +29,51 @@ public class Blueprint extends Item{
         super(properties);
     }
     
-    public static ItemStack create(String name, String dimension, ListTag biome, ListTag boxes, ListTag blockCounts, long modifiedCount, long unionVolume) {
+    public static ItemStack create(String name, String dimension, List<String> biome, List<BoxData> boxes, Map<String, long[]> blockCounts, long modifiedCount, long unionVolume) {
         ItemStack stack = new ItemStack(Registration.BLUEPRINT.get());
-        CompoundTag tag = stack.getOrCreateTag();
-        tag.putString(TAG_NAME, name);
-        tag.putString(TAG_DIMENSION, dimension);
-        tag.put(TAG_BIOME, biome);
-        tag.put(TAG_BOXES, boxes);
-        tag.put(TAG_BLOCK_COUNTS, blockCounts);
-        tag.putLong(TAG_MODIFIED, modifiedCount);
-        tag.putLong(TAG_UNION_VOLUME, unionVolume);
-        tag.put(TAG_UUID, NbtUtils.createUUID(UUID.randomUUID()));
+        stack.set(Registration.BLUEPRINT_DATA.get(), 
+            new BlueprintData(name, dimension, biome, boxes, blockCounts, modifiedCount, unionVolume, UUID.randomUUID()));
         return stack;
     }
 
     public static String getBlueprintName(ItemStack stack) {
-        if (!stack.hasTag()) return "";
-        return stack.getTag().getString(TAG_NAME);
+        BlueprintData data = stack.get(Registration.BLUEPRINT_DATA.get());
+        return data == null ? "" : data.name();
     }
 
     public static String getDimension(ItemStack stack) {
-        if (!stack.hasTag()) return "";
-        return stack.getTag().getString(TAG_DIMENSION);
+        BlueprintData data = stack.get(Registration.BLUEPRINT_DATA.get());
+        return data == null ? "" : data.dimension();
     }
 
-    public static ListTag getBiome(ItemStack stack) {
-        if (!stack.hasTag()) return new ListTag();
-        return stack.getTag().getList(TAG_BIOME, Tag.TAG_STRING);
+    public static List<String> getBiome(ItemStack stack) {
+        BlueprintData data = stack.get(Registration.BLUEPRINT_DATA.get());
+        return data == null ? List.of() : data.biomes();
     }
 
-    public static ListTag getBoxes(ItemStack stack) {
-        if (!stack.hasTag()) return new ListTag();
-        return stack.getTag().getList(TAG_BOXES, Tag.TAG_COMPOUND);
+    public static List<BoxData> getBoxes(ItemStack stack) {
+        BlueprintData data = stack.get(Registration.BLUEPRINT_DATA.get());
+        return data == null ? List.of() : data.boxes();
     }
 
     public static Map<String, long[]> getBlockCounts(ItemStack stack) {
-        Map<String, long[]> result = new HashMap<>();
-        if(!stack.hasTag()) return result;
-        ListTag list = stack.getTag().getList(TAG_BLOCK_COUNTS, Tag.TAG_COMPOUND);
-        for(int i = 0; i < list.size(); i++) {
-            CompoundTag block = list.getCompound(i);
-            result.put(block.getString(TAG_BLOCK), new long[] {
-                block.getLong(TAG_ADDED),
-                block.getLong(TAG_REMOVED)
-            });
-        }
-        return result;
+        BlueprintData data = stack.get(Registration.BLUEPRINT_DATA.get());
+        return data == null ? Map.of() : data.blockCounts();
     }
 
     public static long getModifiedCount(ItemStack stack) {
-        if (!stack.hasTag()) return 0;
-        return stack.getTag().getLong(TAG_MODIFIED);
+        BlueprintData data = stack.get(Registration.BLUEPRINT_DATA.get());
+        return data == null ? 0 : data.modifiedCount();
     }
 
     public static long getUnionVolume(ItemStack stack) {
-        if (!stack.hasTag()) return 0;
-        return stack.getTag().getLong(TAG_UNION_VOLUME);
+        BlueprintData data = stack.get(Registration.BLUEPRINT_DATA.get());
+        return data == null ? 0 : data.unionVolume();
     }
 
     public static UUID getUUID(ItemStack stack) {
-        if (!stack.hasTag() || !stack.getTag().contains(TAG_UUID)) return null;
-        return NbtUtils.loadUUID(stack.getTag().get(TAG_UUID));
+        BlueprintData data = stack.get(Registration.BLUEPRINT_DATA.get());
+        return data == null ? null: data.uuid();
     }
 
 }

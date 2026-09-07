@@ -9,6 +9,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.pointlessbuilding.journal.Registration;
 import com.pointlessbuilding.journal.commission.Commission;
 import com.pointlessbuilding.journal.commission.CommissionLoader;
 import com.pointlessbuilding.journal.commission.CommissionProgress;
@@ -91,40 +92,34 @@ public class CommissionCommand {
 
     private static int completeCommissionCommand(CommandContext<CommandSourceStack> ctx, ServerPlayer player) throws CommandSyntaxException {
         String id = StringArgumentType.getString(ctx, "id");
-        player.getCapability(CommissionProgress.COMMISSION_PROGRESS)
-            .ifPresent(progress -> progress.markCompleted(id));
+        player.getData(Registration.COMMISSION_PROGRESS).markCompleted(id);
         ctx.getSource().sendSuccess(() -> Component.literal("Marked commission '" + id + "' as complete."), true);
         return 1;
     }
 
     private static int resetCommissionCommand(CommandContext<CommandSourceStack> ctx, ServerPlayer player) throws CommandSyntaxException {
         String id = StringArgumentType.getString(ctx, "id");
-        player.getCapability(CommissionProgress.COMMISSION_PROGRESS)
-            .ifPresent(progress -> progress.markIncomplete(id));
+        player.getData(Registration.COMMISSION_PROGRESS).markIncomplete(id);
         ctx.getSource().sendSuccess(() -> Component.literal("Marked commission '" + id + "' as incomplete."), true);
         return 1;
     }
 
     private static int resetAllCommissionsCommand(CommandContext<CommandSourceStack> ctx, ServerPlayer player) throws CommandSyntaxException {
-        player.getCapability(CommissionProgress.COMMISSION_PROGRESS)
-            .ifPresent(progress -> progress.markAllIncomplete());
+        player.getData(Registration.COMMISSION_PROGRESS).markAllIncomplete();
         ctx.getSource().sendSuccess(() -> Component.literal("Marked all commissions as incomplete."), true);
         return 1;
     }
 
     private static int showStreakProgressCommand(CommandContext<CommandSourceStack> ctx, ServerPlayer player) throws CommandSyntaxException {
         long today = LocalDate.now().toEpochDay();
-        player.getCapability(CommissionProgress.COMMISSION_PROGRESS)
-            .ifPresent(progress -> {
-                String formattedDay = progress.getLastCompletionDay() < 0 ? "Never" : LocalDate.ofEpochDay(progress.getLastCompletionDay()).format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
-                ctx.getSource().sendSuccess(() -> Component.literal("Current Streak: " + progress.getCurrentStreak(today) + "\nMax Streak: " + progress.getMaxStreak() + "\nLast Completion: " + formattedDay), true);
-            });
+        CommissionProgress progress = player.getData(Registration.COMMISSION_PROGRESS);
+        String formattedDay = progress.getLastCompletionDay() < 0 ? "Never" : LocalDate.ofEpochDay(progress.getLastCompletionDay()).format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
+        ctx.getSource().sendSuccess(() -> Component.literal("Current Streak: " + progress.getCurrentStreak(today) + "\nMax Streak: " + progress.getMaxStreak() + "\nLast Completion: " + formattedDay), true);
         return 1;
     }
 
     private static int resetStreakProgressCommand(CommandContext<CommandSourceStack> ctx, ServerPlayer player, boolean isHardReset) throws CommandSyntaxException {
-        player.getCapability(CommissionProgress.COMMISSION_PROGRESS)
-            .ifPresent(progress -> progress.resetStreak(isHardReset));
+        player.getData(Registration.COMMISSION_PROGRESS).resetStreak(isHardReset);
         ctx.getSource().sendSuccess(() -> Component.literal("Reset player streak."), true);
         return 1;
     }

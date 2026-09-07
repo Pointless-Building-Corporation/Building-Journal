@@ -5,7 +5,9 @@ import java.util.List;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.pointlessbuilding.journal.BuildingJournal;
+import com.pointlessbuilding.journal.Registration;
 import com.pointlessbuilding.journal.blocks.DraftingTableEntity;
+import com.pointlessbuilding.journal.items.BoundaryData;
 import com.pointlessbuilding.journal.menu.DraftingTableContainer;
 import com.pointlessbuilding.journal.network.Network;
 import com.pointlessbuilding.journal.network.packets.ConfirmBlueprintPacket;
@@ -14,18 +16,15 @@ import com.pointlessbuilding.journal.utility.BoundaryMath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
-@SuppressWarnings("removal")
 public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContainer>{
 
-    private final ResourceLocation GUI = new ResourceLocation(BuildingJournal.MODID, "textures/gui/drafting_table.png");
+    private final ResourceLocation GUI = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/drafting_table.png");
 
     public static final String DRAFTING_TABLE_NO_BOUNDARIES_LOADED = "screen.buildingjournal.drafting_table.no_boundaries";
     public static final String DRAFTING_TABLE_BOUNDARIES_COUNT = "screen.buildingjournal.drafting_table.boundaries_count";
@@ -64,20 +63,19 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
 
     private void updateCompassData() {
         ItemStack compass = menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem();
-        if(compass.isEmpty() || !compass.hasTag() || !compass.getTag().contains("StoredBoxes")) {
+        if(compass.isEmpty() || compass.get(Registration.COMPASS_DATA.get()) == null || compass.get(Registration.COMPASS_DATA.get()).storedBoxes().isEmpty()) {
             cachedBoxCount = 0;
             cachedTotalBlocks = 0;
             return;
         }
-        ListTag boxes = compass.getTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
+        List<BoundaryData> boxes = compass.get(Registration.COMPASS_DATA.get()).storedBoxes();
         cachedBoxCount = boxes.size();
         cachedTotalBlocks = 0;
         List<int[]> firsts = new ArrayList<>();
         List<int[]> seconds = new ArrayList<>();
         for(int i = 0; i < boxes.size(); i++) {
-            CompoundTag box = boxes.getCompound(i);
-            int[] first = box.getIntArray("FirstPos");
-            int[] second = box.getIntArray("SecondPos");
+            int[] first = {boxes.get(i).firstPos().getX(), boxes.get(i).firstPos().getY(), boxes.get(i).firstPos().getZ()};
+            int[] second = {boxes.get(i).secondPos().getX(), boxes.get(i).secondPos().getY(), boxes.get(i).secondPos().getZ()};
             firsts.add(first);
             seconds.add(second);
         }
@@ -102,7 +100,7 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
         nameField.setMaxLength(50);
         nameField.setBordered(false);
         this.setInitialFocus(nameField);
-        this.addWidget(nameField);
+        this.addRenderableWidget(nameField);
     }
 
     private void initConfirmButton() {
@@ -137,7 +135,7 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        renderBackground(guiGraphics);
+        //renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         int relX = (this.width - this.imageWidth) / 2;
         int relY = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(GUI, relX, relY, 0, 0, this.imageWidth, this.imageHeight, 512, 256);
@@ -162,7 +160,6 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
     @Override
     protected void containerTick() {
         super.containerTick();
-        nameField.tick();
 
         boolean hasCompass = !menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem().isEmpty();
         if (hasCompass != lastHasCompass) {
@@ -173,7 +170,7 @@ public class DraftingTableUI extends AbstractContainerScreen<DraftingTableContai
                 nameField.setValue("");
             } else {
                 ItemStack compass = menu.getSlot(DraftingTableEntity.COMPASS_SLOT).getItem();
-                if(compass.hasCustomHoverName()) {
+                if(compass.has(DataComponents.CUSTOM_NAME)) {
                     nameField.setValue(compass.getHoverName().getString());
                 }
                 else {

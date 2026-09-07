@@ -12,11 +12,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
-@SuppressWarnings("removal")
 public class ExpRewardUnlock implements CommissionUnlock{
 
     public static enum ExpType { POINTS, LEVELS };
-    private static final ResourceLocation expIcon = new ResourceLocation(BuildingJournal.MODID, "textures/gui/unlocks/exp_unlock.png");
+    private static final ResourceLocation expIcon = ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "textures/gui/unlocks/exp_unlock.png");
 
     private static Map<String, ExpType> expTypeMap = Map.of(
         "Points", ExpType.POINTS,

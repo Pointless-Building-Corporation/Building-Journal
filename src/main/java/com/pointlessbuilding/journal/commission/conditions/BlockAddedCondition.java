@@ -12,11 +12,11 @@ import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.commission.CommissionCondition;
 import com.pointlessbuilding.journal.commission.EvaluationResult;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class BlockAddedCondition implements CommissionCondition{
 
@@ -165,11 +165,11 @@ public class BlockAddedCondition implements CommissionCondition{
                         continue;
                     }
                     TagKey<Block> tagKey = TagKey.create(Registries.BLOCK, tagId);
-                    ForgeRegistries.BLOCKS.tags().getTag(tagKey).forEach(b -> jsonBlocks.add(ForgeRegistries.BLOCKS.getKey(b)));
+                    BuiltInRegistries.BLOCK.getOrCreateTag(tagKey).forEach(b -> jsonBlocks.add(BuiltInRegistries.BLOCK.getKey(b.value())));
                 }
                 else if(blockString.startsWith("regex:")) { // Regex
                     Pattern pattern = Pattern.compile(blockString.substring("regex:".length()));
-                    for (ResourceLocation blockId : ForgeRegistries.BLOCKS.getKeys()) {
+                    for (ResourceLocation blockId : BuiltInRegistries.BLOCK.keySet()) {
                         if(pattern.matcher(blockId.toString()).matches()) {
                             jsonBlocks.add(blockId);
                         }

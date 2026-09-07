@@ -1,8 +1,9 @@
 package com.pointlessbuilding.journal.network.packets;
 
 import java.time.LocalDate;
-import java.util.function.Supplier;
 
+import com.pointlessbuilding.journal.BuildingJournal;
+import com.pointlessbuilding.journal.Registration;
 import com.pointlessbuilding.journal.commission.CommissionCompleteTrigger;
 import com.pointlessbuilding.journal.commission.CommissionProgress;
 import com.pointlessbuilding.journal.commission.CommissionUnlock;
@@ -10,16 +11,20 @@ import com.pointlessbuilding.journal.event.CommissionCompletedEvent;
 import com.pointlessbuilding.journal.menu.CommissionContainer;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public class CommissionSubmitPacket {
+public class CommissionSubmitPacket implements CustomPacketPayload{
     
     private final String commissionId;
 
@@ -27,48 +32,52 @@ public class CommissionSubmitPacket {
         this.commissionId = commissionId;
     }
 
-    public void encode(FriendlyByteBuf buf) {
-        buf.writeUtf(commissionId);
+    public static final Type<CommissionSubmitPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "commission_submit_packet"));
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    public static CommissionSubmitPacket decode(FriendlyByteBuf buf) {
-        return new CommissionSubmitPacket(buf.readUtf());
+    public static final StreamCodec<RegistryFriendlyByteBuf, CommissionSubmitPacket> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.STRING_UTF8, CommissionSubmitPacket::getId,
+        CommissionSubmitPacket::new
+    );
+
+    public String getId() {
+        return commissionId;
     }
 
-    public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ServerPlayer player = ctx.get().getSender();
-        ctx.get().enqueueWork(() -> {
-            if(player == null) return;
-            if(!(player.containerMenu instanceof CommissionContainer container)) return;
-            if(!container.getId().equals(commissionId)) return;
-            if(!container.isSubmitActive()) return;
+    public static void handle(CommissionSubmitPacket packet, IPayloadContext ctx) {
+        ServerPlayer player = (ServerPlayer) ctx.player();
+        if(player == null) return;
+        if(!(player.containerMenu instanceof CommissionContainer container)) return;
+        if(!container.getId().equals(packet.commissionId)) return;
+        if(!container.isSubmitActive()) return;
 
-            boolean isDaily = commissionId.startsWith("daily_");
+        boolean isDaily = packet.commissionId.startsWith("daily_");
 
-            player.getCapability(CommissionProgress.COMMISSION_PROGRESS).ifPresent(progress -> {
-                if (isDaily) {
-                    long today = LocalDate.now().toEpochDay();
-                    if (progress.getLastCompletionDay() == today) return;
-                    progress.checkStreakExtension(today);
-                }
+        CommissionProgress progress = player.getData(Registration.COMMISSION_PROGRESS);
+        if (isDaily) {
+            long today = LocalDate.now().toEpochDay();
+            if (progress.getLastCompletionDay() == today) return;
+            progress.checkStreakExtension(today);
+        }
 
-                if (progress.isCompleted(commissionId)) return;
-                progress.markCompleted(commissionId);
+        if (progress.isCompleted(packet.commissionId)) return;
+        progress.markCompleted(packet.commissionId);
 
-                CommissionCompleteTrigger.INSTANCE.trigger(player);
+        CommissionCompleteTrigger.INSTANCE.trigger(player);
 
-                for (CommissionUnlock unlock : container.getUnlocks()) {
-                    unlock.apply(player);
-                }
+        for (CommissionUnlock unlock : container.getUnlocks()) {
+            unlock.apply(player);
+        }
 
-                player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1f, 1f);
-                player.connection.send(new ClientboundSetTitleTextPacket(Component.literal("Commission Completed!").withStyle(ChatFormatting.GREEN)));
-                MinecraftForge.EVENT_BUS.post(new CommissionCompletedEvent(player, commissionId));
+        player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1f, 1f);
+        player.connection.send(new ClientboundSetTitleTextPacket(Component.literal("Commission Completed!").withStyle(ChatFormatting.GREEN)));
+        NeoForge.EVENT_BUS.post(new CommissionCompletedEvent(player, packet.commissionId));
 
-                player.closeContainer();
-            });
-        });
-        ctx.get().setPacketHandled(true);
+        player.closeContainer();
     }
 
 }

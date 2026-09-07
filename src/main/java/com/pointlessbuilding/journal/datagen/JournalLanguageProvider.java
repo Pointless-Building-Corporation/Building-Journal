@@ -10,7 +10,7 @@ import com.pointlessbuilding.journal.items.BuildersCompass;
 import com.pointlessbuilding.journal.network.packets.JournalToastPacket;
 
 import net.minecraft.data.PackOutput;
-import net.minecraftforge.common.data.LanguageProvider;
+import net.neoforged.neoforge.common.data.LanguageProvider;
 
 public class JournalLanguageProvider extends LanguageProvider{
 
@@ -54,6 +54,7 @@ public class JournalLanguageProvider extends LanguageProvider{
         
         // Blocks and items
         add(Registration.DRAFTING_TABLE.get(), "Drafting Table");
+        add(Registration.DRAFTING_TABLE_ITEM.get(), "Drafting Table");
         add(Registration.BUILDERS_COMPASS.get(), "Builder's Compass");
         add(Registration.BLUEPRINT.get(), "Blueprint");
 

@@ -1,17 +1,13 @@
 package com.pointlessbuilding.journal.commission;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import com.pointlessbuilding.journal.items.Blueprint;
+import com.pointlessbuilding.journal.items.BlueprintData;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 
 public record EvaluationResult(
@@ -27,40 +23,27 @@ public record EvaluationResult(
     public record Box(BlockPos firstPos, BlockPos secondPos) {}
     public record BlockCounts(long added, long removed) {}
 
-    public static EvaluationResult fromTag(CompoundTag tag) {
+    public static EvaluationResult fromData(BlueprintData data) {
 
-        UUID id = tag.getUUID(Blueprint.TAG_UUID);
-        String name = tag.getString(Blueprint.TAG_NAME);
-        String dimension = tag.getString(Blueprint.TAG_DIMENSION);
-        long unionVolume = tag.getLong(Blueprint.TAG_UNION_VOLUME);
-        long modifiedCount = tag.getLong(Blueprint.TAG_MODIFIED);
+        UUID id = data.uuid();
+        String name = data.name();
+        String dimension = data.dimension();
+        long unionVolume = data.unionVolume();
+        long modifiedCount = data.modifiedCount();
 
-        List<String> biomes = new ArrayList<>();
-        ListTag biomeList = tag.getList(Blueprint.TAG_BIOME, Tag.TAG_STRING);
-        for(int i = 0; i < biomeList.size(); i++) {
-            biomes.add(biomeList.getString(i));
-        }
+        List<String> biomes = data.biomes();
 
-        List<Box> boxes = new ArrayList<>();
-        ListTag boxList = tag.getList(Blueprint.TAG_BOXES, Tag.TAG_COMPOUND);
-        for (int i = 0; i < boxList.size(); i++) {
-            CompoundTag boxTag = boxList.getCompound(i);
-            int[] first = boxTag.getIntArray("FirstPos");
-            int[] second = boxTag.getIntArray("SecondPos");
-            BlockPos firstPos = new BlockPos(first[0], first[1], first[2]);
-            BlockPos secondPos = new BlockPos(second[0], second[1], second[2]);
-            boxes.add(new Box(firstPos, secondPos));
-        }
+        List<Box> boxes = data.boxes().stream().map(boxData -> {
+            int[] first = boxData.firstPos();
+            int[] second = boxData.secondPos();
+            return new Box(new BlockPos(first[0], first[1], first[2]), new BlockPos(second[0], second[1], second[2]));
+        }).toList();
 
-        Map<ResourceLocation, BlockCounts> blockData = new HashMap<>();
-        ListTag countList = tag.getList(Blueprint.TAG_BLOCK_COUNTS, Tag.TAG_COMPOUND);
-        for (int i = 0; i < countList.size(); i++) {
-            CompoundTag countTag = countList.getCompound(i);
-            ResourceLocation blockId = ResourceLocation.tryParse(countTag.getString(Blueprint.TAG_BLOCK));
-            long added = countTag.getLong(Blueprint.TAG_ADDED);
-            long removed = countTag.getLong(Blueprint.TAG_REMOVED);
-            blockData.put(blockId, new BlockCounts(added, removed));
-        }
+        Map<ResourceLocation, BlockCounts> blockData = data.blockCounts().entrySet().stream()
+            .collect(Collectors.toMap(
+                entry -> ResourceLocation.tryParse(entry.getKey()),
+                entry -> new BlockCounts(entry.getValue()[0], entry.getValue()[1])
+            ));
 
         return new EvaluationResult(id, name, dimension, biomes, unionVolume, modifiedCount, boxes, blockData);
     }

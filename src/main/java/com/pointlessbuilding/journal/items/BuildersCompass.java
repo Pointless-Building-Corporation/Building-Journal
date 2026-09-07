@@ -1,9 +1,9 @@
 package com.pointlessbuilding.journal.items;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.pointlessbuilding.journal.BuildingJournalConfig;
 import com.pointlessbuilding.journal.Registration;
 
@@ -11,9 +11,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -24,6 +21,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.fml.loading.FMLEnvironment;
 
 public class BuildersCompass extends Item{
 
@@ -45,21 +43,20 @@ public class BuildersCompass extends Item{
         if(player.isShiftKeyDown()) {
             //Server Side
             if(!level.isClientSide) {
-                if(item.hasTag() && item.getTag().getBoolean("Active")) {
-                    item.getOrCreateTag().putBoolean("Active", false);
-                    item.getTag().remove("FirstPos");
+                CompassData data = item.getOrDefault(Registration.COMPASS_DATA.get(), CompassData.EMPTY);
+                if(data.active()) {
+                    item.set(Registration.COMPASS_DATA.get(), new CompassData(false, BlockPos.ZERO, data.storedBoxes()));
                 }
-                else {
-                    ListTag boxes = item.getOrCreateTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
-                    if(!boxes.isEmpty()) {
-                        boxes.remove(boxes.size() - 1);
-                        item.getOrCreateTag().put("StoredBoxes", boxes);
-                    }
+                else if(!data.storedBoxes().isEmpty()){
+                    List<BoundaryData> boxes = new ArrayList<>(data.storedBoxes());
+                    boxes.remove(boxes.size() - 1);
+                    item.set(Registration.COMPASS_DATA.get(), new CompassData(data.active(), data.firstPos(), boxes));
                 }
             }
             //Client Side
             if(level.isClientSide) {
-                if(item.hasTag() && item.getTag().getBoolean("Active")) {
+                CompassData data = item.getOrDefault(Registration.COMPASS_DATA.get(), CompassData.EMPTY);
+                if(data.active()) {
                     player.displayClientMessage(
                         Component.literal("Current Selection Cancelled.").withStyle(ChatFormatting.GOLD),
                         true
@@ -81,38 +78,33 @@ public class BuildersCompass extends Item{
 
         //Server Side
         if(!level.isClientSide) {
-            ListTag boxes = item.getOrCreateTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
+            CompassData data = item.getOrDefault(Registration.COMPASS_DATA.get(), CompassData.EMPTY);
+            List<BoundaryData> boxes = new ArrayList<>(data.storedBoxes());
             if(boxes.size() >= BuildingJournalConfig.MAX_BOXES.get()) { // Too many existing boxes
                 // Do nothing
             }
-            else if(!item.hasTag() || !item.getTag().getBoolean("Active")) {
-                item.getOrCreateTag().putIntArray("FirstPos", new int[]{pos.getX(), pos.getY(), pos.getZ()});
-                item.getOrCreateTag().putBoolean("Active", true);
+            else if(data.firstPos() == BlockPos.ZERO || !data.active()) {
+                item.set(Registration.COMPASS_DATA.get(), new CompassData(true, pos, data.storedBoxes()));
             }
             else {
-                int[] first = item.getTag().getIntArray("FirstPos");
-                int clampedX = first[0] + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), pos.getX()-first[0]));
-                int clampedY = first[1] + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), pos.getY()-first[1]));
-                int clampedZ = first[2] + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), pos.getZ()-first[2]));
-                int[] second = new int[]{clampedX, clampedY, clampedZ};
+                BlockPos first = data.firstPos();
+                int clampedX = first.getX() + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), pos.getX()-first.getX()));
+                int clampedY = first.getY() + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), pos.getY()-first.getY()));
+                int clampedZ = first.getZ() + Math.max(-BuildingJournalConfig.MAX_BOX_SIZE.get(), Math.min(BuildingJournalConfig.MAX_BOX_SIZE.get(), pos.getZ()-first.getZ()));
+                BlockPos second = new BlockPos(clampedX, clampedY, clampedZ);
 
                 // LOGGER.info("Created Bounding Box! At (%s,%s,%s) and (%s,%s,%s)".formatted(first[0], first[1], first[2], second[0], second[1], second[2]));
-                CompoundTag box = new CompoundTag();
-                box.putIntArray("FirstPos", first);
-                box.putIntArray("SecondPos", second);
-                box.putString("Dimension", level.dimension().location().toString());
+                BoundaryData box = new BoundaryData(first, second, level.dimension().location().toString());
 
                 boxes.add(box);
-                item.getOrCreateTag().put("StoredBoxes", boxes);
-
-                item.getOrCreateTag().putBoolean("Active", false);
-                item.getTag().remove("FirstPos");
+                item.set(Registration.COMPASS_DATA.get(), new CompassData(false, BlockPos.ZERO, boxes));
             }
         }
 
         //Client Side
         if(level.isClientSide) {
-            ListTag boxes = item.getOrCreateTag().getList("StoredBoxes", Tag.TAG_COMPOUND);
+            CompassData data = item.getOrDefault(Registration.COMPASS_DATA.get(), CompassData.EMPTY);
+            List<BoundaryData> boxes = new ArrayList<>(data.storedBoxes());
             if(boxes.size() >= BuildingJournalConfig.MAX_BOXES.get()) {
                 player.displayClientMessage(
                     Component.literal("Too Many Boundaries! Can only have "+ BuildingJournalConfig.MAX_BOXES.get() +" at a time.").withStyle(ChatFormatting.RED),
@@ -120,7 +112,7 @@ public class BuildersCompass extends Item{
                 );
                 player.playSound(Registration.COMPASS_ERROR.get(), 1.0f, 1.0f);
             }
-            else if(!item.hasTag() || !item.getTag().getBoolean("Active")) {
+            else if(data.firstPos() == BlockPos.ZERO || !data.active()) {
                 player.displayClientMessage(
                     Component.literal("First Position Set: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()).withStyle(ChatFormatting.AQUA),
                     true
@@ -140,17 +132,19 @@ public class BuildersCompass extends Item{
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag isAdvanced) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag isAdvanced) {
         Component useKey = Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage();
         Component shiftKey = Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage();
 
-        if(Screen.hasShiftDown()) {
-            tooltipComponents.add(Component.translatable(BUILDERS_COMPASS_TOOLTIP_SELECT, useKey).withStyle(ChatFormatting.AQUA));
-            tooltipComponents.add(Component.translatable(BUILDERS_COMPASS_TOOLTIP_DESELECT, shiftKey, useKey).withStyle(ChatFormatting.RED));
-        }
-        else {
-            tooltipComponents.add(Component.translatable(BUILDERS_COMPASS_TOLLTIP_HINT, shiftKey)
-                .withStyle(style -> style.withColor(ChatFormatting.DARK_GRAY).withItalic(true)));
+        if(FMLEnvironment.dist.isClient() && RenderSystem.isOnRenderThread()) {
+            if(Screen.hasShiftDown()) {
+                tooltipComponents.add(Component.translatable(BUILDERS_COMPASS_TOOLTIP_SELECT, useKey).withStyle(ChatFormatting.AQUA));
+                tooltipComponents.add(Component.translatable(BUILDERS_COMPASS_TOOLTIP_DESELECT, shiftKey, useKey).withStyle(ChatFormatting.RED));
+            }
+            else {
+                tooltipComponents.add(Component.translatable(BUILDERS_COMPASS_TOLLTIP_HINT, shiftKey)
+                    .withStyle(style -> style.withColor(ChatFormatting.DARK_GRAY).withItalic(true)));
+            }
         }
     }
 

@@ -8,7 +8,7 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.minecraftforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 public class DataGeneration {
     
@@ -24,9 +24,10 @@ public class DataGeneration {
         JournalBlockTags blockTags = new JournalBlockTags(packOutput, lookupProvider, event.getExistingFileHelper());
         generator.addProvider(event.includeServer(), blockTags);
         generator.addProvider(event.includeServer(), new JournalItemTags(packOutput, lookupProvider, blockTags, event.getExistingFileHelper()));
-        generator.addProvider(event.includeServer(), new JournalRecipes(packOutput));
+        generator.addProvider(event.includeServer(), new JournalRecipes(packOutput, lookupProvider));
         generator.addProvider(event.includeServer(), new LootTableProvider(packOutput, Collections.emptySet(),
-            List.of(new LootTableProvider.SubProviderEntry(JournalLootTables::new, LootContextParamSets.BLOCK))));
+            List.of(new LootTableProvider.SubProviderEntry(JournalLootTables::new, LootContextParamSets.BLOCK)),
+            lookupProvider));
 
     }
 

@@ -10,18 +10,16 @@ import com.pointlessbuilding.journal.gui.ConfigUI;
 import com.pointlessbuilding.journal.gui.DraftingTableUI;
 
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ConfigScreenHandler;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.common.util.Lazy;
+import net.neoforged.bus.api.SubscribeEvent;
 
-@SuppressWarnings("removal")
-@Mod.EventBusSubscriber(modid = BuildingJournal.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = BuildingJournal.MODID, value = Dist.CLIENT)
 public class ClientSetup {
 
     public static final String JOURNAL_KEYMAP_STRING = "key.buildingjournal.journal";
@@ -31,16 +29,16 @@ public class ClientSetup {
     );
 
     @SubscribeEvent
-    public static void init(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> {
-            MenuScreens.register(Registration.DRAFTING_TABLE_CONTAINER.get(), DraftingTableUI::new);
-            MenuScreens.register(Registration.COMMISSION_CONTAINER.get(), CommissionUI::new);
+    public static void registerScreens(RegisterMenuScreensEvent event) {
+        event.register(Registration.DRAFTING_TABLE_CONTAINER.get(), DraftingTableUI::new);
+        event.register(Registration.COMMISSION_CONTAINER.get(), CommissionUI::new);
+    }
 
-            ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,
-                () -> new ConfigScreenHandler.ConfigScreenFactory(
-                    (mc, screen) -> new ConfigUI(screen)
-                ));
-        });
+    public static void registerConfigScreen(ModContainer container) {
+        container.registerExtensionPoint(
+            IConfigScreenFactory.class,
+            (containerInstance, parent) -> new ConfigUI(parent)
+        );
     }
 
     @SubscribeEvent

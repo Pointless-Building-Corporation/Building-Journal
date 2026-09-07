@@ -14,7 +14,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class ConfigUI extends Screen{
 
@@ -36,9 +36,9 @@ public class ConfigUI extends Screen{
     private class ConfigSlider extends AbstractSliderButton {
 
         private int min, max;
-        protected ForgeConfigSpec.IntValue configField;
+        protected ModConfigSpec.IntValue configField;
 
-        public ConfigSlider(int x, int y, int width, int height, Component message, ForgeConfigSpec.IntValue configField, double value, int min, int max) {
+        public ConfigSlider(int x, int y, int width, int height, Component message, ModConfigSpec.IntValue configField, double value, int min, int max) {
             super(x, y, width, height, message, (value-min)/(max-min));
             this.min = min;
             this.max = max;
@@ -125,7 +125,7 @@ public class ConfigUI extends Screen{
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         // Title
         guiGraphics.drawString(this.font, Component.translatable(CONFIG_UI_TITLE), (width - this.font.width(this.title.getString())) / 2, starting_y, 0xFFFFFF);
@@ -148,8 +148,6 @@ public class ConfigUI extends Screen{
         // ShaderVariant
         guiGraphics.drawString(this.font, Component.translatable(CONFIG_UI_SHADER_VARIANT_DESC), (int)(width * 0.1), labelY(7), 0xAAAAAA);
         guiGraphics.drawString(this.font, Component.translatable(CONFIG_UI_SHADER_VARIANT), (int)(width * 0.1), labelY(8), 0xFFFFFF);
-
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override

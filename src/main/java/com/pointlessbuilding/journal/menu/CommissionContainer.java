@@ -16,15 +16,15 @@ import com.pointlessbuilding.journal.commission.CommissionState;
 import com.pointlessbuilding.journal.commission.CommissionUnlock;
 import com.pointlessbuilding.journal.commission.EvaluationResult;
 import com.pointlessbuilding.journal.items.Blueprint;
+import com.pointlessbuilding.journal.items.BlueprintData;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class CommissionContainer extends AbstractContainerMenu{
 
@@ -173,18 +173,18 @@ public class CommissionContainer extends AbstractContainerMenu{
 
     private void evaluateConditions() {
         ItemStack blueprintStack = blueprintHandler.getStackInSlot(0);
-        CompoundTag tag = blueprintStack.getTag();
+        BlueprintData data = blueprintStack.get(Registration.BLUEPRINT_DATA.get());
 
         conditionResults.clear();
         failureDescriptions.clear();
 
-        if(tag == null) {
+        if(data == null) {
             return;
         }
 
         EvaluationResult result;
         try {
-            result = EvaluationResult.fromTag(tag);
+            result = EvaluationResult.fromData(data);
         }
         catch (Exception e) {
             BuildingJournal.LOGGER.error("Error parsing blueprint: {}", e);

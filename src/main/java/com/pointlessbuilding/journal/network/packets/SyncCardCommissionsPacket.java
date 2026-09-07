@@ -1,19 +1,21 @@
 package com.pointlessbuilding.journal.network.packets;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
+import com.pointlessbuilding.journal.BuildingJournal;
 import com.pointlessbuilding.journal.client.ClientCommonEvents;
 import com.pointlessbuilding.journal.commission.CommissionCardData;
-import com.pointlessbuilding.journal.commission.CommissionState;
 import com.pointlessbuilding.journal.gui.JournalUI;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public class SyncCardCommissionsPacket {
+public class SyncCardCommissionsPacket implements CustomPacketPayload{
     
     private final List<CommissionCardData> cards;
     private final long nextResetEpochMillis;
@@ -29,46 +31,50 @@ public class SyncCardCommissionsPacket {
         this.completionCount = completionCount;
     }
 
-    public void encode(FriendlyByteBuf buf) {
-        buf.writeInt(cards.size());
-        for(CommissionCardData card : cards) {
-            buf.writeUtf(card.id());
-            buf.writeUtf(card.title());
-            buf.writeEnum(card.state());
-        }
-        buf.writeLong(nextResetEpochMillis);
-        buf.writeInt(currentStreak);
-        buf.writeInt(maxStreak);
-        buf.writeInt(completionCount);
+    public static final Type<SyncCardCommissionsPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingJournal.MODID, "sync_card_commissions_packet"));
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    public static SyncCardCommissionsPacket decode(FriendlyByteBuf buf) {
-        int count = buf.readInt();
-        List<CommissionCardData> cards = new ArrayList<>();
-        for(int i = 0; i < count; i++) {
-            String id = buf.readUtf();
-            String title = buf.readUtf();
-            CommissionState state = buf.readEnum(CommissionState.class);
-            cards.add(new CommissionCardData(id, title, state));
-        }
-        long nextResetEpochMillis = buf.readLong();
-        int currentStreak = buf.readInt();
-        int maxStreak = buf.readInt();
-        int completionCount = buf.readInt();
-        return new SyncCardCommissionsPacket(cards, nextResetEpochMillis, currentStreak, maxStreak, completionCount);
+    public static final StreamCodec<RegistryFriendlyByteBuf, SyncCardCommissionsPacket> STREAM_CODEC = StreamCodec.composite(
+        CommissionCardData.STREAM_CODEC.apply(ByteBufCodecs.list()), SyncCardCommissionsPacket::getCards,
+        ByteBufCodecs.VAR_LONG, SyncCardCommissionsPacket::getNextRestEpochMillis,
+        ByteBufCodecs.VAR_INT, SyncCardCommissionsPacket::getCurStreak,
+        ByteBufCodecs.VAR_INT, SyncCardCommissionsPacket::getMaxStreak,
+        ByteBufCodecs.VAR_INT, SyncCardCommissionsPacket::getCompletionCount,
+        SyncCardCommissionsPacket::new
+    );
+
+    public List<CommissionCardData> getCards() {
+        return cards;
     }
 
-    public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ClientCommonEvents.updateCards(this.cards);
-            ClientCommonEvents.updateNextResetTime(this.nextResetEpochMillis);
-            ClientCommonEvents.updateStats(currentStreak, maxStreak, completionCount);
+    public long getNextRestEpochMillis() {
+        return nextResetEpochMillis;
+    }
 
-            if(Minecraft.getInstance().screen instanceof JournalUI ui) {
-                ui.refreshCards();
-            }
-        });
-        ctx.get().setPacketHandled(true);
+    public int getCurStreak() {
+        return currentStreak;
+    }
+
+    public int getMaxStreak() {
+        return maxStreak;
+    }
+
+    public int getCompletionCount() {
+        return completionCount;
+    }
+
+    public static void handle(SyncCardCommissionsPacket packet, IPayloadContext ctx) {
+        ClientCommonEvents.updateCards(packet.cards);
+        ClientCommonEvents.updateNextResetTime(packet.nextResetEpochMillis);
+        ClientCommonEvents.updateStats(packet.currentStreak, packet.maxStreak, packet.completionCount);
+
+        if(Minecraft.getInstance().screen instanceof JournalUI ui) {
+            ui.refreshCards();
+        }
     }
 
 }

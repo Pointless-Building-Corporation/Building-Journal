@@ -7,10 +7,10 @@ import com.pointlessbuilding.journal.commission.CommissionUnlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class BlockRewardUnlock implements CommissionUnlock{
 
@@ -26,7 +26,7 @@ public class BlockRewardUnlock implements CommissionUnlock{
 
     @Override
     public void apply(ServerPlayer player) {
-        ItemStack stack = new ItemStack(ForgeRegistries.ITEMS.getValue(blockId), blockCount);
+        ItemStack stack = new ItemStack(BuiltInRegistries.BLOCK.get(blockId), blockCount);
         boolean added = player.getInventory().add(stack);
         if(!added || !stack.isEmpty()) player.drop(stack, false);
     }
@@ -46,7 +46,7 @@ public class BlockRewardUnlock implements CommissionUnlock{
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(x, y, 0);
         guiGraphics.pose().scale(itemScale, itemScale, 1f);
-        guiGraphics.renderItem(new ItemStack(ForgeRegistries.ITEMS.getValue(blockId)), 0, 0);
+        guiGraphics.renderItem(new ItemStack(BuiltInRegistries.ITEM.get(blockId)), 0, 0);
         guiGraphics.pose().popPose();
 
         Font font = Minecraft.getInstance().font;

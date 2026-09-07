@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +24,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.pointlessbuilding.journal.BuildingJournal;
+import com.pointlessbuilding.journal.Registration;
 import com.pointlessbuilding.journal.api.BuildingJournalAPI;
 import com.pointlessbuilding.journal.commission.conditions.BiomeCondition;
 import com.pointlessbuilding.journal.commission.conditions.BlockAddedCondition;
@@ -48,8 +48,7 @@ import com.pointlessbuilding.journal.network.packets.SyncCardThumbnailPacket;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
-import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.fml.loading.FMLPaths;
 
 public class CommissionLoader {
 
@@ -315,10 +314,7 @@ public class CommissionLoader {
 
         refreshDailyCommission(player);
 
-        Set<String> completed = player.getCapability(CommissionProgress.COMMISSION_PROGRESS)
-            .resolve()
-            .map(ICommissionProgress::getCompletedCommissions)
-            .orElse(Collections.emptySet());
+        Set<String> completed = player.getData(Registration.COMMISSION_PROGRESS).getCompletedCommissions();
 
         List<CommissionCardData> cardCommissions = new ArrayList<>();
 
@@ -336,11 +332,9 @@ public class CommissionLoader {
         long nextResetEpochMillis = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
         long epochDay = LocalDate.now().toEpochDay();
 
-        int currentStreak = player.getCapability(CommissionProgress.COMMISSION_PROGRESS)
-            .map(progress -> progress.getCurrentStreak(epochDay))
-            .orElse(0);
-        int maxStreak = player.getCapability(CommissionProgress.COMMISSION_PROGRESS).map(ICommissionProgress::getMaxStreak).orElse(0);
-        int completionCount = player.getCapability(CommissionProgress.COMMISSION_PROGRESS).map(ICommissionProgress::getCompletionCount).orElse(0);
+        int currentStreak = player.getData(Registration.COMMISSION_PROGRESS).getCurrentStreak(epochDay);
+        int maxStreak = player.getData(Registration.COMMISSION_PROGRESS).getMaxStreak();
+        int completionCount = player.getData(Registration.COMMISSION_PROGRESS).getCompletionCount();
 
         Network.sendToClient(new SyncCardCommissionsPacket(cardCommissions, nextResetEpochMillis, currentStreak, maxStreak, completionCount), player);
     }
@@ -363,10 +357,7 @@ public class CommissionLoader {
             }
         }
 
-        Set<String> completed = player.getCapability(CommissionProgress.COMMISSION_PROGRESS)
-            .resolve()
-            .map(ICommissionProgress::getCompletedCommissions)
-            .orElse(Collections.emptySet());
+        Set<String> completed = player.getData(Registration.COMMISSION_PROGRESS).getCompletedCommissions();
 
         CommissionState state;
         if(loadedDaily.getId().equals(commissionId)) state = fetchCommissionState(completed, commissionId, new ArrayList<>());
@@ -379,7 +370,7 @@ public class CommissionLoader {
         String conditionsJson = CommissionLoader.getRawConditionsJson(commissionId);
         String unlocksJson = CommissionLoader.getRawUnlocksJson(commissionId);
 
-        NetworkHooks.openScreen(player, new SimpleMenuProvider(
+        player.openMenu(new SimpleMenuProvider(
             (windowId, inv, p) -> new CommissionContainer(windowId, inv.player, commissionId, title, state, conditionsJson, unlocksJson, commissionPage), Component.literal(title)),
             buf -> {
                 buf.writeUtf(commissionId);
